@@ -15,11 +15,14 @@ static char const * const Version = "Plus42 Image Manager, Version " VerNum " " 
 
 #include "resource.h"
 #include "common.h"
-#include "commonw.h"
+// #include "commonw.h"
 #include "header.h"
 #include "statbar.h"
 #include "winmsgs.h"
 #include "lode_png.h"
+
+//lint -esym(715, lParam)
+//lint -esym(818, szCmdLine, hPrevInstance)  could be declared as pointing to const
 
 // static char szAppName[] = "pimage_mgr";
 
@@ -30,20 +33,21 @@ static char const * const Version = "Plus42 Image Manager, Version " VerNum " " 
 //***********************************************************************
 HINSTANCE g_hinst = 0;
 
-HWND hwndMain ;
+static HWND hwndMain ;
 
-uint dbg_flags = 0
+//lint -esym(843, dbg_flags)  could be declared as const
+
+//lint -esym(714, status_message)
+//lint -esym(765, status_message)
+static uint dbg_flags = 0
    // | DBG_WINMSGS
    ;
 
-uint cxClient = 0 ;
-uint cyClient = 0 ;
+static uint cxClient = 0 ;
+static uint cyClient = 0 ;
 
 static CStatusBar *MainStatusBar = NULL;
 // static HWND hToolTip ;  /* Tooltip handle */
-
-static bool redraw_in_progress = false ;
-bool prog_init_done = false ;
 
 //***********************************************************************
 // LodePng pngSprites("tiles32.png", SPRITE_HEIGHT, SPRITE_WIDTH) ;
@@ -178,22 +182,21 @@ static LRESULT CALLBACK TermProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lP
    //  04/16/14 - unfortunately, I cannot use WM_SIZE, nor any other message, to draw my graphics,
    //  because some other message occurs later and over-writes my work...
    //***********************************************************************************************
-   case WM_SIZE:
-      if (wParam == SIZE_RESTORED) {
-         // syslog("WM_SIZE\n") ;
-         redraw_in_progress = true ;
-      } 
+   // case WM_SIZE:
+   //    if (wParam == SIZE_RESTORED) {
+   //       // syslog("WM_SIZE\n") ;
+   //       redraw_in_progress = true ;
+   //    } 
       //********************************************************************************************
       //  The last operations in the dialog redraw, are subclassed WM_CTLCOLORSTATIC messages.
       //  So, to determine when it is all done, I need to somehow recognize when these are done,
       //  and then update our graphics objects.
       //********************************************************************************************
-      return TRUE;
+   //    return TRUE;
 
    //  this occurs during program startup
    case WM_ERASEBKGND:
       // syslog("WM_ERASEBKGND\n") ;
-      redraw_in_progress = true ;
       break;
 
    case WM_COMMAND:

@@ -12,6 +12,7 @@
 #include "lodepng.h"
 
 //lint -esym(1762, LodePng::encodeBMP, LodePng::ConvertDibToHBitmap)
+//lint -e1087  Previous declaration of '__gnu_cxx::__is_signed' (line 72) is
 
 //*************************************************************************************
 //  this function is from example_png2bmp.cpp in the LodePNG example files.

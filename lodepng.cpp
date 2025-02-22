@@ -38,15 +38,22 @@ Rename this file to lodepng.cpp to use it for C++, or to lodepng.c to use it for
 #include <fcntl.h>
 #endif
 
-#ifdef _lint
-extern unsigned strlen(const char *STR);
-#endif
+// #ifdef _lint
+// extern unsigned strlen(const char *STR);
+// #endif
+//lint -esym(843, lodepng_crc32_table)  could be declared as const
 
 // using namespace std;
 #include <vector>
 #include <string>
 
 #include "lodepng.h"
+
+//lint -e818  Pointer parameter could be declared as pointing to const
+//lint -e838  Previously assigned value to variable 'error' has not been used
+
+//lint -e1066 Symbol declared as "C" conflicts with line ... file ...
+//lint -e1773 Attempt to cast away const (or volatile)
 
 //  there are *tons* of lint warnings in this file, but I *really* don't
 //  want to start hacking a 6500 line file that I don't entirely understand...
