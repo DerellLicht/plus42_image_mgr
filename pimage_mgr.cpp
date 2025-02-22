@@ -34,6 +34,7 @@ static char const * const Version = "Plus42 Image Manager, Version " VerNum " " 
 HINSTANCE g_hinst = 0;
 
 static HWND hwndMain ;
+static HMENU hMainMenu = NULL ;
 
 //lint -esym(843, dbg_flags)  could be declared as const
 
@@ -100,6 +101,14 @@ static void center_window(void)
 }
 
 //***********************************************************************
+static void setup_main_menu(HWND hwnd)
+{
+   hMainMenu = LoadMenu(g_hinst, MAKEINTRESOURCE(IDM_MAINMENU));
+   SetMenu(hwnd, hMainMenu);
+   // update_summary_options_menu() ;   //  initial setup
+}
+
+//***********************************************************************
 static void do_init_dialog(HWND hwnd)
 {
    char msgstr[81] ;
@@ -112,6 +121,7 @@ static void do_init_dialog(HWND hwnd)
 
    hwndMain = hwnd ;
 
+   setup_main_menu(hwnd) ;
    // set_up_working_spaces(hwnd) ; //  do this *before* tooltips !!
    //***************************************************************************
    //  add tooltips and bitmaps

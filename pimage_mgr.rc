@@ -65,7 +65,7 @@ IDI_PLUS42IM       ICON    "Plus42im.ico"
 //*******************************************************************
 //  main menu, derived from Petzold5:MenuDemo
 //*******************************************************************
-IDM_MENUMAIN MENU DISCARDABLE 
+IDM_MAINMENU MENU DISCARDABLE 
 BEGIN
     POPUP " Operations "
     BEGIN
