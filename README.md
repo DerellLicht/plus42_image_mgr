@@ -19,6 +19,6 @@ The sequence of operations will be thus:
 2. Let program generate a new .layout file for the new skin
    
 ### Caveats
-> Initially, development will take place using .png image files, not .gif.
+> Initially, development will take place using .png image files, not .gif.  
   This is because I'm more familiar with the former format than the latter.
   
