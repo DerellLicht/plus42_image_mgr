@@ -104,7 +104,7 @@ END
 //*********************************************************************************************
 IDD_ABOUT DIALOG DISCARDABLE  400, 400, 220, 110
 // STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
-CAPTION "About WBigCalc"
+CAPTION "About Plus42 Image Manager"
 // FONT 8, "MS Sans Serif"
 FONT 10, "Times New Roman"
 BEGIN
@@ -113,7 +113,7 @@ BEGIN
     LTEXT           VerNum,                                     IDC_VERNUM,  120, 15,  50, 10
     LTEXT           "Copyright (c) 2025 ",                       IDC_STATIC,  36, 36,  60, 10
     LTEXT           "Derell Licht",                             IDC_STATIC,  100, 36, 100, 10
-    LTEXT           "http://derelllicht.42web.io/wbigcalc.html", IDC_WEBLINK,        36, 56, 180, 10
+    LTEXT           "http://derelllicht.42web.io/pimage_mgr.html", IDC_WEBLINK,        36, 56, 180, 10
     LTEXT           "https://github.com/DerellLicht/plus42_image_mgr", IDC_WEBLINK2, 36, 66, 180, 10
     DEFPUSHBUTTON   "Close",                                    IDOK,         36, 84, 100, 14
 END
@@ -145,7 +145,7 @@ BEGIN
             VALUE "FileDescription", "pimage_mgr"
             VALUE "FileVersion", VerNum
             VALUE "InternalName", "Plus42 Image Manager"
-            VALUE "LegalCopyright", "Copyright © 2025"
+            VALUE "LegalCopyright", "Copyright © 2025 Derell Licht"
             VALUE "OriginalFilename", "pimage_mgr.exe"
             VALUE "ProductName", "Plus42 Image Manager"
             VALUE "ProductVersion", VerNum
