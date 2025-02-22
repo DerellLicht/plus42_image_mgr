@@ -51,7 +51,7 @@ clean:
 
 dist:
 	rm -f *.zip
-	zip $(BASE).zip $(BIN)
+	zip $(BASE).zip $(BIN) README.md
 
 wc:
 	wc -l *.cpp *.rc

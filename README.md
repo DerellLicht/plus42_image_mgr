@@ -1,7 +1,7 @@
 ##  Plus42 Image Manager
 
-The ultimate goal of this utility is to support creating new Plus42 skins.
-The sequence of operations is thus:
+The ultimate goal of this utility is to support creation of new Plus42 skins.
+The sequence of operations will be thus:
 
 <ins>**data extraction**</ins>
 1. read/display skin_name.gif
