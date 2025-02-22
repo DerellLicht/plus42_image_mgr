@@ -1,0 +1,120 @@
+//****************************************************************************
+//  Reference: http://www.autohotkey.com/docs/misc/Styles.htm
+//****************************************************************************
+//  Interesting notes about this file:
+//
+//  > SS_NOTIFY and "Static" controls  (LTEXT and CTEXT)
+//    If SS_NOTIFY is not specified in the control styles,
+//    you cannot attach tooltips to the control.
+//
+//*********************************************************************************************************
+// DS_3DLOOK
+//     Gives the dialog box a non-bold font and draws three-dimensional borders 
+//     around control windows in the dialog box.
+//     The DS_3DLOOK style is required only by Microsoft Win32®-based applications compiled 
+//     for system versions earlier than Windows 95 or Windows NT® 4.0. 
+//     The system automatically applies the three-dimensional look to dialog boxes created by 
+//     applications compiled for current versions of the system.
+//*********************************************************************************************************
+// What's the deal with the DS_SHELLFONT flag?
+// 
+// It indicates that you want the Windows 2000 default shell font. 
+// But that doesn't mean that you're going to get it.
+// 
+// In order to indicate that you would like the "Windows 2000" look for your 
+// dialog, you have to do three things and hope for a fourth:
+// 
+// > Use a DIALOGEX template instead of a DIALOG template.
+// > Set the DS_SHELLFONT flag in your dialog styles.
+// > Set the dialog font to "MS Shell Dlg".
+// > Hope that you're running on Windows 2000 or later on a system that has the
+//   new Windows 2000 dialog font enabled. 
+// 
+// If all four conditions are satisfied, then your dialog gets the "Windows 2000"
+// look. If any condition fails, then you get the "classic" dialog font. 
+//*********************************************************************************************************
+// 04/26/13 12:45  On Win7, WS_DLGFRAME and WS_CAPTION seem to create identical dialogs !
+// > WS_DLGFRAME  Creates a window with a double border but no title.
+// > WS_BORDER    Creates a window that has a border.
+// > WS_CAPTION   Creates a window that has a title bar (implies the WS_BORDER style). 
+//                Cannot be used with the WS_DLGFRAME style.
+// > WS_SYSMENU   Among other things, adds the CLOSE button on title bar
+//                WS_SYSMENU also needed in order to show program icon on title bar
+//*********************************************************************************************************
+//  WS_THICKFRAME   Creates a window with a thick frame that can be used to size the window.
+//  04/26/13 - initially, one of these other flags was over-riding WS_THICKFRAME
+//*********************************************************************************************************
+#include <windows.h>
+#include "resource.h"
+#include "version.h"
+
+IDI_PLUS42IM       ICON    "Plus42im.ico"
+
+//***************************************************************
+//  Note:  all dialog-box dimensions which are specified
+//  in resource files are off by a factor of two.
+//  Yes, this is intentional on Microsoft's part;
+//  the purpose is to confound programmers who are developing
+//  Windows apps for the first time.
+//  Once the application is running, dimensions work normally!!
+//  See GetDialogBaseUnits() and "DIALOG CONTROL" in MSDN
+//***************************************************************
+#define FONT_HEIGHT     10
+#define STR_WIDTH       60
+
+//*******************************************************************
+//  main menu, derived from Petzold5:MenuDemo
+//*******************************************************************
+IDM_MENUMAIN MENU DISCARDABLE 
+BEGIN
+    POPUP " Operations "
+    BEGIN
+      MENUITEM "Do Something 1",    IDM_ITEM1
+      MENUITEM "Do Something 2",    IDM_ITEM2
+      MENUITEM SEPARATOR
+      MENUITEM "Close Program",     IDM_CLOSE
+    END
+    // MENUITEM " Show/Hide Terminal ",        IDB_TERM_ON
+    POPUP "Help"
+    BEGIN
+        MENUITEM "Help...",         IDM_HELP
+        MENUITEM "About...",        IDD_ABOUT
+    END
+END
+
+//*******************************************************************
+
+#define  DXB      40
+// IDD_MAIN_DIALOG DIALOG DISCARDABLE  160, 40, 350, 370
+IDD_MAIN_DIALOG DIALOGEX  160, 40, 350, 370
+STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX
+// EXSTYLE WS_EX_CONTROLPARENT
+CAPTION "Plus42 Image Manager"
+FONT 10, "Times New Roman"
+BEGIN
+   PUSHBUTTON      "Options", IDB_OPTIONS, 20,  5, DXB,  12
+   PUSHBUTTON      "Help",    IDM_HELP,    20+DXB+10,  5, DXB,  12
+   PUSHBUTTON      "About",   IDD_ABOUT,   20+DXB+10+DXB+10,  5, DXB,  12
+
+   // LTEXT           " ",       IDC_MAP_AREA, 2, 1, 200, 200, 0, WS_EX_STATICEDGE
+   LTEXT           " ",       IDC_IMG_AREA, 2, 20, 200, 200, 0, WS_EX_CLIENTEDGE
+   // LTEXT           " ",       IDC_MAP_AREA, 3, 3, 200, 200, WS_EX_CLIENTEDGE  //  doesn't draw
+END
+
+//*********************************************************************************************
+IDD_ABOUT DIALOG DISCARDABLE  400, 400, 220, 110
+// STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "About WBigCalc"
+// FONT 8, "MS Sans Serif"
+FONT 10, "Times New Roman"
+BEGIN
+    ICON            IDI_PLUS42IM,                               IDC_STATIC,    9, 14
+    LTEXT           "Plus42 Image Manager",                     IDC_STATIC,   36, 15,  80, 18
+    LTEXT           VerNum,                                     IDC_VERNUM,  120, 15,  50, 10
+    LTEXT           "Copyright (c) 2025",                       IDC_STATIC,   36, 36, 100, 10
+    LTEXT           "Derell Licht",                             IDC_STATIC,   36, 46, 100, 10
+    LTEXT           "http://derelllicht.42web.io/wbigcalc.html", IDC_WEBLINK,        36, 56, 180, 10
+    LTEXT           "https://github.com/DerellLicht/plus42_image_mgr", IDC_WEBLINK2, 36, 66, 180, 10
+    DEFPUSHBUTTON   "Close",                                    IDOK,         36, 84, 100, 14
+END
+
