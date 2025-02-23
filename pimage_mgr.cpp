@@ -52,6 +52,8 @@ static CStatusBar *MainStatusBar = NULL;
 // static HWND hToolTip ;  /* Tooltip handle */
 
 static TCHAR layout_file[MAX_PATH_LEN] = _T("skin.layout") ;
+static TCHAR skin_name[MAX_PATH_LEN] = _T("") ;
+static TCHAR image_file[MAX_PATH_LEN] = _T("") ;
 
 //***********************************************************************
 // LodePng pngSprites("tiles32.png", SPRITE_HEIGHT, SPRITE_WIDTH) ;
@@ -235,13 +237,35 @@ static LRESULT CALLBACK TermProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lP
             {  // create local context
             _tcscpy(layout_file, _T("skin.layout")) ;
             if (select_file(hwnd, layout_file, "layout")) {
-               sprintf(msgstr, "%s", layout_file) ;
+               TCHAR *p = _tcsrchr(layout_file, _T('\\'));
+               if (p == NULL) {
+                  goto error_path;
+               }
+               p++ ;
+               _tcscpy(skin_name, p);
+               p = _tcschr(skin_name, _T('.'));
+               if (p == NULL) {
+                  goto error_path;
+               }
+               *p = 0 ;
+               sprintf(msgstr, " %s", skin_name) ;
                SetWindowText(GetDlgItem(hwnd, IDC_SKIN_NAME), msgstr) ;
+               
+               //  generate image filename
+               _tcscpy(image_file, layout_file);
+               p = _tcschr(image_file, _T('.'));
+               if (p == NULL) {
+                  goto error_path;
+               }
+               strcpy(p, _T(".png"));
+               status_message(image_file);
                // result = read_command_file(command_filename);
                // if (result != 0) {
                //    syslog("%s: %s", command_filename, get_system_message(result)) ;
                // }
             } else {
+error_path:
+               layout_file[0] = 0 ; //  make layout filename invalid
                sprintf(msgstr, "select_file: %s", get_system_message()) ;
                status_message(msgstr) ;
             }
