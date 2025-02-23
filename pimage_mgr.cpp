@@ -12,10 +12,11 @@ static char const * const Version = "Plus42 Image Manager, Version " VerNum " " 
 #define  _WIN32_WINNT   0x0501
 #include <windows.h>
 #include <stdio.h>   //  vsprintf, sprintf, which supports %f
+#include <tchar.h>
 
 #include "resource.h"
 #include "common.h"
-// #include "commonw.h"
+#include "commonw.h"
 #include "header.h"
 #include "statbar.h"
 #include "winmsgs.h"
@@ -49,6 +50,8 @@ static uint cyClient = 0 ;
 
 static CStatusBar *MainStatusBar = NULL;
 // static HWND hToolTip ;  /* Tooltip handle */
+
+static TCHAR layout_file[MAX_PATH_LEN] = _T("skin.layout") ;
 
 //***********************************************************************
 // LodePng pngSprites("tiles32.png", SPRITE_HEIGHT, SPRITE_WIDTH) ;
@@ -111,8 +114,8 @@ static void setup_main_menu(HWND hwnd)
 //***********************************************************************
 static void do_init_dialog(HWND hwnd)
 {
-   char msgstr[81] ;
    // hwndTopLevel = hwnd ;   //  do I need this?
+   char msgstr[81] ;
    wsprintfA(msgstr, "%s", Version) ;
    SetWindowTextA(hwnd, msgstr) ;
 
@@ -155,6 +158,8 @@ static void do_init_dialog(HWND hwnd)
 //***********************************************************************
 static LRESULT CALLBACK TermProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 {
+   char msgstr[81] ;
+   
    //***************************************************
    //  debug: log all windows messages
    //***************************************************
@@ -225,6 +230,23 @@ static LRESULT CALLBACK TermProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lP
             
          case IDM_HELP:
             break;
+            
+         case IDB_SKIN_SELECT:
+            {  // create local context
+            _tcscpy(layout_file, _T("skin.layout")) ;
+            if (select_file(hwnd, layout_file, "layout")) {
+               sprintf(msgstr, "%s", layout_file) ;
+               SetWindowText(GetDlgItem(hwnd, IDC_SKIN_NAME), msgstr) ;
+               // result = read_command_file(command_filename);
+               // if (result != 0) {
+               //    syslog("%s: %s", command_filename, get_system_message(result)) ;
+               // }
+            } else {
+               sprintf(msgstr, "select_file: %s", get_system_message()) ;
+               status_message(msgstr) ;
+            }
+            }  // end local context
+            return 0 ;
             
          case IDD_ABOUT : CmdAbout(hwnd); break ;
          

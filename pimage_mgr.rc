@@ -69,7 +69,7 @@ IDM_MAINMENU MENU DISCARDABLE
 BEGIN
     POPUP " Operations "
     BEGIN
-      MENUITEM "Do Something 1",    IDM_ITEM1
+      MENUITEM "Open skin files",   IDM_OPEN_SKIN
       MENUITEM "Do Something 2",    IDM_ITEM2
       MENUITEM SEPARATOR
       MENUITEM "Close Program",     IDM_CLOSE
@@ -86,18 +86,19 @@ END
 
 #define  DXB      40
 // IDD_MAIN_DIALOG DIALOG DISCARDABLE  160, 40, 350, 370
-IDD_MAIN_DIALOG DIALOGEX  160, 40, 350, 370
+IDD_MAIN_DIALOG DIALOGEX  160, 40, 350, 150
 STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX
 // EXSTYLE WS_EX_CONTROLPARENT
 CAPTION "Plus42 Image Manager"
 FONT 10, "Times New Roman"
 BEGIN
-   PUSHBUTTON      "Options", IDB_OPTIONS, 20,  5, DXB,  12
-   PUSHBUTTON      "Help",    IDM_HELP,    20+DXB+10,  5, DXB,  12
-   PUSHBUTTON      "About",   IDD_ABOUT,   20+DXB+10+DXB+10,  5, DXB,  12
+   LTEXT           "Base skin name",  IDS_SKIN_NAME,   20,   5,  50,  10
+   LTEXT           " ",               IDC_SKIN_NAME,   72,   5, 200,  10, SS_SUNKEN
+   PUSHBUTTON      "...",             IDB_SKIN_SELECT, 275,  5,  20,  10
+   PUSHBUTTON      "Open",            IDB_SKIN_OPEN,   300,  5, DXB,  10
 
    // LTEXT           " ",       IDC_MAP_AREA, 2, 1, 200, 200, 0, WS_EX_STATICEDGE
-   LTEXT           " ",       IDC_IMG_AREA, 2, 20, 200, 200, 0, WS_EX_CLIENTEDGE
+   // LTEXT           " ",       IDC_IMG_AREA, 2, 20, 200, 200, 0, WS_EX_CLIENTEDGE
    // LTEXT           " ",       IDC_MAP_AREA, 3, 3, 200, 200, WS_EX_CLIENTEDGE  //  doesn't draw
 END
 
@@ -111,9 +112,9 @@ BEGIN
     ICON            IDI_PLUS42IM,                               IDC_STATIC,    9, 14
     LTEXT           "Plus42 Image Manager",                     IDC_STATIC,   36, 15,  80, 18
     LTEXT           VerNum,                                     IDC_VERNUM,  120, 15,  50, 10
-    LTEXT           "Copyright (c) 2025 ",                       IDC_STATIC,  36, 36,  60, 10
+    LTEXT           "Copyright (c) 2025 ",                      IDC_STATIC,  36, 36,  60, 10
     LTEXT           "Derell Licht",                             IDC_STATIC,  100, 36, 100, 10
-    LTEXT           "http://derelllicht.42web.io/pimage_mgr.html", IDC_WEBLINK,        36, 56, 180, 10
+    LTEXT           "http://derelllicht.42web.io/pimage_mgr.html",     IDC_WEBLINK,  36, 56, 180, 10
     LTEXT           "https://github.com/DerellLicht/plus42_image_mgr", IDC_WEBLINK2, 36, 66, 180, 10
     DEFPUSHBUTTON   "Close",                                    IDOK,         36, 84, 100, 14
 END

@@ -16,14 +16,14 @@
 //    
 //***********************************************************************
 
-#define  IDC_STATIC              65535
+#define  IDC_STATIC        65535
 
 #define  IDI_PLUS42IM      300
 #define  IDD_MAIN_DIALOG   301
 #define  IDM_MAINMENU      302
 #define  IDD_ABOUT         303
 
-#define  IDM_ITEM1         400
+#define  IDM_OPEN_SKIN     400
 #define  IDM_ITEM2         401
 #define  IDM_CLOSE         402
 #define  IDM_HELP          403
@@ -31,6 +31,10 @@
 #define  IDC_IMG_AREA      500
 
 #define  IDB_OPTIONS       601
+#define  IDS_SKIN_NAME     602
+#define  IDC_SKIN_NAME     603
+#define  IDB_SKIN_OPEN     604
+#define  IDB_SKIN_SELECT   605
 
 //  about.cpp constants
 #define  IDC_VERNUM        701
