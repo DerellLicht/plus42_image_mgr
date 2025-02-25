@@ -270,56 +270,6 @@ LRESULT CALLBACK WndProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
    return DefWindowProc (hwnd, iMsg, wParam, lParam) ;
 }
 
-//**************************************************************************
-//  generate random number between 0 and n-1
-//**************************************************************************
-// In Numerical Recipes in C: The Art of Scientific Computing (William H. 
-// Press, Brian P. Flannery, Saul A. Teukolsky, William T. Vetterling;
-// New York: Cambridge University Press, 1990 (1st ed, p. 207)),      
-// the following comments are made:                                   
-//                                                                    
-// "If you want to generate a random integer between 1 and 10,        
-// you should always do it by                                         
-//                                                                    
-//    j=1+(int) (10.0*rand()/(RAND_MAX+1.0));                         
-//                                                                    
-// and never by anything resembling                                   
-//                                                                    
-//    j=1+((int) (1000000.0*rand()) % 10);                            
-//                                                                    
-// (which uses lower-order bits)."                                    
-//**************************************************************************
-int random_int(int n)
-{
-   //  turn random number into a floating-point percentage
-   double d = (double) rand() / (RAND_MAX + 1.0) ;
-   //  then calculate result as that random percentage of the target value
-   return (int) (n * d) ;
-}
-
-//**************************************************************************
-//  turn random number into a floating-point percentage
-//**************************************************************************
-double random_part(void)
-{
-   return (double) rand() / (RAND_MAX + 1.0) ;
-}
-
-//*****************************************************************
-//  RAINBOWV.CPP:  A rainbow simulator.                            
-//*****************************************************************
-
-unsigned rainbow_index[6] = { 
-   0x000000AA,       //  red     
-   RGB(255,165,0),   //  orange  
-   0x0055FFFF,       //  yellow  
-   0x0000AA00,       //  green   
-   0x00AA0000,       //  blue    
-   0x00AA00AA        //  violet  
-} ;
-const double RADS2DEGS = (180.0 / 3.14159) ;
-double X, Y, B ;
-
 /************************************************************************/
 #undef  USE_PIXEL_OR
 // #define  USE_PIXEL_OR
@@ -453,31 +403,10 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance,
    ShowWindow (hwnd, iCmdShow) ;
    UpdateWindow (hwnd) ;
 
-#ifdef CONTINUOUS_REDRAW
-   //  this loop repeatedly redraws the current screen,
-   //  any time there is no message on the queue.
-   //  It utilizes 100% of CPU time!!
-   //  If continuous redraw is not required,
-   //  use the GetMessage() loop below, instead.
-   while (TRUE) {
-      if (PeekMessage (&msg, NULL, 0, 0, PM_REMOVE)) {
-         if (msg.message == WM_QUIT)
-              break ;
-   
-         TranslateMessage (&msg) ;
-         DispatchMessage (&msg) ;
-      }
-      else {
-         display_current_operation(hwnd) ;
-      }
-   }
-#else
    while (GetMessage (&msg, NULL, 0, 0)) {
       TranslateMessage (&msg) ;
       DispatchMessage (&msg) ;
    }
-#endif
-
    return msg.wParam ;
 }
 
