@@ -3,8 +3,6 @@
 The ultimate goal of this utility is to support creation of new Plus42 skins.  
 The sequence of operations will be thus:
 
-## NOTE: at this time, this project is suspended, and will likely not be resumed.
-
 <ins>**data extraction**</ins>
 1. read/display skin_name.gif
 2. read skin_name.layout, and build a list of key, annunciator, and AltBkgd fields for the skin
