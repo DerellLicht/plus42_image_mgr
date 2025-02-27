@@ -44,16 +44,15 @@ Rename this file to lodepng.cpp to use it for C++, or to lodepng.c to use it for
 //lint -esym(843, lodepng_crc32_table)  could be declared as const
 
 // using namespace std;
-#include <vector>
-#include <string>
+
+//  included in header file
+// #include <vector>
+// #include <string>
 
 #include "lodepng.h"
 
 //lint -e818  Pointer parameter could be declared as pointing to const
 //lint -e838  Previously assigned value to variable 'error' has not been used
-
-//lint -e1066 Symbol declared as "C" conflicts with line ... file ...
-//lint -e1773 Attempt to cast away const (or volatile)
 
 //  there are *tons* of lint warnings in this file, but I *really* don't
 //  want to start hacking a 6500 line file that I don't entirely understand...
@@ -61,6 +60,16 @@ Rename this file to lodepng.cpp to use it for C++, or to lodepng.c to use it for
 //lint -e734  Loss of precision (initialization) (31 bits to 15 bits)
 
 //lint -esym(714, lodepng::decode, lodepng::save_file, lodepng::decompress)
+
+//lint -e40    Undeclared identifier 'filename'
+//lint -e1013  Symbol 'c_str' not a member of class ''
+//lint -e64    Type mismatch (arg. no. 1) (const char * = int)
+//lint -e1055  Symbol undeclared, assumed to return int
+//lint -e746   call to function 'lodepng::c_str()' not made in the presence of a prototype
+//lint -e1058  While calling 'lodepng::decode(std::vector<unsigned char> &, unsigned int &, unsigned int &, const unsigned char *, unsigned
+//lint -e1514  Creating temporary to copy 'int' to 'unsigned int &' (context: arg. no. 3)
+//lint -esym(526, lodepng::c_str, lodepng::resize, lodepng::size) 
+//lint -esym(628, lodepng::c_str, lodepng::resize)
 
 //*****************************************************************
 //  my standard construct for translating between
@@ -6222,7 +6231,7 @@ const char* lodepng_error_text(unsigned code)
     case 89: return "text chunk keyword too short or long: must have size 1-79";
     /*the windowsize in the LodePNGCompressSettings. Requiring POT(==> & instead of %) makes encoding 12% faster.*/
     case 90: return "windowsize must be a power of two";
-  }
+  }   //lint !e744  switch statement has no default
   return "unknown error code";
 }
 #endif /*LODEPNG_COMPILE_ERROR_TEXT*/
@@ -6280,7 +6289,7 @@ void save_file(const std::vector<unsigned char>& buffer, const std::string& file
    if (hdl == -1) {
       return ;
    }
-   long size = buffer.size() ;
+   long size = buffer.size() ;   //lint !e530
    if (size == 0) {
       return ;
    }

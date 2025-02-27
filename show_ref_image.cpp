@@ -10,33 +10,46 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <tchar.h>
+#include <io.h>
+#include <fcntl.h>
+#include <sys/stat.h>
 
-#include "version.h"
+// #include "version.h"
 #include "resource.h"
 #include "common.h"
-#include "commonw.h"
+// #include "commonw.h"
 #include "header.h"
 #include "statbar.h"
 #include "winmsgs.h"
 #include "wthread.h"
+#include "lodepng.h"
 #include "lode_png.h"
+
+//lint -esym(551, hwndRef, refImage)
+//lint -esym(844, hwndRef, refImage)
 
 //  comment this line out to draw black window background 
 // #define USE_SYS_BG_COLOR  1
 
-CThread *ref_image_thread = NULL ;
+static CThread *ref_image_thread = NULL ;
 //***********************************************************************
-int cxClient = 0 ;
-int cyClient = 0 ;
+static int cxClient = 0 ;
+static int cyClient = 0 ;
 
-int force_redraw = 0 ;
-unsigned xbase, xdiff, ybase, ydiff ;
+// unsigned xbase, xdiff, ybase, ydiff ;
 
 static HWND hwndRef = NULL ;
 
-char tempstr[128] ;
+static TCHAR tempstr[128] ;
 
 static CStatusBar *MainStatusBar = NULL;
+
+static LodePng *refImage = NULL ;
+static std::vector<unsigned char> image; //the raw pixels
+static unsigned width = 0, height = 0 ;
+//lint -esym(844, ref_image_thread)
+static TCHAR *refImageFile = NULL ;
+
 //***********************************************************************
 static void do_init_dialog(HWND hwnd)
 {
@@ -84,11 +97,6 @@ static void do_init_dialog(HWND hwnd)
 //***********************************************************************
 static LRESULT CALLBACK RefImageProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 {
-   // static bool main_timer_ran_once = false ;
-   // static uint quarter_seconds = 0 ;
-   // static uint curr_redraw_counts = 0 ;
-   // static uint ref_redraw_counts = 0 ;
-
    //***************************************************
    //  debug: log all windows messages
    //***************************************************
@@ -117,8 +125,20 @@ static LRESULT CALLBACK RefImageProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARA
 
    switch(iMsg) {
    case WM_INITDIALOG:
+      {
+      refImageFile = (TCHAR *) lParam ;
+      unsigned error = lodepng::decode(image, width, height, refImageFile, LCT_RGB, 8);
+      if (error) {
+         // std::cout << "error " << error << ": " << lodepng_error_text(error) << std::endl;
+         syslog("decodeWithState: [%u] %s\n", error, lodepng_error_text(error)) ;
+         // syslog("decodeWithState: %u\n", error) ;
+         break;
+      }
+      _stprintf(tempstr, _T("isize: %ux%u\n"), width, height);
+      status_message(2, tempstr);
+      refImage = new LodePng(refImageFile);
       do_init_dialog(hwnd) ;
-      // wpOrigMainProc = (WNDPROC) SetWindowLongPtr(hwnd, GWL_WNDPROC, (LONG) MainSubclassProc); 
+      }
       return TRUE;
 
    case WM_COMMAND:
@@ -170,7 +190,8 @@ static LRESULT CALLBACK RefImageProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARA
 static DWORD WINAPI fRefImageThread(LPVOID iValue)
    {
    // hdlTopLevel = OpenProcess(PROCESS_ALL_ACCESS, false, _getpid()) ;
-   HWND hwnd = CreateDialog(g_hinst, MAKEINTRESOURCE(IDD_INPUT_IMAGE_DIALOG), NULL, (DLGPROC) RefImageProc) ;
+   HWND hwnd = CreateDialogParam(g_hinst, 
+      MAKEINTRESOURCE(IDD_INPUT_IMAGE_DIALOG), NULL, (DLGPROC) RefImageProc, (LPARAM) iValue) ;
    if (hwnd == NULL) {
       syslog("CreateDialog: %s\n", get_system_message()) ;
       return 0;
@@ -196,10 +217,10 @@ static DWORD WINAPI fRefImageThread(LPVOID iValue)
 }
 
 //****************************************************************************
-void open_image_window(void)
+void open_image_window(TCHAR *image_file)
 {
    if (ref_image_thread == NULL) {
-      ref_image_thread = new CThread(fRefImageThread, (LPVOID) NULL, NULL) ;
+      ref_image_thread = new CThread(fRefImageThread, (LPVOID) image_file, NULL) ;
    }
 }
 

@@ -19,7 +19,6 @@
 #include "header.h"
 #include "statbar.h"
 #include "winmsgs.h"
-#include "lode_png.h"
 
 TCHAR const * const Version = "Plus42 Image Manager, Version " VerNum " " ;
 //lint -esym(715, lParam)
@@ -158,7 +157,7 @@ static void do_init_dialog(HWND hwnd)
 }
 
 //***********************************************************************
-static LRESULT CALLBACK TermProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
+static LRESULT CALLBACK WinProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 {
    char msgstr[81] ;
    
@@ -259,10 +258,6 @@ static LRESULT CALLBACK TermProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lP
                }
                strcpy(p, _T(".png"));
                status_message(image_file);
-               // result = read_command_file(command_filename);
-               // if (result != 0) {
-               //    syslog("%s: %s", command_filename, get_system_message(result)) ;
-               // }
             } else {
 error_path:
                layout_file[0] = 0 ; //  make layout filename invalid
@@ -271,6 +266,10 @@ error_path:
             }
             }  // end local context
             return 0 ;
+            
+         case IDB_SKIN_OPEN:
+            open_image_window(image_file);
+            break ;
             
          case IDD_ABOUT : CmdAbout(hwnd); break ;
          
@@ -308,7 +307,7 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine
    g_hinst = hInstance;
 
    // hdlTopLevel = OpenProcess(PROCESS_ALL_ACCESS, false, _getpid()) ;
-   HWND hwnd = CreateDialog(g_hinst, MAKEINTRESOURCE(IDD_MAIN_DIALOG), NULL, (DLGPROC) TermProc) ;
+   HWND hwnd = CreateDialog(g_hinst, MAKEINTRESOURCE(IDD_MAIN_DIALOG), NULL, (DLGPROC) WinProc) ;
    if (hwnd == NULL) {
       syslog("CreateDialog: %s\n", get_system_message()) ;
       return 0;

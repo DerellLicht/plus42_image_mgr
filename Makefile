@@ -80,16 +80,17 @@ rc.o: pimage_mgr.rc
 # DO NOT DELETE
 
 pimage_mgr.o: version.h resource.h der_libs/common.h der_libs/commonw.h
-pimage_mgr.o: header.h der_libs/statbar.h der_libs/winmsgs.h lode_png.h
+pimage_mgr.o: header.h der_libs/statbar.h der_libs/winmsgs.h
 lodepng.o: lodepng.h
-lode_png.o: der_libs/common.h lode_png.h lodepng.h
+lode_png.o: der_libs/common.h lodepng.h lode_png.h
 hyperlinks.o: der_libs/iface_32_64.h hyperlinks.h
-about.o: resource.h version.h header.h hyperlinks.h
+about.o: resource.h version.h der_libs/common.h header.h hyperlinks.h
 show_ref_image.o: version.h resource.h der_libs/common.h der_libs/commonw.h
 show_ref_image.o: header.h der_libs/statbar.h der_libs/winmsgs.h
-show_ref_image.o: der_libs/wthread.h lode_png.h
+show_ref_image.o: der_libs/wthread.h lodepng.h lode_png.h
 der_libs/common_funcs.o: der_libs/common.h
 der_libs/common_win.o: der_libs/common.h der_libs/commonw.h
+der_libs/wthread.o: der_libs/wthread.h
 der_libs/statbar.o: der_libs/common.h der_libs/commonw.h der_libs/statbar.h
 der_libs/tooltips.o: der_libs/iface_32_64.h der_libs/common.h
 der_libs/tooltips.o: der_libs/tooltips.h

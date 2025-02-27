@@ -3,8 +3,6 @@
 //  This class encapsulates the interface to the LodePNG library.
 //********************************************************************
 
-#include <vector>
-
 //lint -esym(1714, LodePng::render_bitmap, LodePng::horiz_tiles, LodePng::vert_tiles)
 //lint -esym(1714, LodePng::LodePng)
 //lint -esym(1704, LodePng::LodePng)

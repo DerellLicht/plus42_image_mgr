@@ -26,9 +26,18 @@ freely, subject to the following restrictions:
 #ifndef LODEPNG_H
 #define LODEPNG_H
 
+#ifndef _lint
+#include <string>
+#endif
+#include <vector>
 //lint -esym(1790, LodePNGState)
 //lint -esym(1714, lodepng::State::State, lodepng::State::operator=)
-
+//lint -e808   No explicit type given symbol 'string', int assumed
+//lint -e49    Expected a type
+//lint -e1025  No function matches invocation 
+//lint -e1703  Function 
+//lint -e641   Converting enum 'LodePNGColorType' to 'int'
+             
 #define  SKIP_UNUSED_FUNCTIONS
 
 /*
@@ -66,7 +75,7 @@ the custom_zlib field of the compress and decompress settings*/
 #define LODEPNG_COMPILE_ANCILLARY_CHUNKS
 #endif
 /*ability to convert error numerical codes to English text string*/
-#define  LODEPNG_NO_COMPILE_ERROR_TEXT    1
+// #define  LODEPNG_NO_COMPILE_ERROR_TEXT    1
 #ifndef LODEPNG_NO_COMPILE_ERROR_TEXT
 #define LODEPNG_COMPILE_ERROR_TEXT
 #endif

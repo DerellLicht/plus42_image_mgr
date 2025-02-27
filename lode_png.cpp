@@ -4,12 +4,14 @@
 //********************************************************************
 
 #include <windows.h>
+
+//  included in lodepng.h
 // #include <vector>
-#include <string>
+// #include <string>
 
 #include "common.h"
-#include "lode_png.h"
 #include "lodepng.h"
+#include "lode_png.h"
 
 //lint -esym(1762, LodePng::encodeBMP, LodePng::ConvertDibToHBitmap)
 //lint -e1087  Previous declaration of '__gnu_cxx::__is_signed' (line 72) is
