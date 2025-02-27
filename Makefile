@@ -25,9 +25,11 @@ CFLAGS += -Wno-write-strings
 LiFLAGS = -Ider_libs
 CFLAGS += -Ider_libs
 CSRC=pimage_mgr.cpp lodepng.cpp lode_png.cpp hyperlinks.cpp about.cpp \
+show_ref_image.cpp \
 der_libs/common_funcs.cpp \
 der_libs/common_win.cpp \
 der_libs/winmsgs.cpp \
+der_libs/wthread.cpp \
 der_libs/statbar.cpp \
 der_libs/tooltips.cpp
 
@@ -83,6 +85,9 @@ lodepng.o: lodepng.h
 lode_png.o: der_libs/common.h lode_png.h lodepng.h
 hyperlinks.o: der_libs/iface_32_64.h hyperlinks.h
 about.o: resource.h version.h header.h hyperlinks.h
+show_ref_image.o: version.h resource.h der_libs/common.h der_libs/commonw.h
+show_ref_image.o: header.h der_libs/statbar.h der_libs/winmsgs.h
+show_ref_image.o: der_libs/wthread.h lode_png.h
 der_libs/common_funcs.o: der_libs/common.h
 der_libs/common_win.o: der_libs/common.h der_libs/commonw.h
 der_libs/statbar.o: der_libs/common.h der_libs/commonw.h der_libs/statbar.h

@@ -5,8 +5,6 @@
 //  Written by:  Dan Miller
 //****************************************************************************
 
-#include "version.h"
-static char const * const Version = "Plus42 Image Manager, Version " VerNum " " ;
 
 //lint -esym(767, _WIN32_WINNT)
 #define  _WIN32_WINNT   0x0501
@@ -14,6 +12,7 @@ static char const * const Version = "Plus42 Image Manager, Version " VerNum " " 
 #include <stdio.h>   //  vsprintf, sprintf, which supports %f
 #include <tchar.h>
 
+#include "version.h"
 #include "resource.h"
 #include "common.h"
 #include "commonw.h"
@@ -22,6 +21,7 @@ static char const * const Version = "Plus42 Image Manager, Version " VerNum " " 
 #include "winmsgs.h"
 #include "lode_png.h"
 
+TCHAR const * const Version = "Plus42 Image Manager, Version " VerNum " " ;
 //lint -esym(715, lParam)
 //lint -esym(818, szCmdLine, hPrevInstance)  could be declared as pointing to const
 
@@ -41,7 +41,7 @@ static HMENU hMainMenu = NULL ;
 
 //lint -esym(714, status_message)
 //lint -esym(765, status_message)
-static uint dbg_flags = 0
+uint dbg_flags = 0
    // | DBG_WINMSGS
    ;
 

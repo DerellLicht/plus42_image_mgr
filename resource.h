@@ -21,7 +21,8 @@
 #define  IDI_PLUS42IM      300
 #define  IDD_MAIN_DIALOG   301
 #define  IDM_MAINMENU      302
-#define  IDD_ABOUT         303
+#define  IDD_INPUT_IMAGE_DIALOG  303
+#define  IDD_ABOUT         304
 
 #define  IDM_OPEN_SKIN     400
 #define  IDM_ITEM2         401

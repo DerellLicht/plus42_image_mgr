@@ -102,6 +102,19 @@ BEGIN
    // LTEXT           " ",       IDC_MAP_AREA, 3, 3, 200, 200, WS_EX_CLIENTEDGE  //  doesn't draw
 END
 
+// IDD_MAIN_DIALOG DIALOG DISCARDABLE  160, 40, 350, 370
+IDD_INPUT_IMAGE_DIALOG DIALOGEX  160, 40, 350, 370
+STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX
+// EXSTYLE WS_EX_CONTROLPARENT
+CAPTION "Input Image View"
+FONT 10, "Times New Roman"
+BEGIN
+
+   // LTEXT           " ",              IDC_MAP_AREA, 2, 1, 200, 200, 0, WS_EX_STATICEDGE
+   LTEXT           " ",              IDC_IMG_AREA, 2, 1, 200, 200, 0, WS_EX_CLIENTEDGE
+   // LTEXT           " ",              IDC_MAP_AREA, 3, 3, 200, 200, WS_EX_CLIENTEDGE  //  doesn't draw
+END
+
 //*********************************************************************************************
 IDD_ABOUT DIALOG DISCARDABLE  400, 400, 220, 110
 // STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
@@ -142,7 +155,7 @@ BEGIN
         BLOCK "040904b0"
         BEGIN
             VALUE "Comments", "Plus42 Image Manager"
-            VALUE "CompanyName", "Anacom Inc"
+            VALUE "CompanyName", "Cathartes aura"
             VALUE "FileDescription", "pimage_mgr"
             VALUE "FileVersion", VerNum
             VALUE "InternalName", "Plus42 Image Manager"

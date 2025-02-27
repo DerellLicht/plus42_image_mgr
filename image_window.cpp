@@ -1,412 +1,334 @@
-//*****************************************************************
-//  copy rainbow code from gstuff application
-//                                           
-//  Written by:   Daniel D. Miller           
-//                                           
-//  Last Update:  03/10/03 11:34             
-//                                           
-//  compile with: g++ -Wall -O3 -s rainbow.cpp -o rainbow.exe -lgdi32
-//*****************************************************************
-//  RAINBOWV.CPP:  A rainbow simulator.                            
-//  From "Astronomical Computing"                                  
-//  Sky & Telescope Magazine, February 1991                        
-//  Original program was in BASIC and EGA 4-color video mode.      
-//                                                                 
-//  05/27/98
-//    Converted to C and VGA/16-color by Dan Miller.               
-//  08/09/02 16:11
-//    Converted into Win32 graphics program for more colors
-//*****************************************************************
-
-
-static char szAppName[] = "rainbow" ;
-static char szAppDesc[] = "draw simulated rainbow" ;
-
+ //****************************************************************************
+//  Produced and Directed by:  Dan Miller
+//****************************************************************************
 #include <windows.h>
-#include <stdlib.h>
-#include <math.h>
+#include <stdio.h>
+#include <tchar.h>
 
-#ifdef  USE_JPG_FILE
-#include "jpeg_read.h"
-#endif
-#include "rainbow.h"
+#include "resource.h"
+#include "common.h"
+#include "commonw.h"
+#include "header.h"
+#include "winmsgs.h"
 
-#ifdef USE_BGND_IMAGE
-// #include "dib.h"
-char *img_name = (char *) "wfall.bmp" ;
-char *imj_name = (char *) "wfall.jpg" ;
-#endif
-//  comment this line out to sleep on message queue
-#define CONTINUOUS_REDRAW 1
+static TCHAR szEditName[] = _T("SendBfr") ;
+// static char szEditName[] = "EditPad" ;
 
-//  comment this line out to draw black window background 
-// #define USE_SYS_BG_COLOR  1
+static LRESULT CALLBACK SendFileProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 
-//***********************************************************************
-int cxClient = 0 ;
-int cyClient = 0 ;
-
-int force_redraw = 0 ;
-unsigned xbase, xdiff, ybase, ydiff ;
-
-HINSTANCE g_hinst = 0 ;
-
-char tempstr[128] ;
-static void display_current_operation(HWND hwnd);
-
-/************************************************************************/
-char *get_system_message(void)
+CThread *ref_image_thread = NULL ;
+//****************************************************************************
+//  this should be done only once, at program startup
+//****************************************************************************
+LRESULT register_edit_window(void)
 {
-   static char msg[261] ;
-   int slen ;
+   // WNDCLASS wndclass = {0} ;
+   WNDCLASS wndclass ;
+   memset((char *) &wndclass, 0, sizeof(WNDCLASS)) ;
 
-   LPVOID lpMsgBuf;
-   FormatMessage( 
-      FORMAT_MESSAGE_ALLOCATE_BUFFER | 
-      FORMAT_MESSAGE_FROM_SYSTEM | 
-      FORMAT_MESSAGE_IGNORE_INSERTS,
-      NULL,
-      GetLastError(),
-      MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
-      (LPTSTR) &lpMsgBuf,
-      0, 0);
-   // Process any inserts in lpMsgBuf.
-   // ...
-   // Display the string.
-   strncpy(msg, (char *) lpMsgBuf, 260) ;
+   wndclass.style         = CS_HREDRAW | CS_VREDRAW ;
+   wndclass.lpfnWndProc   = SendFileProc ;
+   wndclass.cbClsExtra    = 0 ;
+   wndclass.cbWndExtra    = 0 ;
+   wndclass.hInstance     = g_hinst ;
+   wndclass.hIcon         = LoadIcon (g_hinst, MAKEINTRESOURCE(IDI_ANAICON));
+   wndclass.hbrBackground = (HBRUSH) (COLOR_WINDOW + 1) ;
+   wndclass.lpszMenuName  = MAKEINTRESOURCE(IDM_POPPAD2) ;
+   wndclass.lpszClassName = szEditName ;
 
-   // Free the buffer.
-   LocalFree( lpMsgBuf );
-
-   //  trim the newline off the message before copying it...
-   slen = strlen(msg) ;
-   if (msg[slen-1] == 10  ||  msg[slen-1] == 10) {
-      msg[slen-1] = 0 ;
+   if (!RegisterClass(&wndclass)) {
+      LRESULT result = (LRESULT) GetLastError() ;
+      syslog("RegisterClass: %s", get_system_message(result)) ;
+      return result ;
    }
-   return msg;
+   return 0;
 }
 
-//***********************************************************************
-#ifdef USE_BGND_IMAGE
-LPSTR pBits = 0 ;
-BITMAPINFO bmi ;
-
-static void read_bitmap(HDC hdc, char *image_name)
+//******************************************************************
+//  read lines from cmd_fname and stuff all resulting data
+//  into the edit window.
+//******************************************************************
+static int read_command_file(monitor_object_p this_device, char *cmd_fname)
 {
+   char inpbfr[MAX_RESP_BFR+1] ;
+   // HWND hwndEdit = GetDlgItem(hDlgWnd, IDC_EDIT_CE) ;
+   FILE *fd = fopen(cmd_fname, "rt") ;
+   if (fd == 0)
+      return (int) GetLastError() ;
+
+   unsigned lcount = 0 ;
+   while (fgets(inpbfr, MAX_RESP_BFR, fd) != 0) {
+      lcount++ ;
+      //  convert whatever newlines are found, into CR/LF
+      int found = 0 ;
+      char *hd = inpbfr ;
+      while (*hd != 0) {
+         if (*hd == CR  ||  *hd == LF) {
+            *hd++ = CR ;
+            *hd++ = LF ;
+            *hd = 0 ;
+            found = 1 ;
+            break;
+         }
+         hd++ ;
+      }
+      if (!found) {
+         syslog("line %u: no EOL found, discarding data\n", lcount) ;
+         continue;
+      }
+
+      //  stuff text into edit buffer
+      int ndx = GetWindowTextLengthA(this_device->hwndEdit);
+      SendMessageA(this_device->hwndEdit, EM_SETSEL, (WPARAM) ndx, (LPARAM) ndx) ;
+      SendMessageA(this_device->hwndEdit, EM_REPLACESEL, 0, (LPARAM) ((LPSTR) inpbfr));
+   }
+   fclose(fd) ;
+   return 0;
+}
+
+//******************************************************************
+//  We can no longer copy lines into input_bfr[],
+//  because send_anacommand() is going to do that.
+//  We will have to buffer individual lines internally!!
+//******************************************************************
+static void send_commands(monitor_object_p this_device)
+{
+   char sbfr[1024] ;
+   uint sidx = 0 ;
+   //****************************************************
+   //  extract command list from editor window
+   //****************************************************
+   int ndx = GetWindowTextLengthA (this_device->hwndEdit);
+   char *bfr = (char *) GlobalAlloc(GMEM_FIXED, ndx+1) ;
+   if (bfr == NULL) {
+      syslog("GlobalAlloc: %s\n", get_system_message()) ;
+      return ;
+   }
+   unsigned blen = GetWindowTextA (this_device->hwndEdit, bfr, ndx+1);
+   // bfr[ndx+1] = 0 ;
+   bfr[blen] = 0 ;
+   // syslog("read %u of %u bytes\n", blen, ndx) ;
+   // hex_dump((u8 *) bfr, ndx) ;
+
+   //****************************************************
+   //  write commands to ODU
+   //****************************************************
+   char rbfr[MAX_RESP_BFR] ;
    int result ;
-   HBITMAP hbm ;
-   // hbm = (HBITMAP) LoadBitmap(g_hinst, MAKEINTRESOURCE(IDB_BALL)
-#ifdef USE_BMP_FILE
-   hbm = (HBITMAP) LoadImage(g_hinst, image_name, IMAGE_BITMAP, 0, 0, 
-               LR_LOADFROMFILE | LR_CREATEDIBSECTION) ;
-#elif USE_JPG_FILE
-   hbm = (HBITMAP) MakeImage(imj_name) ;
-#else
-   hbm = 0 ;
-#endif
-   if (hbm == NULL) {
-      wsprintf(tempstr, "LoadImage: %s\n", get_system_message()) ;
-      OutputDebugString(tempstr) ;
-      return ;
-   } 
-
-   //  call GetDIBits() with NULL buffer, to get required buffer size
-   bmi.bmiHeader.biSize = sizeof(BITMAPINFO) ;
-   bmi.bmiHeader.biBitCount = 0 ;
-   result = GetDIBits(hdc, hbm, 0, bmi.bmiHeader.biHeight, NULL, &bmi, DIB_RGB_COLORS) ;
-   if (result == 0) {
-      wsprintf(tempstr, "GetDIBits: %s\n", get_system_message()) ;
-      OutputDebugString(tempstr) ;
+   // reset_input_bfr(this_device) ;
+   sbfr[0] = 0 ;
+   unsigned lcount = 0 ;
+   char *src = bfr ;
+   begin_critical_section();
+   while (LOOP_FOREVER) {
+      if (*src == 0) {
+         //  send any unterminated last line that we find
+         if (sidx > 0) {
+            txout(this_device, sbfr);
+            result = send_anacommand(this_device, sbfr, rbfr) ;
+            if (result < 0) {
+               errout(this_device, "%s: %s", sbfr, show_error(result));
+               break;
+            }
+            rxout(this_device, rbfr);
+            lcount++ ;
+         }
+         break;
+      } else
+      if (*src == CR) {
+         src++ ;   //  copy CR
+         src++ ;   //  copy LF
+         txout(this_device, sbfr);
+         result = send_anacommand(this_device, sbfr, rbfr) ;
+         if (result < 0) {
+            errout(this_device, "%s: %s", sbfr, show_error(result));
+            break;
+         }
+         rxout(this_device, rbfr);
+         lcount++ ;
+         sidx = 0 ;
+         sbfr[sidx] = 0 ;
+      } else
+      {
+         sbfr[sidx++] = *src++ ;
+         sbfr[sidx] = 0 ;
+      }
    }
-   //  allocate required buffer space
-   // wsprintf(tempstr, "allocated %u, required %u\n", dwFileSize, bmi.bmiHeader.biSizeImage) ;
-   // OutputDebugString(tempstr) ;
-   pBits = (LPSTR) malloc (bmi.bmiHeader.biSizeImage) ;
-   if (!pBits) {
-      wsprintf(tempstr, "out of memory [%s] [%u]\n", img_name, bmi.bmiHeader.biSizeImage) ;
-      OutputDebugString(tempstr) ;
-      return ;
-   }
+   leave_serial_critical_section();
 
-   //  call GetDIBits() with buffer, to read actual data
-   result = GetDIBits(hdc, hbm, 0, bmi.bmiHeader.biHeight, (LPVOID) pBits, &bmi, DIB_RGB_COLORS) ;
-   if (result == 0) {
-      wsprintf(tempstr, "GetDIBits: %s\n", get_system_message()) ;
-      OutputDebugString(tempstr) ;
-   }
-   // wsprintf(tempstr, "image: width=%u, height=%u\n",
-   //    bmi.bmiHeader.biWidth,
-   //    bmi.bmiHeader.biHeight) ;
-   // OutputDebugString(tempstr) ;
-
+   GlobalFree(bfr) ;
+   // this_device->input_bfr[0] = 0 ;
+   // this_device->input_bfr_len = 0 ;
+   termout(this_device, "Sent %u lines to ODU", lcount) ;
 }
 
-//***********************************************************************
-static void paint_bitmap(HDC hdc)
+//****************************************************************************
+static LRESULT CALLBACK SendFileProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-   if (pBits != 0) {
-      SetStretchBltMode (hdc, COLORONCOLOR) ;
-      if (StretchDIBits(
-         hdc,              // handle to device context
-         0,                // x-coordinate of upper-left corner of dest. rectangle
-         0,                // y-coordinate of upper-left corner of dest. rectangle
-         cxClient,         // width of destination rectangle
-         cyClient,         // height of destination rectangle
-         0,                // x-coordinate of upper-left corner of source rectangle
-         0,                // y-coordinate of upper-left corner of source rectangle
-         // bm.bmWidth,       // width of source rectangle
-         // bm.bmHeight,      // height of source rectangle
-         bmi.bmiHeader.biWidth,       // width of source rectangle
-         bmi.bmiHeader.biHeight,      // height of source rectangle
-         (void *) pBits,   // address of bitmap bits
-         &bmi,             // address of bitmap data
-         DIB_RGB_COLORS,   // usage flags
-         SRCCOPY           // raster operation code
-      ) == (int) GDI_ERROR) {
-         
-      // BITMAP    bm;
-      // GetObject(hbm, sizeof(BITMAP), (LPSTR)&bm);
-      //  try StretchDiBits() instead??  (may also support jpg & png)
-      // HDC hdcBits = CreateCompatibleDC(hdc);
-      // SelectObject(hdcBits,hbm);
-      // if (!StretchBlt(
-      //    hdc,      // handle to destination device context
-      //    0, // x-coordinate of upper-left corner of dest. rectangle
-      //    0, // y-coordinate of upper-left corner of dest. rectangle
-      //    cxClient,   // width of destination rectangle
-      //    cyClient,  // height of destination rectangle
-      //    hdcBits,       // handle to source device context
-      //    0,  // x-coordinate of upper-left corner of source rectangle
-      //    0,  // y-coordinate of upper-left corner of source rectangle
-      //    bm.bmWidth,    // width of source rectangle
-      //    bm.bmHeight,   // height of source rectangle
-      //    SRCCOPY       // raster operation code
-      // )) {
-      
-      // if (!BitBlt(hdc,0,0,bm.bmWidth,bm.bmHeight,hdcBits,0,0,SRCCOPY)) {
-         wsprintf(tempstr, "BitBlt/StretchDIBits: %s\n", get_system_message()) ;
-         OutputDebugString(tempstr) ;
-      } 
+   // int iSelect, iEnable ;
+   int result ;
+   // char command_filename[MAX_PATH] = "commands.txt" ;
+
+   monitor_object_p this_device ;
+   if (message == WM_CREATE) {
+      this_device = (monitor_object_p) (((LPCREATESTRUCT) lParam)->lpCreateParams);
+      // syslog("EditProc: process WM_CREATE, this_device=0x%08X\n", (unsigned) this_device) ;
+      this_device->hwndOduEditor = hwnd ;
+      // this_device->editwin_open = 1 ;
+   } else {
+      this_device = find_object_from_hwndOduEditor(hwnd) ;
+      if (this_device == 0) {
+         switch (message) {
+         //  list messages to be ignored
+         case WM_GETMINMAXINFO:
+         case WM_NCCREATE:
+         case WM_NCCALCSIZE:
+            break;
+         default:
+            syslog("EditProc: cannot find parent object, message=%s\n",
+               lookup_winmsg_name(message)) ;
+            break;
+         }
+
+         return DefWindowProc(hwnd, message, wParam, lParam) ;
+      }
    }
-}
-#endif
 
-//***********************************************************************
-LRESULT CALLBACK WndProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
-{
-   HDC    hdc ;
-   PAINTSTRUCT ps;
+   //***************************************************
+   //  debug: log all windows messages
+   //***************************************************
+   // this_device->winmessages = true ;
+   if (dbg_flags & DBG_WINMSGS) {
+      switch (message) {
+      //  list messages to be ignored
+      case WM_NCHITTEST:
+      case WM_SETCURSOR:
+      case WM_MOUSEMOVE:
+      case WM_NCMOUSEMOVE:
+      case WM_COMMAND:
+         break;
+      default:
+         syslog("ED: [%s]\n", lookup_winmsg_name(message)) ;
+         break;
+      }
+   }
 
-   switch (iMsg) {
-    
+   //********************************************************************
+   //  Windows message handler for this dialog
+   //********************************************************************
+   switch (message) {
    case WM_CREATE:
-      cxClient = 0 ;
-      cyClient = 0 ;
-      //  read our data file into memory
-#ifdef USE_BGND_IMAGE
-      hdc = GetDC (hwnd) ;
-      read_bitmap(hdc, img_name) ;
-      ReleaseDC (hwnd, hdc) ;
-#endif
+      {
+//       TCHAR msgstr[81] ;
+//       wsprintf(msgstr, _T("ODU Command Editor [M%u: %s]"), this_device->index,
+//          ascii2unicode(get_sernum(this_device))) ;
+//       // 00000:  4F 00 44 00 55 00 20 00 43 00 6F 00 6D 00 6D 00  | O.D.U. .C.o.m.m. |
+//       // 00010:  61 00 6E 00 64 00 20 00 45 00 64 00 69 00 74 00  | a.n.d. .E.d.i.t. |
+//       // 00020:  6F 00 72 00 20 00 5B 00 4D 00 32 00 3A 00 20 00  | o.r. .[.M.2.:. . |
+//       // 00030:  30 00 32 00 32 00 32 00 34 00 36 00 5D 00 00 00  | 0.2.2.2.4.6.]... |
+//       // hex_dump((u8 *) msgstr, 64) ;
+//       SetWindowText(hwnd, msgstr) ;
+
+      TCHAR msgstr[81] ;
+      wsprintf(msgstr, _T("ODU Command Editor [M%u: %s]"), this_device->index,
+         // get_sernum(this_device)) ;
+         ascii2unicode(get_sernum(this_device))) ;
+      SetWindowText(hwnd, msgstr) ;
+      // SetWindowText(hwnd, _T("Test")) ;
+
+      //  create the internal edit window
+      this_device->hwndEdit = CreateWindow(_T("edit"), NULL,
+                          WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_VSCROLL |
+                          WS_BORDER | ES_LEFT | ES_MULTILINE |
+                          ES_AUTOHSCROLL | ES_AUTOVSCROLL,
+                          0, 0, 0, 0, hwnd, (HMENU) IDC_EDITWIN,
+                          ((LPCREATESTRUCT) lParam)->hInstance, NULL) ;
+      }
       return 0 ;
 
    case WM_SIZE:
-      cxClient = LOWORD (lParam) ;
-      cyClient = HIWORD (lParam) ;
-
-      xbase = cxClient / 2 ;     
-      xdiff = (cxClient-50) / 2 ;
-      ybase = cyClient * 7 / 8 ; 
-      ydiff = cyClient * 5 / 8 ; 
-
-#ifdef USE_BGND_IMAGE
-      force_redraw = 1 ;
-      // hdc = GetDC (hwnd) ;
-      // // draw_bitmap(hdc, img_name, 0, 0) ;
-      // paint_bitmap(hdc) ;
-      // ReleaseDC (hwnd, hdc) ;
-#endif
+      MoveWindow(this_device->hwndEdit, 0, 0, LOWORD (lParam), HIWORD (lParam), true) ;
       return 0 ;
-
-#ifdef USE_BGND_IMAGE
-   case WM_ERASEBKGND:  //  try to avoid blank redraw
-      return 0 ;  
 
    case WM_SETFOCUS:
-      force_redraw = 1 ;
+      SetFocus(this_device->hwndEdit) ;
       return 0 ;
-#endif
 
-   case WM_PAINT:
-      hdc = BeginPaint (hwnd, &ps) ;
-#ifdef USE_BGND_IMAGE
-      if (force_redraw) {
-         paint_bitmap(hdc) ;
-         force_redraw = 0 ;
-      }
-#endif
-      display_current_operation(hwnd) ;
-      EndPaint (hwnd, &ps) ;
+   case WM_COMMAND:
+      switch(LOWORD(wParam)) {
+      case IDC_SEND2ODU: //  send to ODU
+         send_commands(this_device) ;
+         DestroyWindow(hwnd);
+         return 0 ;
+
+      case IDC_LOADFILE:  //  "Send Buffer" button, read/upload lines from a file
+         if (select_text_file(hwnd, upload_file_name)) {  //  was command_filename
+            result = read_command_file(this_device, upload_file_name);
+            save_cfg_file();  //  save upload_file_name to config file
+            
+            if (result != 0) {
+               syslog("%s: %s", upload_file_name, get_system_message(result)) ;
+            }
+         } 
+         else {
+            syslog("select_text_file: %s", get_system_message()) ;
+         }
+         
+         return 0 ;
+      }  //lint !e744
+      break ;
+
+   case WM_CLOSE:
+      DestroyWindow (hwnd) ;
       return 0 ;
-    
-   case WM_KEYDOWN :
-   case WM_SYSKEYDOWN :
-        if (wParam == 27) { //  look for escape key
-#ifdef USE_BGND_IMAGE
-            free(pBits) ;
-#endif
-            PostQuitMessage (0) ;
-        }
-        return 0 ;
 
    case WM_DESTROY:
-#ifdef USE_BGND_IMAGE
-      free(pBits) ;
-#endif
-      PostQuitMessage (0) ;
+      // syslog("EditWin: WM_DESTROY\n") ;
+      // this_device->editwin_open = 0 ;
+      ref_image_thread = NULL ;
+      PostQuitMessage(0) ;
       return 0 ;
-   }
-
-   return DefWindowProc (hwnd, iMsg, wParam, lParam) ;
+   }  //lint !e744
+   return DefWindowProc(hwnd, message, wParam, lParam) ;
 }
 
-/************************************************************************/
-#undef  USE_PIXEL_OR
-// #define  USE_PIXEL_OR
-
-void rainbow_plot_pixel(HDC hdc, int pcolor, double TH)
+//****************************************************************************
+static DWORD WINAPI fRefImageThread(LPVOID iValue)
 {
-   double f1 ;
-   unsigned XP, YP ;
+   HWND hwnd = CreateWindow(szEditName, szEditName,
+        WS_OVERLAPPEDWINDOW,
+        GetSystemMetrics (SM_CXSCREEN) / 4,
+        GetSystemMetrics (SM_CYSCREEN) / 4,
+        800, 600,
+        // GetSystemMetrics (SM_CXSCREEN) / 2,
+        // GetSystemMetrics (SM_CYSCREEN) / 2,
+        NULL, NULL, g_hinst, iValue) ;
 
-   TH = fabs(TH) ;
-   if (TH > 60.0)
-      return ;
-   f1 = TH / 60.0 ;
+   ShowWindow(hwnd, SW_SHOW) ;
+   UpdateWindow(hwnd) ;
+   // hAccel = LoadAccelerators (hInstance, szEditName) ;
 
-   XP = (unsigned) (xbase + xdiff * (f1 *     (X / B))) ;
-   YP = (unsigned) (ybase - ydiff * (f1 * fabs(Y / B))) ;
-#ifndef USE_PIXEL_OR
-   SetPixel(hdc, XP, YP, rainbow_index[pcolor]) ;
-#else
-   //  reality check - using the preceding write method, you get an
-   //  inner region which is a colorful mosaic of constantly-changing
-   //  primary colors.  In a *real* rainbow, what you see is an
-   //  inner region which is an iridescent white.  The reason for 
-   //  this is that the various colors are mixed together, essentially
-   //  performing a visual boolean-OR of all the raindrop reflections.
-   //  This effect can be simulated in this program by ORing each new
-   //  pixel with the existing pixel at the target location:
-   SetPixel(hdc, XP, YP, (rainbow_index[pcolor] | GetPixel(hdc, XP, YP))) ;
-#endif
-}
-
-/************************************************************************/
-//  this function plots one primary and one secondary pixel
-/************************************************************************/
-void display_current_operation(HWND hwnd)
-// void DrawRainbow(HWND hwnd)
-{
-   HDC hdc ;
-   int pcolor ;
-   double N, I, R, T1, T2, RS, RP, RB, RC, I1, I2 ;
-
-   if (cxClient == 0 || cyClient == 0)
-        return ;
-
-   // sprintf(tempstr, "cx=%u, cy=%u\n", cxClient, cyClient) ;
-   // MessageBox(hwnd, tempstr, "status", MB_OK) ;
-
-   // 30 REM  RANDOM IMPACT PARAMETER
-   X = -1.0 + 2 * random_part() ;
-   Y = -1.0 + 2 * random_part() ;
-   B = (double) sqrt(X * X + Y * Y) ; //  square root
-   // 50 IF B >= 1 THEN 30
-   if (B >= 1.0) {
-      return ;
-   }
-
-   hdc = GetDC (hwnd) ;
-   //  select random color and calculate index of refraction
-   pcolor = random_int(6) ; //  select 1 thru 6
-   N = 1.33 + 0.01 * (double) (pcolor) ;
-
-   // 70 REM  COMPUTE ANGLES
-   I  = asin(B) ;     //  angle of incidence
-   R  = asin(B / N) ; //  angle of refraction
-
-   //  calculate observation angles for 
-   //  primary (T1) and secondary (T2) rainbows.
-   T1 = (4 * R - 2 * I) * RADS2DEGS ;
-   T2 = (6 * R - 2 * I) * RADS2DEGS - 180 ;
-
-   // 95 REM  INTENSITY FACTORS
-   // RS = (sin(I - R) / sin(I + R)) ^ 2 ;
-   RS = (double) (sin(I - R) / sin(I + R)) ;
-   RS *= RS ;
-   RP = (double) (tan(I - R) / tan(I + R)) ;
-   RP *= RP ;
-   RB = (1 - RP) * (1 - RP) ;
-   RC = (1 - RS) * (1 - RS) ;
-   I1 = (     RS * RC +      RP + RB) / 2 ;
-   I2 = (RS * RS * RC + RP * RP * RB) / 2 ;
-
-   //  Greenler's method: rather than computing intensities
-   //  for individual points, we randomly throw away some
-   //  computed points in the low-intensity regions.
-   if (I1 >= .04 * random_part())
-      rainbow_plot_pixel(hdc, pcolor, T1) ;
-
-   if (I2 >= .02 * random_part())
-      rainbow_plot_pixel(hdc, pcolor, T2) ;
-
-   ReleaseDC (hwnd, hdc) ;
-}
-
-//***********************************************************************
-int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance,
-                  PSTR szCmdLine, int iCmdShow)
-   {
-   HWND        hwnd ;
-   MSG         msg ;
-   WNDCLASSEX  wndclass ;
-
-   g_hinst = hInstance ;
-
-   wndclass.cbSize        = sizeof (wndclass) ;
-   wndclass.style         = CS_HREDRAW | CS_VREDRAW ;
-   wndclass.lpfnWndProc   = WndProc ;
-   wndclass.cbClsExtra    = 0 ;
-   wndclass.cbWndExtra    = 0 ;
-   wndclass.hInstance     = hInstance ;
-   // wndclass.hIcon         = LoadIcon (NULL, IDI_APPLICATION) ;
-   // wndclass.hIconSm       = LoadIcon (NULL, IDI_APPLICATION) ;
-   wndclass.hIcon         = LoadIcon (g_hinst, MAKEINTRESOURCE(RBICON));
-   wndclass.hIconSm       = LoadIcon (g_hinst, MAKEINTRESOURCE(RBICON));
-   wndclass.hCursor       = LoadCursor (NULL, IDC_ARROW) ;
-#ifdef   USE_SYS_BG_COLOR  
-   wndclass.hbrBackground = (HBRUSH) (COLOR_WINDOW + 1) ;
-#else
-   wndclass.hbrBackground = (HBRUSH) GetStockObject (BLACK_BRUSH) ;
-#endif
-   wndclass.lpszMenuName  = NULL ;
-   wndclass.lpszClassName = szAppName ;
-
-   RegisterClassEx (&wndclass) ;
-
-   hwnd = CreateWindow (szAppName, szAppDesc,
-                        WS_OVERLAPPEDWINDOW,
-                        CW_USEDEFAULT, CW_USEDEFAULT,
-                        CW_USEDEFAULT, CW_USEDEFAULT,
-                        NULL, NULL, hInstance, NULL) ;
-
-   ShowWindow (hwnd, iCmdShow) ;
-   UpdateWindow (hwnd) ;
-
-   while (GetMessage (&msg, NULL, 0, 0)) {
+   MSG      msg ;
+//  interesting...  If I enable USE_GETMESSAGE_HWND, and use hwnd in GetMessage(),
+//  then PostQuitMessage() does not terminate the message loop!!
+//  Actually, this problem only occurs if the message handler is a Window.
+//  Dialogs terminate just fine in this case.
+// #ifdef  USE_GETMESSAGE_HWND
+//    while (GetMessageA (&msg, hwnd, 0, 0)) {
+// #else
+   while (GetMessage(&msg, NULL, 0, 0)) {
+// #endif
       TranslateMessage (&msg) ;
       DispatchMessage (&msg) ;
    }
+   // syslog("EditWin: thread exiting\n") ;
    return msg.wParam ;
+}
+
+//****************************************************************************
+void open_edit_window(void)
+{
+   if (ref_image_thread == NULL) 
+      ref_image_thread = new CThread(fRefImageThread, (LPVOID) NULL, NULL) ;
 }
 
