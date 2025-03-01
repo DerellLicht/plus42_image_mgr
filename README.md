@@ -22,3 +22,5 @@ The sequence of operations will be thus:
 > Initially, development will take place using .png image files, not .gif.  
   This is because I'm more familiar with the former format than the latter.
   
+<hr>
+
