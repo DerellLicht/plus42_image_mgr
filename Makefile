@@ -1,6 +1,4 @@
 USE_DEBUG = NO
-USE_BMP = YES
-USE_PNG = YES
 
 #*****************************************************************************
 # notes on compiler quirks, using MinGW/G++ V4.3.3
@@ -32,9 +30,7 @@ der_libs/winmsgs.cpp \
 der_libs/vlistview.cpp \
 der_libs/cterminal.cpp \
 der_libs/wthread.cpp \
-der_libs/statbar.cpp \
 der_libs/tooltips.cpp
-
 
 # iface_lib.cpp 
 

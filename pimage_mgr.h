@@ -1,5 +1,3 @@
-extern TCHAR const * const Version ;
-
 extern uint dbg_flags ;
 #define  DBG_WINMSGS    1
 

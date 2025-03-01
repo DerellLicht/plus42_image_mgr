@@ -17,9 +17,9 @@
 // #include "version.h"
 #include "resource.h"
 #include "common.h"
-// #include "commonw.h"
+#include "commonw.h"
 #include "pimage_mgr.h"
-#include "statbar.h"
+// #include "statbar.h"
 #include "winmsgs.h"
 #include "wthread.h"
 #include "lodepng.h"
@@ -42,56 +42,57 @@ static HWND hwndRef = NULL ;
 
 // static TCHAR tempstr[128] ;
 
-static CStatusBar *MainStatusBar = NULL;
+// static CStatusBar *MainStatusBar = NULL;
 
 static LodePng *refImage = NULL ;
 static std::vector<unsigned char> image; //the raw pixels
 static unsigned width = 0, height = 0 ;
+static unsigned cli_width = 0, cli_height = 0 ;
 //lint -esym(844, ref_image_thread)
 static TCHAR *refImageFile = NULL ;
+static TCHAR ref_image_file[MAX_PATH_LEN]  = _T("") ;
 
+//***********************************************************************
+static void resize_window_corrected(HWND hwnd)
+{
+   //  unfortunately, this resize operation, which calls SetWindowPos(),
+   // sets the *outside* window area, not the internal client area...
+   resize_window(hwnd, width, height);
+   
+   //  so we have to calculate the error and correct it here
+   RECT myRect ;
+   GetClientRect(hwnd, &myRect) ;
+   uint cxClient = (myRect.right - myRect.left) ;
+   uint cyClient = (myRect.bottom - myRect.top) ;
+   // termout("Ref Image window client area: %ux%u\n", cxClient, cyClient);
+   cli_width = width + (width - cxClient) ;
+   cli_height = height + (height - cyClient) ;
+   // termout("Ref Image window tweaked size: %ux%u\n", cli_width, cli_height);
+   
+   //  now re-resize with adjusted values
+   resize_window(hwnd, cli_width, cli_height);
+}
+      
 //***********************************************************************
 static void do_init_dialog(HWND hwnd)
 {
-   TCHAR msgstr[81] ;
-   // hwndTopLevel = hwnd ;   //  do I need this?
-   _stprintf(msgstr, "%s", Version) ;
-   SetWindowText(hwnd, msgstr) ;
-
-   SetClassLong(hwnd, GCL_HICON,   (LONG) LoadIcon(g_hinst, (LPCTSTR)IDI_PLUS42IM));
-   SetClassLong(hwnd, GCL_HICONSM, (LONG) LoadIcon(g_hinst, (LPCTSTR)IDI_PLUS42IM));
+   SetWindowText(hwnd, ref_image_file) ;
 
    hwndRef = hwnd ;
-
-   // set_up_working_spaces(hwnd) ; //  do this *before* tooltips !!
-   //***************************************************************************
-   //  add tooltips and bitmaps
-   //***************************************************************************
-   // create_and_add_tooltips(hwnd, 150, 100, 10000, main_tooltips);
-
-   // RECT rWindow;
-   // unsigned stTop ;
-   RECT myRect ;
-   // GetWindowRect(hwnd, &myRect) ;
-   GetClientRect(hwnd, &myRect) ;
-   int cxClient = (myRect.right - myRect.left) ;
-   int cyClient = (myRect.bottom - myRect.top) ;
-
-   // center_window() ;
-   //****************************************************************
-   //  create/configure status bar
-   //****************************************************************
-   MainStatusBar = new CStatusBar(hwnd) ;
-   MainStatusBar->MoveToBottom(cxClient, cyClient) ;
-   //  re-position status-bar parts
-   {
-   int sbparts[3];
-   sbparts[0] = (int) (6 * cxClient / 10) ;
-   sbparts[1] = (int) (8 * cxClient / 10) ;
-   sbparts[2] = -1;
-   MainStatusBar->SetParts(3, &sbparts[0]);
-   }
+   SetClassLong(hwnd, GCL_HICON,   (LONG) LoadIcon(g_hinst, (LPCTSTR)IDI_PLUS42IM));
+   SetClassLong(hwnd, GCL_HICONSM, (LONG) LoadIcon(g_hinst, (LPCTSTR)IDI_PLUS42IM));
    
+   resize_window_corrected(hwnd);
+   //  Disable the CLOSE button on title bar;
+   //  Window should be closed by command from main dialog
+   EnableMenuItem(GetSystemMenu(hwnd, FALSE), SC_CLOSE, MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
+
+   center_window(hwnd, -1, 650) ;
+   
+   //  this does, indeed, draw the png image...
+   HDC hdc = GetDC(hwnd) ;
+   refImage->render_bitmap(hdc, 0, 0, 0) ;
+   ReleaseDC(hwnd, hdc) ;
 }
 
 //***********************************************************************
@@ -127,6 +128,7 @@ static LRESULT CALLBACK RefImageProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARA
    case WM_INITDIALOG:
       {
       refImageFile = (TCHAR *) lParam ;
+      _tcscpy(ref_image_file, refImageFile);
       unsigned error = lodepng::decode(image, width, height, refImageFile, LCT_RGB, 8);
       if (error) {
          // std::cout << "error " << error << ": " << lodepng_error_text(error) << std::endl;
@@ -134,7 +136,7 @@ static LRESULT CALLBACK RefImageProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARA
          // syslog("decodeWithState: %u\n", error) ;
          break;
       }
-      termout("reference Image size: %ux%u\n", width, height);
+      termout("Reference Image size: %ux%u\n", width, height);
       refImage = new LodePng(refImageFile);
       do_init_dialog(hwnd) ;
       }

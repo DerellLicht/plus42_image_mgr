@@ -5,7 +5,6 @@
 //  Written by:  Dan Miller
 //****************************************************************************
 
-
 //lint -esym(767, _WIN32_WINNT)
 #define  _WIN32_WINNT   0x0501
 #include <windows.h>
@@ -17,25 +16,20 @@
 #include "common.h"
 #include "commonw.h"
 #include "pimage_mgr.h"
-// #include "cterminal.h" 
+#include "cterminal.h"  // MAX_TERM_CHARS
 #include "terminal.h"
-// #include "statbar.h"
 #include "winmsgs.h"
 
-TCHAR const * const Version = "Plus42 Image Manager, Version " VerNum " " ;
+static TCHAR const * const Version = "Plus42 Image Manager, Version " VerNum " " ;
 //lint -esym(715, lParam)
 //lint -esym(818, szCmdLine, hPrevInstance)  could be declared as pointing to const
 
 // static char szAppName[] = "pimage_mgr";
 
-//lint -esym(714, dbg_flags)
-//lint -esym(759, dbg_flags)
-//lint -esym(765, dbg_flags)
-
 //  taken from CTerminal.h
 //  if a function needs a longer line than this, they should
 //  define their own termout() derivative function(s)
-#define  MAX_TERM_CHARS    1024
+// #define  MAX_TERM_CHARS    1024
 
 //***********************************************************************
 HINSTANCE g_hinst = 0;
@@ -45,17 +39,10 @@ static HWND hwndOpen = NULL ;
 // static HMENU hMainMenu = NULL ;
 
 //lint -esym(843, dbg_flags)  could be declared as const
-
-//lint -esym(714, status_message)
-//lint -esym(765, status_message)
 uint dbg_flags = 0
    // | DBG_WINMSGS
    ;
 
-// static uint cxClient = 0 ;
-// static uint cyClient = 0 ;
-
-// static CStatusBar *MainStatusBar = NULL;
 // static HWND hToolTip ;  /* Tooltip handle */
 
 static TCHAR layout_file[MAX_PATH_LEN] = _T("skin.layout") ;
