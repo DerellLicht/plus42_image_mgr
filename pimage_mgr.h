@@ -7,6 +7,21 @@ extern uint dbg_flags ;
 
 extern HINSTANCE g_hinst ;
 
+//lint -esym(769, TERM_INFO, TERM_QUERY, TERM_ERROR)
+//  indices into term_atable[]
+enum {
+TERM_NORMAL = 0,
+TERM_INFO,
+TERM_QUERY,
+TERM_ERROR
+} ;
+
+#define  NUM_TERM_ATTR_ENTRIES   4
+
+void set_term_attr(uint atidx);
+int termout(const char *fmt, ...);
+int put_color_term_msg(uint idx, const char *fmt, ...);
+
 BOOL CmdAbout(HWND hwnd);
 void open_image_window(TCHAR *image_file);
 

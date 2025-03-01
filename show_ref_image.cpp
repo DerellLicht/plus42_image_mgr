@@ -31,7 +31,7 @@
 //  comment this line out to draw black window background 
 // #define USE_SYS_BG_COLOR  1
 
-static CThread *ref_image_thread = NULL ;
+static CThread const *ref_image_thread = NULL ;
 //***********************************************************************
 // static int cxClient = 0 ;
 // static int cyClient = 0 ;
@@ -134,7 +134,7 @@ static LRESULT CALLBACK RefImageProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARA
          // syslog("decodeWithState: %u\n", error) ;
          break;
       }
-      syslog("refImage size: %ux%u\n", width, height);
+      termout("reference Image size: %ux%u\n", width, height);
       refImage = new LodePng(refImageFile);
       do_init_dialog(hwnd) ;
       }
@@ -216,10 +216,26 @@ static DWORD WINAPI fRefImageThread(LPVOID iValue)
 }
 
 //****************************************************************************
+
+static void close_ref_image_thread(LPVOID iValue)
+{
+   SendMessage(hwndRef, WM_CLOSE, 0, 0) ;
+}  //lint !e715
+
+//  called during WM_CLOSE in main dialog
+void stop_ref_image_thread(void)
+{
+   if (ref_image_thread != NULL) {
+      syslog("delete ref image thread\n") ;
+      delete ref_image_thread ;
+      ref_image_thread = NULL ;
+   }
+}
+
 void open_image_window(TCHAR *image_file)
 {
    if (ref_image_thread == NULL) {
-      ref_image_thread = new CThread(fRefImageThread, (LPVOID) image_file, NULL) ;
+      ref_image_thread = new CThread(fRefImageThread, (LPVOID) image_file, close_ref_image_thread) ;
    }
 }
 

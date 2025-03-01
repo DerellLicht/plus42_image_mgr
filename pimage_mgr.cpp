@@ -62,6 +62,11 @@ static TCHAR layout_file[MAX_PATH_LEN] = _T("skin.layout") ;
 static TCHAR skin_name[MAX_PATH_LEN]   = _T("") ;
 static TCHAR image_file[MAX_PATH_LEN]  = _T("") ;
 
+//  external functions
+
+//  show_ref_image.cpp
+extern void stop_ref_image_thread(void);
+
 //***********************************************************************
 // LodePng pngSprites("tiles32.png", SPRITE_HEIGHT, SPRITE_WIDTH) ;
 // LodePng pngTiles  ("images.png",  IMAGE_WIDTH,   IMAGE_HEIGHT) ;
@@ -135,29 +140,11 @@ typedef struct attrib_table_s {
    COLORREF bgnd ;
 } attrib_table_t ;
 
-//lint -esym(749, TERM_INFO, TERM_QUERY)
-//  indices into term_atable[]
-enum {
-TERM_NORMAL = 0,
-TERM_INFO,
-TERM_QUERY,
-TERM_PLAYER_HIT,
-TERM_MONSTER_HIT,
-TERM_RUNESTAFF,
-TERM_DEATH,
-TERM_ATMOSPHERE
-} ;
-
-#define  NUM_TERM_ATTR_ENTRIES   8
 static attrib_table_t term_atable[NUM_TERM_ATTR_ENTRIES] = {
    { WIN_CYAN,    WIN_BLACK },   // TERM_NORMAL 
    { WIN_BCYAN,   WIN_GREY },    // TERM_INFO
    { WIN_YELLOW,  WIN_BLUE },    // TERM_QUERY
-   { WIN_RED,     WIN_BLACK },   // TERM_PLAYER_HIT
-   { WIN_BLUE,    WIN_BLACK },   // TERM_MONSTER_HIT
-   { WIN_GREY,    WIN_BLACK },   // TERM_RUNESTAFF
-   { WIN_BBLUE,   WIN_BLACK },   // TERM_DEATH
-   { WIN_GREEN,   WIN_BLACK }    // TERM_ATMOSPHERE
+   { WIN_BRED,    WIN_BLUE }     // TERM_ERROR
 } ;
 
 //****************************************************************************
@@ -166,17 +153,13 @@ static void set_local_terminal_colors(void)
    COLORREF std_bgnd = GetSysColor(COLOR_WINDOW) ;
    term_atable[TERM_NORMAL].fgnd = GetSysColor(COLOR_WINDOWTEXT) ;
    term_atable[TERM_NORMAL].bgnd = std_bgnd ;
-
-   //  set standard background for other color sets which use it
-   term_atable[TERM_PLAYER_HIT].bgnd = std_bgnd ;
-   term_atable[TERM_MONSTER_HIT].bgnd = std_bgnd ;
-   term_atable[TERM_RUNESTAFF].bgnd = std_bgnd ;
-   term_atable[TERM_DEATH].bgnd = std_bgnd ;
-   term_atable[TERM_ATMOSPHERE].bgnd = std_bgnd ;
 }
 
 //********************************************************************
-static void set_term_attr(uint atidx)
+//lint -esym(714, set_term_attr, termout, put_color_term_msg)
+//lint -esym(759, set_term_attr, termout, put_color_term_msg)
+//lint -esym(765, set_term_attr, termout, put_color_term_msg)
+void set_term_attr(uint atidx)
 {
    if (atidx >= NUM_TERM_ATTR_ENTRIES) {
       syslog("set_term_attr: invalid index %u\n", atidx) ;
@@ -186,9 +169,8 @@ static void set_term_attr(uint atidx)
 }
 
 //********************************************************************
-//lint -esym(714, termout)
-//lint -esym(759, termout)
-//lint -esym(765, termout)
+//  This outputs to terminal in default colors
+//********************************************************************
 int termout(const char *fmt, ...)
 {
    char consoleBuffer[MAX_TERM_CHARS + 1];
@@ -203,47 +185,10 @@ int termout(const char *fmt, ...)
 }
 
 //********************************************************************
-//lint -esym(714, term_append)
-//lint -esym(759, term_append)
-//lint -esym(765, term_append)
-int term_append(const char *fmt, ...)
-{
-   char consoleBuffer[MAX_TERM_CHARS + 1];
-   va_list al; //lint !e522
-
-   va_start(al, fmt);   //lint !e1055 !e530
-   vsprintf(consoleBuffer, fmt, al);   //lint !e64
-   set_term_attr(TERM_NORMAL) ;
-   term_append(consoleBuffer);
-   va_end(al);
-   return 1;
-}
-
-//********************************************************************
-//lint -esym(714, term_replace)
-//lint -esym(759, term_replace)
-//lint -esym(765, term_replace)
-int term_replace(const char *fmt, ...)
-{
-   char consoleBuffer[MAX_TERM_CHARS + 1];
-   va_list al; //lint !e522
-
-   va_start(al, fmt);   //lint !e1055 !e530
-   vsprintf(consoleBuffer, fmt, al);   //lint !e64
-   set_term_attr(TERM_NORMAL) ;
-   term_replace(consoleBuffer);
-   va_end(al);
-   return 1;
-}
-
-//********************************************************************
 //  this *cannot* be called with a color attribute;
 //  it must be called with an index into term_atable[] !!
 //********************************************************************
-//lint -esym(714, put_color_msg)
-//lint -esym(759, put_color_msg)
-//lint -esym(765, put_color_msg)
-int put_color_msg(uint idx, const char *fmt, ...)
+int put_color_term_msg(uint idx, const char *fmt, ...)
 {
    char consoleBuffer[MAX_TERM_CHARS + 1];
    va_list al; //lint !e522
@@ -306,8 +251,10 @@ static void do_init_dialog(HWND hwnd)
    // setup_terminal_window(hwnd, MainStatusBar->height(), IDB_SKIN_OPEN);
    setup_terminal_window(hwnd, 0, IDB_SKIN_OPEN);
    set_local_terminal_colors() ;
-   put_color_msg(TERM_INFO, "terminal size: columns=%u, rows=%u",
+   put_color_term_msg(TERM_INFO, "terminal size: columns=%u, rows=%u",
       term_get_columns(), term_get_rows());
+      
+   // put_color_term_msg(TERM_ERROR, "Testing ERROR report function");
 }
 
 //***********************************************************************
@@ -441,6 +388,7 @@ error_path:
    //  application shutdown handlers
    //********************************************************************
    case WM_CLOSE:
+      stop_ref_image_thread();
       DestroyWindow(hwnd);
       break;
 

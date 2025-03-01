@@ -1,0 +1,2 @@
+> RefImage window - Close button on title bar does not invoke the close-thread function(s)
+

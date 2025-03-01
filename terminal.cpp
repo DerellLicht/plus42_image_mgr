@@ -31,11 +31,17 @@ void term_put(char *term_str)
    myTerminal->put(term_str);
 }
 
+//lint -esym(714, term_append)
+//lint -esym(759, term_append)
+//lint -esym(765, term_append)
 void term_append(char *term_str)
 {
    myTerminal->append(term_str);
 }
 
+//lint -esym(714, term_replace)
+//lint -esym(759, term_replace)
+//lint -esym(765, term_replace)
 void term_replace(char *term_str)
 {
    myTerminal->replace(term_str);
