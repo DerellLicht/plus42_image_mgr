@@ -24,3 +24,14 @@ The sequence of operations will be thus:
   
 <hr>
 
+Usage instructions (development version)  
+
+1. Click the three dots next to 'Base skin name'
+2. Select a .layout file from some existing skin
+   You *may* need to do some folder-cruising to find such skins, 
+   but once you get there, it will remember the location for future runs.
+3. After selecting a layout file, click the ***Open Image*** button.
+   This will open a new window which will display the .png file for the skin.
+   
+That's all that's working at this point...
+   
