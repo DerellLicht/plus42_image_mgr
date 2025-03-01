@@ -17,6 +17,8 @@
 #include "common.h"
 #include "commonw.h"
 #include "header.h"
+// #include "cterminal.h" 
+#include "terminal.h"
 #include "statbar.h"
 #include "winmsgs.h"
 
@@ -30,11 +32,16 @@ TCHAR const * const Version = "Plus42 Image Manager, Version " VerNum " " ;
 //lint -esym(759, dbg_flags)
 //lint -esym(765, dbg_flags)
 
+//  taken from CTerminal.h
+//  if a function needs a longer line than this, they should
+//  define their own termout() derivative function(s)
+#define  MAX_TERM_CHARS    1024
+
 //***********************************************************************
 HINSTANCE g_hinst = 0;
 
 static HWND hwndMain ;
-static HMENU hMainMenu = NULL ;
+// static HMENU hMainMenu = NULL ;
 
 //lint -esym(843, dbg_flags)  could be declared as const
 
@@ -47,28 +54,28 @@ uint dbg_flags = 0
 static uint cxClient = 0 ;
 static uint cyClient = 0 ;
 
-static CStatusBar *MainStatusBar = NULL;
+// static CStatusBar *MainStatusBar = NULL;
 // static HWND hToolTip ;  /* Tooltip handle */
 
 static TCHAR layout_file[MAX_PATH_LEN] = _T("skin.layout") ;
-static TCHAR skin_name[MAX_PATH_LEN] = _T("") ;
-static TCHAR image_file[MAX_PATH_LEN] = _T("") ;
+static TCHAR skin_name[MAX_PATH_LEN]   = _T("") ;
+static TCHAR image_file[MAX_PATH_LEN]  = _T("") ;
 
 //***********************************************************************
 // LodePng pngSprites("tiles32.png", SPRITE_HEIGHT, SPRITE_WIDTH) ;
 // LodePng pngTiles  ("images.png",  IMAGE_WIDTH,   IMAGE_HEIGHT) ;
 
 //*******************************************************************
-void status_message(char *msgstr)
-{
-   MainStatusBar->show_message(msgstr);
-}
+// void status_message(char *msgstr)
+// {
+//    MainStatusBar->show_message(msgstr);
+// }
 
 //*******************************************************************
-void status_message(uint idx, char *msgstr)
-{
-   MainStatusBar->show_message(idx, msgstr);
-}
+// void status_message(uint idx, char *msgstr)
+// {
+//    MainStatusBar->show_message(idx, msgstr);
+// }
 
 //***********************************************************************
 static uint screen_width  = 0 ;
@@ -104,12 +111,132 @@ static void center_window(void)
    SetWindowPos(hwndMain, HWND_TOP, x0, y0, 0, 0, SWP_NOSIZE) ;
 }
 
-//***********************************************************************
-static void setup_main_menu(HWND hwnd)
+//****************************************************************************
+//lint -esym(756, attrib_table_t)
+typedef struct attrib_table_s {
+   COLORREF fgnd ;
+   COLORREF bgnd ;
+} attrib_table_t ;
+
+//lint -esym(749, TERM_INFO, TERM_QUERY)
+//  indices into term_atable[]
+enum {
+TERM_NORMAL = 0,
+TERM_INFO,
+TERM_QUERY,
+TERM_PLAYER_HIT,
+TERM_MONSTER_HIT,
+TERM_RUNESTAFF,
+TERM_DEATH,
+TERM_ATMOSPHERE
+} ;
+
+#define  NUM_TERM_ATTR_ENTRIES   8
+static attrib_table_t term_atable[NUM_TERM_ATTR_ENTRIES] = {
+   { WIN_CYAN,    WIN_BLACK },   // TERM_NORMAL 
+   { WIN_BCYAN,   WIN_GREY },    // TERM_INFO
+   { WIN_YELLOW,  WIN_BLUE },    // TERM_QUERY
+   { WIN_RED,     WIN_BLACK },   // TERM_PLAYER_HIT
+   { WIN_BLUE,    WIN_BLACK },   // TERM_MONSTER_HIT
+   { WIN_GREY,    WIN_BLACK },   // TERM_RUNESTAFF
+   { WIN_BBLUE,   WIN_BLACK },   // TERM_DEATH
+   { WIN_GREEN,   WIN_BLACK }    // TERM_ATMOSPHERE
+} ;
+
+//****************************************************************************
+static void set_local_terminal_colors(void)
 {
-   hMainMenu = LoadMenu(g_hinst, MAKEINTRESOURCE(IDM_MAINMENU));
-   SetMenu(hwnd, hMainMenu);
-   // update_summary_options_menu() ;   //  initial setup
+   COLORREF std_bgnd = GetSysColor(COLOR_WINDOW) ;
+   term_atable[TERM_NORMAL].fgnd = GetSysColor(COLOR_WINDOWTEXT) ;
+   term_atable[TERM_NORMAL].bgnd = std_bgnd ;
+
+   //  set standard background for other color sets which use it
+   term_atable[TERM_PLAYER_HIT].bgnd = std_bgnd ;
+   term_atable[TERM_MONSTER_HIT].bgnd = std_bgnd ;
+   term_atable[TERM_RUNESTAFF].bgnd = std_bgnd ;
+   term_atable[TERM_DEATH].bgnd = std_bgnd ;
+   term_atable[TERM_ATMOSPHERE].bgnd = std_bgnd ;
+}
+
+//********************************************************************
+static void set_term_attr(uint atidx)
+{
+   if (atidx >= NUM_TERM_ATTR_ENTRIES) {
+      syslog("set_term_attr: invalid index %u\n", atidx) ;
+      return ;
+   }
+   term_set_attr(term_atable[atidx].fgnd, term_atable[atidx].bgnd) ;
+}
+
+//********************************************************************
+//lint -esym(714, termout)
+//lint -esym(759, termout)
+//lint -esym(765, termout)
+int termout(const char *fmt, ...)
+{
+   char consoleBuffer[MAX_TERM_CHARS + 1];
+   va_list al; //lint !e522
+
+   va_start(al, fmt);   //lint !e1055 !e530
+   vsprintf(consoleBuffer, fmt, al);   //lint !e64
+   set_term_attr(TERM_NORMAL);
+   term_put(consoleBuffer);
+   va_end(al);
+   return 1;
+}
+
+//********************************************************************
+//lint -esym(714, term_append)
+//lint -esym(759, term_append)
+//lint -esym(765, term_append)
+int term_append(const char *fmt, ...)
+{
+   char consoleBuffer[MAX_TERM_CHARS + 1];
+   va_list al; //lint !e522
+
+   va_start(al, fmt);   //lint !e1055 !e530
+   vsprintf(consoleBuffer, fmt, al);   //lint !e64
+   set_term_attr(TERM_NORMAL) ;
+   term_append(consoleBuffer);
+   va_end(al);
+   return 1;
+}
+
+//********************************************************************
+//lint -esym(714, term_replace)
+//lint -esym(759, term_replace)
+//lint -esym(765, term_replace)
+int term_replace(const char *fmt, ...)
+{
+   char consoleBuffer[MAX_TERM_CHARS + 1];
+   va_list al; //lint !e522
+
+   va_start(al, fmt);   //lint !e1055 !e530
+   vsprintf(consoleBuffer, fmt, al);   //lint !e64
+   set_term_attr(TERM_NORMAL) ;
+   term_replace(consoleBuffer);
+   va_end(al);
+   return 1;
+}
+
+//********************************************************************
+//  this *cannot* be called with a color attribute;
+//  it must be called with an index into term_atable[] !!
+//********************************************************************
+//lint -esym(714, put_color_msg)
+//lint -esym(759, put_color_msg)
+//lint -esym(765, put_color_msg)
+int put_color_msg(uint idx, const char *fmt, ...)
+{
+   char consoleBuffer[MAX_TERM_CHARS + 1];
+   va_list al; //lint !e522
+
+   va_start(al, fmt);   //lint !e1055 !e530
+   vsprintf(consoleBuffer, fmt, al);   //lint !e64
+   set_term_attr(idx) ;
+   term_put(consoleBuffer);
+   va_end(al);
+   return 1;
 }
 
 //***********************************************************************
@@ -118,14 +245,14 @@ static void do_init_dialog(HWND hwnd)
    // hwndTopLevel = hwnd ;   //  do I need this?
    char msgstr[81] ;
    wsprintfA(msgstr, "%s", Version) ;
-   SetWindowTextA(hwnd, msgstr) ;
+   SetWindowText(hwnd, msgstr) ;
 
-   SetClassLongA(hwnd, GCL_HICON,   (LONG) LoadIcon(g_hinst, (LPCTSTR)IDI_PLUS42IM));
-   SetClassLongA(hwnd, GCL_HICONSM, (LONG) LoadIcon(g_hinst, (LPCTSTR)IDI_PLUS42IM));
+   SetClassLong(hwnd, GCL_HICON,   (LONG) LoadIcon(g_hinst, (LPCTSTR)IDI_PLUS42IM));
+   SetClassLong(hwnd, GCL_HICONSM, (LONG) LoadIcon(g_hinst, (LPCTSTR)IDI_PLUS42IM));
 
    hwndMain = hwnd ;
 
-   setup_main_menu(hwnd) ;
+   // setup_main_menu(hwnd) ;
    // set_up_working_spaces(hwnd) ; //  do this *before* tooltips !!
    //***************************************************************************
    //  add tooltips and bitmaps
@@ -144,16 +271,33 @@ static void do_init_dialog(HWND hwnd)
    //****************************************************************
    //  create/configure status bar
    //****************************************************************
-   MainStatusBar = new CStatusBar(hwnd) ;
-   MainStatusBar->MoveToBottom(cxClient, cyClient) ;
-   //  re-position status-bar parts
-   {
-   int sbparts[3];
-   sbparts[0] = (int) (6 * cxClient / 10) ;
-   sbparts[1] = (int) (8 * cxClient / 10) ;
-   sbparts[2] = -1;
-   MainStatusBar->SetParts(3, &sbparts[0]);
-   }
+   // MainStatusBar = new CStatusBar(hwnd) ;
+   // MainStatusBar->MoveToBottom(cxClient, cyClient) ;
+   // //  re-position status-bar parts
+   // {
+   // int sbparts[3];
+   // sbparts[0] = (int) (6 * cxClient / 10) ;
+   // sbparts[1] = (int) (8 * cxClient / 10) ;
+   // sbparts[2] = -1;
+   // MainStatusBar->SetParts(3, &sbparts[0]);
+   // }
+
+   //****************************************************************
+   //  create/configure terminal
+   //****************************************************************
+   // setup_terminal_window(hwnd, MainStatusBar->height(), IDB_SKIN_OPEN);
+   setup_terminal_window(hwnd, 0, IDB_SKIN_OPEN);
+   set_local_terminal_colors() ;
+   // termout("terminal size: columns=%u, rows=%u",
+   //    term_get_columns(), term_get_rows());
+   put_color_msg(TERM_INFO, "terminal size: columns=%u, rows=%u",
+      term_get_columns(), term_get_rows());
+      
+   // sprintf(msgstr, "terminal size: columns=%u, rows=%u\n",
+   //    term_get_columns(), term_get_rows());
+   // status_message(msgstr);
+   // syslog("terminal size: columns=%u, rows=%u\n",
+   //    term_get_columns(), term_get_rows());
 }
 
 //***********************************************************************
@@ -191,8 +335,10 @@ static LRESULT CALLBACK WinProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lPa
    switch(iMsg) {
    case WM_INITDIALOG:
       do_init_dialog(hwnd) ;
-      // wpOrigMainProc = (WNDPROC) SetWindowLongPtr(hwnd, GWL_WNDPROC, (LONG) MainSubclassProc); 
       return TRUE;
+
+   case WM_NOTIFY:
+      return term_notify(hwnd, lParam) ;
 
    //***********************************************************************************************
    //  04/16/14 - unfortunately, I cannot use WM_SIZE, nor any other message, to draw my graphics,
@@ -209,11 +355,10 @@ static LRESULT CALLBACK WinProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lPa
       //  and then update our graphics objects.
       //********************************************************************************************
    //    return TRUE;
-
    //  this occurs during program startup
-   case WM_ERASEBKGND:
-      // syslog("WM_ERASEBKGND\n") ;
-      break;
+   // case WM_ERASEBKGND:
+   //    // syslog("WM_ERASEBKGND\n") ;
+   //    break;
 
    case WM_COMMAND:
       {  //  create local context
@@ -257,12 +402,11 @@ static LRESULT CALLBACK WinProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lPa
                   goto error_path;
                }
                strcpy(p, _T(".png"));
-               status_message(image_file);
+               termout("%s", image_file);
             } else {
 error_path:
                layout_file[0] = 0 ; //  make layout filename invalid
-               sprintf(msgstr, "select_file: %s", get_system_message()) ;
-               status_message(msgstr) ;
+               termout("select_file: %s", get_system_message()) ;
             }
             }  // end local context
             return 0 ;

@@ -30,12 +30,14 @@
 #define  IDM_HELP          403
 
 #define  IDC_IMG_AREA      500
+#define  IDC_MAP_AREA      501
 
 #define  IDB_OPTIONS       601
 #define  IDS_SKIN_NAME     602
 #define  IDC_SKIN_NAME     603
 #define  IDB_SKIN_OPEN     604
 #define  IDB_SKIN_SELECT   605
+#define  IDC_TERMINAL      606
 
 //  about.cpp constants
 #define  IDC_VERNUM        701

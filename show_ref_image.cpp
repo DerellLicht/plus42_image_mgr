@@ -134,8 +134,7 @@ static LRESULT CALLBACK RefImageProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARA
          // syslog("decodeWithState: %u\n", error) ;
          break;
       }
-      _stprintf(tempstr, _T("isize: %ux%u\n"), width, height);
-      status_message(2, tempstr);
+      syslog("refImage size: %ux%u\n", width, height);
       refImage = new LodePng(refImageFile);
       do_init_dialog(hwnd) ;
       }
