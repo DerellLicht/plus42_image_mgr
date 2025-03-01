@@ -16,10 +16,10 @@
 #include "resource.h"
 #include "common.h"
 #include "commonw.h"
-#include "header.h"
+#include "pimage_mgr.h"
 // #include "cterminal.h" 
 #include "terminal.h"
-#include "statbar.h"
+// #include "statbar.h"
 #include "winmsgs.h"
 
 TCHAR const * const Version = "Plus42 Image Manager, Version " VerNum " " ;
@@ -40,7 +40,8 @@ TCHAR const * const Version = "Plus42 Image Manager, Version " VerNum " " ;
 //***********************************************************************
 HINSTANCE g_hinst = 0;
 
-static HWND hwndMain ;
+static HWND hwndMain = NULL ;
+static HWND hwndOpen = NULL ;
 // static HMENU hMainMenu = NULL ;
 
 //lint -esym(843, dbg_flags)  could be declared as const
@@ -51,8 +52,8 @@ uint dbg_flags = 0
    // | DBG_WINMSGS
    ;
 
-static uint cxClient = 0 ;
-static uint cyClient = 0 ;
+// static uint cxClient = 0 ;
+// static uint cyClient = 0 ;
 
 // static CStatusBar *MainStatusBar = NULL;
 // static HWND hToolTip ;  /* Tooltip handle */
@@ -95,20 +96,36 @@ static void ww_get_monitor_dimens(HWND hwnd)
 }
 
 //***********************************************************************
-static void center_window(void)
+//  args for center_window:
+//  x=-1  center width in window
+//  y=-1  center height in window
+//  y > 0  set Y position to y
+//***********************************************************************
+//lint -esym(714, center_window)
+//lint -esym(759, center_window)
+//lint -esym(765, center_window)
+void center_window(HWND hwnd, int x_pos, int y_pos)
 {
-   ww_get_monitor_dimens(hwndMain);
+   if (screen_width == 0) {
+      ww_get_monitor_dimens(hwndMain);
+   }
    
    RECT myRect ;
-   GetWindowRect(hwndMain, &myRect) ;
+   GetWindowRect(hwnd, &myRect) ;
    // GetClientRect(hwnd, &myRect) ;
    uint dialog_width = (myRect.right - myRect.left) ;
    uint dialog_height = (myRect.bottom - myRect.top) ;
 
    uint x0 = (screen_width  - dialog_width ) / 2 ;
    uint y0 = (screen_height - dialog_height) / 2 ;
-
-   SetWindowPos(hwndMain, HWND_TOP, x0, y0, 0, 0, SWP_NOSIZE) ;
+   
+   if (x_pos >= 0) {
+      x0 = x_pos ;
+   }
+   if (y_pos >= 0) {
+      y0 = y_pos ;
+   }
+   SetWindowPos(hwnd, HWND_TOP, x0, y0, 0, 0, SWP_NOSIZE) ;
 }
 
 //****************************************************************************
@@ -251,6 +268,9 @@ static void do_init_dialog(HWND hwnd)
    SetClassLong(hwnd, GCL_HICONSM, (LONG) LoadIcon(g_hinst, (LPCTSTR)IDI_PLUS42IM));
 
    hwndMain = hwnd ;
+   hwndOpen = GetDlgItem(hwnd, IDB_SKIN_OPEN);
+   
+   EnableWindow(hwndOpen, false);
 
    // setup_main_menu(hwnd) ;
    // set_up_working_spaces(hwnd) ; //  do this *before* tooltips !!
@@ -259,15 +279,13 @@ static void do_init_dialog(HWND hwnd)
    //***************************************************************************
    // create_and_add_tooltips(hwnd, 150, 100, 10000, main_tooltips);
 
-   // RECT rWindow;
-   // unsigned stTop ;
-   RECT myRect ;
-   // GetWindowRect(hwnd, &myRect) ;
-   GetClientRect(hwnd, &myRect) ;
-   cxClient = (myRect.right - myRect.left) ;
-   cyClient = (myRect.bottom - myRect.top) ;
+   // RECT myRect ;
+   // // GetWindowRect(hwnd, &myRect) ;
+   // GetClientRect(hwnd, &myRect) ;
+   // uint cxClient = (myRect.right - myRect.left) ;
+   // uint cyClient = (myRect.bottom - myRect.top) ;
 
-   center_window() ;
+   center_window(hwnd, -1, 100) ;
    //****************************************************************
    //  create/configure status bar
    //****************************************************************
@@ -288,16 +306,8 @@ static void do_init_dialog(HWND hwnd)
    // setup_terminal_window(hwnd, MainStatusBar->height(), IDB_SKIN_OPEN);
    setup_terminal_window(hwnd, 0, IDB_SKIN_OPEN);
    set_local_terminal_colors() ;
-   // termout("terminal size: columns=%u, rows=%u",
-   //    term_get_columns(), term_get_rows());
    put_color_msg(TERM_INFO, "terminal size: columns=%u, rows=%u",
       term_get_columns(), term_get_rows());
-      
-   // sprintf(msgstr, "terminal size: columns=%u, rows=%u\n",
-   //    term_get_columns(), term_get_rows());
-   // status_message(msgstr);
-   // syslog("terminal size: columns=%u, rows=%u\n",
-   //    term_get_columns(), term_get_rows());
 }
 
 //***********************************************************************
@@ -371,12 +381,6 @@ static LRESULT CALLBACK WinProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lPa
       case BN_CLICKED:
          switch(target) {
          
-         case IDB_OPTIONS:
-            break ;
-            
-         case IDM_HELP:
-            break;
-            
          case IDB_SKIN_SELECT:
             {  // create local context
             _tcscpy(layout_file, _T("skin.layout")) ;
@@ -403,6 +407,8 @@ static LRESULT CALLBACK WinProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lPa
                }
                strcpy(p, _T(".png"));
                termout("%s", image_file);
+               
+               EnableWindow(hwndOpen, true);
             } else {
 error_path:
                layout_file[0] = 0 ; //  make layout filename invalid
@@ -415,9 +421,14 @@ error_path:
             open_image_window(image_file);
             break ;
             
-         case IDD_ABOUT : CmdAbout(hwnd); break ;
+         case IDB_HELP:
+            break;
+            
+         case IDD_ABOUT : 
+            CmdAbout(hwnd); 
+            break ;
          
-         case IDM_CLOSE:
+         case IDB_CLOSE:
             PostMessageA(hwnd, WM_CLOSE, 0, 0);
             break;
          } //lint !e744  switch target

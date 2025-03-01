@@ -82,17 +82,17 @@ rc.o: pimage_mgr.rc
 # DO NOT DELETE
 
 pimage_mgr.o: version.h resource.h der_libs/common.h der_libs/commonw.h
-pimage_mgr.o: header.h der_libs/cterminal.h der_libs/vlistview.h terminal.h
-pimage_mgr.o: der_libs/statbar.h der_libs/winmsgs.h
-terminal.o: resource.h der_libs/common.h der_libs/commonw.h header.h
-terminal.o: der_libs/statbar.h der_libs/cterminal.h der_libs/vlistview.h
-terminal.o: terminal.h der_libs/winmsgs.h
+pimage_mgr.o: pimage_mgr.h terminal.h der_libs/winmsgs.h
+terminal.o: resource.h der_libs/common.h der_libs/commonw.h pimage_mgr.h
+terminal.o: der_libs/cterminal.h der_libs/vlistview.h terminal.h
+terminal.o: der_libs/winmsgs.h
 lodepng.o: lodepng.h
 lode_png.o: der_libs/common.h lodepng.h lode_png.h
 hyperlinks.o: der_libs/iface_32_64.h hyperlinks.h
-about.o: resource.h version.h der_libs/common.h header.h hyperlinks.h
-show_ref_image.o: resource.h der_libs/common.h header.h der_libs/statbar.h
-show_ref_image.o: der_libs/winmsgs.h der_libs/wthread.h lodepng.h lode_png.h
+about.o: resource.h version.h der_libs/common.h pimage_mgr.h hyperlinks.h
+show_ref_image.o: resource.h der_libs/common.h pimage_mgr.h
+show_ref_image.o: der_libs/statbar.h der_libs/winmsgs.h der_libs/wthread.h
+show_ref_image.o: lodepng.h lode_png.h
 der_libs/common_funcs.o: der_libs/common.h
 der_libs/common_win.o: der_libs/common.h der_libs/commonw.h
 der_libs/vlistview.o: der_libs/common.h der_libs/commonw.h

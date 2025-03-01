@@ -26,18 +26,17 @@
 
 #define  IDM_OPEN_SKIN     400
 #define  IDM_ITEM2         401
-#define  IDM_CLOSE         402
-#define  IDM_HELP          403
+#define  IDB_CLOSE         402
+#define  IDB_HELP          403
 
 #define  IDC_IMG_AREA      500
 #define  IDC_MAP_AREA      501
 
-#define  IDB_OPTIONS       601
-#define  IDS_SKIN_NAME     602
-#define  IDC_SKIN_NAME     603
-#define  IDB_SKIN_OPEN     604
-#define  IDB_SKIN_SELECT   605
-#define  IDC_TERMINAL      606
+#define  IDS_SKIN_NAME     601
+#define  IDC_SKIN_NAME     602
+#define  IDB_SKIN_OPEN     603
+#define  IDB_SKIN_SELECT   604
+#define  IDC_TERMINAL      605
 
 //  about.cpp constants
 #define  IDC_VERNUM        701

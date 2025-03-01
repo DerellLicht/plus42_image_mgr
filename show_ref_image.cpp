@@ -18,7 +18,7 @@
 #include "resource.h"
 #include "common.h"
 // #include "commonw.h"
-#include "header.h"
+#include "pimage_mgr.h"
 #include "statbar.h"
 #include "winmsgs.h"
 #include "wthread.h"
@@ -33,14 +33,14 @@
 
 static CThread *ref_image_thread = NULL ;
 //***********************************************************************
-static int cxClient = 0 ;
-static int cyClient = 0 ;
+// static int cxClient = 0 ;
+// static int cyClient = 0 ;
 
 // unsigned xbase, xdiff, ybase, ydiff ;
 
 static HWND hwndRef = NULL ;
 
-static TCHAR tempstr[128] ;
+// static TCHAR tempstr[128] ;
 
 static CStatusBar *MainStatusBar = NULL;
 
@@ -74,8 +74,8 @@ static void do_init_dialog(HWND hwnd)
    RECT myRect ;
    // GetWindowRect(hwnd, &myRect) ;
    GetClientRect(hwnd, &myRect) ;
-   cxClient = (myRect.right - myRect.left) ;
-   cyClient = (myRect.bottom - myRect.top) ;
+   int cxClient = (myRect.right - myRect.left) ;
+   int cyClient = (myRect.bottom - myRect.top) ;
 
    // center_window() ;
    //****************************************************************
@@ -158,7 +158,7 @@ static LRESULT CALLBACK RefImageProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARA
          //    infoout("Alt-c = Close this program") ;
          //    break;
             
-         case IDM_CLOSE:
+         case IDB_CLOSE:
             PostMessageA(hwnd, WM_CLOSE, 0, 0);
             break;
          } //lint !e744  switch target

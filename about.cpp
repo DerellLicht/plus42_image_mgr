@@ -24,7 +24,7 @@
 #include "resource.h"
 #include "version.h"
 #include "common.h"
-#include "header.h"
+#include "pimage_mgr.h"
 #include "hyperlinks.h"
 
 /*-----------------------------------------------------------------------------

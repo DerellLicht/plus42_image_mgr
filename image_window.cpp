@@ -8,7 +8,7 @@
 #include "resource.h"
 #include "common.h"
 #include "commonw.h"
-#include "header.h"
+#include "pimage_mgr.h"
 #include "winmsgs.h"
 
 static TCHAR szEditName[] = _T("SendBfr") ;
