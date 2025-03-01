@@ -35,3 +35,6 @@ Usage instructions (development version)
    
 That's all that's working at this point...
    
+<hr>
+
+The distribution site for this program is [My Home Page](https://derelllicht.42web.io/pimage_mgr.html)
