@@ -236,7 +236,7 @@ static void do_init_dialog(HWND hwnd)
    //  create/configure terminal
    //****************************************************************
    // setup_terminal_window(hwnd, MainStatusBar->height(), IDB_SKIN_OPEN);
-   setup_terminal_window(hwnd, 0, IDB_SKIN_OPEN);
+   setup_terminal_window(hwnd, 0, IDB_SKIN_OPEN, IDC_TERMINAL);
    set_local_terminal_colors() ;
    put_color_term_msg(TERM_INFO, "terminal size: columns=%u, rows=%u",
       term_get_columns(), term_get_rows());

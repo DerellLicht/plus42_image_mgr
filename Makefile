@@ -22,13 +22,14 @@ CFLAGS += -Wno-write-strings
 # link library files
 LiFLAGS = -Ider_libs
 CFLAGS += -Ider_libs
-CSRC=pimage_mgr.cpp terminal.cpp lodepng.cpp lode_png.cpp hyperlinks.cpp about.cpp \
+CSRC=pimage_mgr.cpp lodepng.cpp lode_png.cpp hyperlinks.cpp about.cpp \
 show_ref_image.cpp \
 der_libs/common_funcs.cpp \
 der_libs/common_win.cpp \
 der_libs/winmsgs.cpp \
 der_libs/vlistview.cpp \
 der_libs/cterminal.cpp \
+der_libs/terminal.cpp \
 der_libs/wthread.cpp \
 der_libs/tooltips.cpp
 
@@ -79,10 +80,7 @@ rc.o: pimage_mgr.rc
 
 pimage_mgr.o: version.h resource.h der_libs/common.h der_libs/commonw.h
 pimage_mgr.o: pimage_mgr.h der_libs/cterminal.h der_libs/vlistview.h
-pimage_mgr.o: terminal.h der_libs/winmsgs.h
-terminal.o: resource.h der_libs/common.h der_libs/commonw.h pimage_mgr.h
-terminal.o: der_libs/cterminal.h der_libs/vlistview.h terminal.h
-terminal.o: der_libs/winmsgs.h
+pimage_mgr.o: der_libs/terminal.h der_libs/winmsgs.h
 lodepng.o: lodepng.h
 lode_png.o: der_libs/common.h lodepng.h lode_png.h
 hyperlinks.o: der_libs/iface_32_64.h hyperlinks.h
@@ -96,6 +94,9 @@ der_libs/vlistview.o: der_libs/common.h der_libs/commonw.h
 der_libs/vlistview.o: der_libs/vlistview.h
 der_libs/cterminal.o: der_libs/common.h der_libs/commonw.h
 der_libs/cterminal.o: der_libs/cterminal.h der_libs/vlistview.h
+der_libs/terminal.o: der_libs/common.h der_libs/commonw.h
+der_libs/terminal.o: der_libs/cterminal.h der_libs/vlistview.h
+der_libs/terminal.o: der_libs/terminal.h der_libs/winmsgs.h
 der_libs/wthread.o: der_libs/wthread.h
 der_libs/tooltips.o: der_libs/iface_32_64.h der_libs/common.h
 der_libs/tooltips.o: der_libs/tooltips.h
