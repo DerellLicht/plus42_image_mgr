@@ -5,6 +5,24 @@ extern uint dbg_flags ;
 
 extern HINSTANCE g_hinst ;
 
+//  message handler handle for RefImage window
+extern HWND hwndRef ;
+
+//lint -esym(757, WM_SET_INPUT_CURSOR)
+// static const UINT WM_ELCAL_ABORT_BTN  = (WM_USER + 101) ;
+static const UINT WM_DRAW_BOX = (WM_USER + 101) ;
+// static const UINT WM_DO_COMM_TASK     = (WM_USER + 103) ;
+
+//  struct for WM_DRAW_BOX message
+typedef struct draw_box_msg_s {
+   uint box_count ;
+   uint x0 ;
+   uint y0 ;
+   uint dx ;
+   uint dy ;
+   COLORREF cref ;
+} draw_box_msg_t ;
+
 //lint -esym(769, TERM_INFO, TERM_QUERY, TERM_ERROR)
 //  indices into term_atable[]
 enum {

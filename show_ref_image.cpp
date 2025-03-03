@@ -38,7 +38,7 @@ static CThread const *ref_image_thread = NULL ;
 
 // unsigned xbase, xdiff, ybase, ydiff ;
 
-static HWND hwndRef = NULL ;
+HWND hwndRef = NULL ;
 
 // static TCHAR tempstr[128] ;
 
@@ -73,6 +73,24 @@ static void resize_window_corrected(HWND hwnd)
    resize_window(hwnd, cli_width, cli_height);
 }
       
+/************************************************************************/
+static void Box(HWND hwnd, int x0, int y0, int x1, int y1, COLORREF Color)
+{
+   HDC hdc = GetDC (hwnd) ;
+   HPEN hPen = CreatePen(PS_SOLID, 1, Color) ;
+   SelectObject(hdc, hPen) ;
+
+   MoveToEx(hdc, x0, y0, NULL) ;
+   LineTo  (hdc, x1, y0) ;
+   LineTo  (hdc, x1, y1) ;
+   LineTo  (hdc, x0, y1) ;
+   LineTo  (hdc, x0, y0) ;
+
+   SelectObject(hdc, GetStockObject(BLACK_PEN)) ;  //  deselect my pen
+   DeleteObject (hPen) ;
+   ReleaseDC (hwnd, hdc) ;
+}
+
 //***********************************************************************
 static void do_init_dialog(HWND hwnd)
 {
@@ -168,6 +186,30 @@ static LRESULT CALLBACK RefImageProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARA
       } //lint !e744  switch cmd
       break;
       }  //lint !e438 !e10  end local context
+      
+   case WM_DRAW_BOX:
+      {
+      draw_box_msg_t *box_data = (draw_box_msg_t *) wParam ;
+      if (box_data == NULL) {
+         syslog("Draw Box: pointer is NULL\n");
+      }
+      else {
+// typedef struct draw_box_msg_s {
+//    uint box_count ;
+//    uint box_data->x0 ;
+//    uint box_data->y0 ;
+//    uint box_data->dx ;
+//    uint box_data->dy ;
+//    COLORREF box_data->cref ;
+// } draw_box_msg_t ;
+         Box(hwnd, box_data->x0,                
+                   box_data->y0, 
+                   box_data->x0 + box_data->dx, 
+                   box_data->y0 + box_data->dy, 
+                   box_data->cref);
+      }
+      }
+      break ;
 
    //********************************************************************
    //  application shutdown handlers

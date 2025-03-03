@@ -37,6 +37,7 @@
 #define  IDB_SKIN_OPEN     603
 #define  IDB_SKIN_SELECT   604
 #define  IDC_TERMINAL      605
+#define  IDB_DRAW_BOX      606
 
 //  about.cpp constants
 #define  IDC_VERNUM        701

@@ -36,6 +36,7 @@ HINSTANCE g_hinst = 0;
 
 static HWND hwndMain = NULL ;
 static HWND hwndOpen = NULL ;
+static HWND hwndDrawBox = NULL ;
 // static HMENU hMainMenu = NULL ;
 
 //lint -esym(843, dbg_flags)  could be declared as const
@@ -201,8 +202,10 @@ static void do_init_dialog(HWND hwnd)
 
    hwndMain = hwnd ;
    hwndOpen = GetDlgItem(hwnd, IDB_SKIN_OPEN);
+   hwndDrawBox = GetDlgItem(hwnd, IDB_DRAW_BOX);
    
    EnableWindow(hwndOpen, false);
+   EnableWindow(hwndDrawBox, false);
 
    // setup_main_menu(hwnd) ;
    // set_up_working_spaces(hwnd) ; //  do this *before* tooltips !!
@@ -245,6 +248,10 @@ static void do_init_dialog(HWND hwnd)
 }
 
 //***********************************************************************
+//lint -esym(551, draw_msg)
+static draw_box_msg_t draw_msg ;
+static uint box_count = 0 ;
+
 static LRESULT CALLBACK WinProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 {
    char msgstr[81] ;
@@ -315,6 +322,53 @@ static LRESULT CALLBACK WinProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lPa
       case BN_CLICKED:
          switch(target) {
          
+         case IDB_DRAW_BOX:
+            // Key: 2 117,450,102,106 127,478,82,58 1389,478
+            {  // define local context
+
+            put_color_term_msg(TERM_INFO, "Draw Box %u", box_count);
+            
+            switch (box_count) {
+            case 0:
+               draw_msg.box_count = box_count++ ;
+               draw_msg.x0 = 117 ;
+               draw_msg.y0 = 450 ;
+               draw_msg.dx = 102 ;
+               draw_msg.dy = 106 ;
+               draw_msg.cref = 0x00FF00 ;
+               SendMessage(hwndRef, WM_DRAW_BOX, (WPARAM) &draw_msg, NULL);
+               break ;
+               
+            case 1:
+            
+#define  Y_DELTA  5            
+               draw_msg.box_count = box_count++ ;
+               draw_msg.x0 = 127 ;
+               draw_msg.y0 = 478 - Y_DELTA;
+               draw_msg.dx = 82 ;
+               draw_msg.dy = 58 + Y_DELTA;
+               draw_msg.cref = 0x0000FF ;
+               SendMessage(hwndRef, WM_DRAW_BOX, (WPARAM) &draw_msg, NULL);
+               break ;
+               
+            case 2:
+               draw_msg.box_count = box_count++ ;
+               draw_msg.x0 = 1389 ;
+               draw_msg.y0 = 478 - Y_DELTA;
+               draw_msg.dx = 82 ;
+               draw_msg.dy = 58 + Y_DELTA;
+               draw_msg.cref = 0xFF0000 ;
+               SendMessage(hwndRef, WM_DRAW_BOX, (WPARAM) &draw_msg, NULL);
+               EnableWindow(hwndDrawBox, false);
+               break ;
+               
+            default:
+               put_color_term_msg(TERM_ERROR, "Draw Box %u not valid", box_count);
+               break ;
+            }
+            }  //  end local context
+            break ;
+         
          case IDB_SKIN_SELECT:
             {  // create local context
             _tcscpy(layout_file, _T("skin.layout")) ;
@@ -343,6 +397,7 @@ static LRESULT CALLBACK WinProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lPa
                termout("%s", image_file);
                
                EnableWindow(hwndOpen, true);
+               EnableWindow(hwndDrawBox, true);
             } else {
 error_path:
                layout_file[0] = 0 ; //  make layout filename invalid

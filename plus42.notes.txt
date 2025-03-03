@@ -1,0 +1,10 @@
+Notes from Thomas Okken
+=======================
+
+"Annunciators" refers to the status indicators at the top of the display, 
+above the dot matrix area. 
+The HP-42S, Free42, and Plus42 have seven of them; from left to right, 
+they are ?? (multi-row menu indicator), shift, printing, running, low battery, G, and RAD.
+
+I refer to the top line of the Plus42 display, where you see { HOME }, 
+and optionally BASE and TVM modes etc., as the "header."
