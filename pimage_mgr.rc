@@ -73,16 +73,17 @@ STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU | WS_MINIM
 CAPTION "Plus42 Image Manager"
 FONT 10, "Times New Roman"
 BEGIN
-   PUSHBUTTON      "Draw Box",        IDB_DRAW_BOX,     10,  5,  40,  10
-   PUSHBUTTON      "Help",            IDB_HELP,         55,  5,  40,  10
-   PUSHBUTTON      "About",           IDD_ABOUT,       100,  5,  40,  10
-   PUSHBUTTON      "Close",           IDB_CLOSE,       145,  5,  40,  10
+   PUSHBUTTON      "Draw Box",         IDB_DRAW_BOX,     10,  5,  40,  10
+   PUSHBUTTON      "Draw Image",       IDB_DRAW_IMAGE,   55,  5,  45,  10
+   PUSHBUTTON      "Load Layout File", IDB_LOAD_LAYOUT,  55,  5,  45,  10
+   PUSHBUTTON      "Help",             IDB_HELP,        105,  5,  40,  10
+   PUSHBUTTON      "About",            IDD_ABOUT,       150,  5,  40,  10
+   PUSHBUTTON      "Close",            IDB_CLOSE,       195,  5,  40,  10
    
-   LTEXT           "Base skin name",  IDS_SKIN_NAME,   10,  20,  50,  10
-   // LTEXT           " ",               IDC_SKIN_NAME,   62,  20, 150,  10, SS_SUNKEN
-   EDITTEXT                           IDC_SKIN_NAME,   62,  20, 150,  10, ES_READONLY
-   PUSHBUTTON      "...",             IDB_SKIN_SELECT, 217, 20,  20,  10
-   PUSHBUTTON      "Open Image",      IDB_SKIN_OPEN,   240, 20,  45,  10
+   LTEXT           "Base skin name",   IDS_SKIN_NAME,   10,  20,  50,  10
+   EDITTEXT                            IDC_SKIN_NAME,   62,  20, 150,  10, ES_READONLY
+   PUSHBUTTON      "...",              IDB_SKIN_SELECT, 217, 20,  20,  10
+   PUSHBUTTON      "Open Image",       IDB_SKIN_OPEN,   240, 20,  45,  10
 
    // LTEXT           " ",       IDC_MAP_AREA, 2, 1, 200, 200, 0, WS_EX_STATICEDGE
    // LTEXT           " ",          IDC_MAP_AREA, 2, 20, 340, 350, 0, WS_EX_CLIENTEDGE
@@ -91,7 +92,7 @@ END
 
 //*******************************************************************
 // IDD_MAIN_DIALOG DIALOG DISCARDABLE  160, 40, 350, 370
-IDD_INPUT_IMAGE_DIALOG DIALOGEX  160, 40, 600, 600
+IDD_INPUT_IMAGE_DIALOG DIALOGEX  160, 40, 600, 450
 STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX
 // EXSTYLE WS_EX_CONTROLPARENT
 CAPTION "Input Image View"

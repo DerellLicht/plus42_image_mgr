@@ -10,9 +10,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <tchar.h>
-#include <io.h>
-// #include <fcntl.h>
-// #include <sys/stat.h>
 #include <objidl.h>
 #include <gdiplus.h>
 
@@ -23,11 +20,8 @@ using namespace Gdiplus;
 #include "common.h"
 #include "commonw.h"
 #include "pimage_mgr.h"
-// #include "statbar.h"
 #include "winmsgs.h"
 #include "wthread.h"
-// #include "lodepng.h"
-// #include "lode_png.h"
 
 //lint -esym(551, hwndRef, refImage)
 //lint -esym(844, hwndRef, refImage)
@@ -53,8 +47,8 @@ HWND hwndRef = NULL ;
 static unsigned width = 0, height = 0 ;
 static unsigned cli_width = 0, cli_height = 0 ;
 //lint -esym(844, ref_image_thread)
-static TCHAR *refImageFile = NULL ;
 static TCHAR ref_image_file[MAX_PATH_LEN]  = _T("") ;
+static Image *ref_image = NULL;
 
 //***********************************************************************
 static void resize_window_corrected(HWND hwnd)
@@ -66,10 +60,10 @@ static void resize_window_corrected(HWND hwnd)
    //  so we have to calculate the error and correct it here
    RECT myRect ;
    GetClientRect(hwnd, &myRect) ;
-   uint cxClient = (myRect.right - myRect.left) ;
+   uint cxClient = (myRect.right  - myRect.left) ;
    uint cyClient = (myRect.bottom - myRect.top) ;
    // termout("Ref Image window client area: %ux%u\n", cxClient, cyClient);
-   cli_width = width + (width - cxClient) ;
+   cli_width  = width  + (width  - cxClient) ;
    cli_height = height + (height - cyClient) ;
    // termout("Ref Image window tweaked size: %ux%u\n", cli_width, cli_height);
    
@@ -105,7 +99,6 @@ static void do_init_dialog(HWND hwnd)
    SetClassLong(hwnd, GCL_HICON,   (LONG) LoadIcon(g_hinst, (LPCTSTR)IDI_PLUS42IM));
    SetClassLong(hwnd, GCL_HICONSM, (LONG) LoadIcon(g_hinst, (LPCTSTR)IDI_PLUS42IM));
    
-   // resize_window_corrected(hwnd);
    //  Disable the CLOSE button on title bar;
    //  Window should be closed by command from main dialog
    EnableMenuItem(GetSystemMenu(hwnd, FALSE), SC_CLOSE, MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
@@ -120,6 +113,8 @@ static void do_init_dialog(HWND hwnd)
 
 //***********************************************************************************
 //  draw text
+static Image *binclock_image = NULL;
+
 static VOID OnPaint(HDC hdc)
 {
    Graphics    graphics(hdc);
@@ -139,10 +134,12 @@ static VOID OnPaint(HDC hdc)
    graphics.DrawEllipse(&greenPen, 300, 50, 80, 80);   
    graphics.DrawEllipse(&greenPen, 300, 200, 80, 180);
    
+   // Image image(L"binclock.gif");
+   // graphics.DrawImage(&image, 30, 500);
    
-   Image image(L"binclock.gif");
-   graphics.DrawImage(&image, 30, 500);
-   
+   binclock_image = new Image(L"binclock.gif");
+   termout(_T("image size: %u x %u"), binclock_image->GetWidth(), binclock_image->GetHeight()); //lint !e864
+   graphics.DrawImage(binclock_image, 420, 200);
 }
 
 //***********************************************************************
@@ -159,7 +156,6 @@ static LRESULT CALLBACK RefImageProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARA
       case WM_CTLCOLOREDIT:
       case WM_CTLCOLORDLG:
       case WM_MOUSEMOVE:
-      case 295:  //  WM_CHANGEUISTATE
       case WM_NCMOUSEMOVE:
       case WM_NCHITTEST:
       case WM_SETCURSOR:
@@ -169,19 +165,27 @@ static LRESULT CALLBACK RefImageProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARA
       case WM_COMMAND:  //  prints its own msgs below
          break;
       default:
-         syslog(_T("TOP [%s]\n"), lookup_winmsg_name(iMsg)) ;
+         syslog(_T("Ref [%s]\n"), lookup_winmsg_name(iMsg)) ;
          break;
       }
    }
 
    switch(iMsg) {
    case WM_INITDIALOG:
-      refImageFile = (TCHAR *) lParam ;
+      {
+      TCHAR *refImageFile = (TCHAR *) lParam ;
       _tcscpy(ref_image_file, refImageFile);
       termout(_T("target file: %s"), ref_image_file);
-      // refImage = new LodePng(refImageFile);
+      ref_image = new Image(ref_image_file); //lint !e1025
+      width  = ref_image->GetWidth();
+      height = ref_image->GetHeight();
+      termout(_T("ref image size: %u x %u"), width, height);
+   
       do_init_dialog(hwnd) ;
+      resize_window_corrected(hwnd);
+      center_window(hwnd, -1, 650) ;
       UpdateWindow(hwnd);
+      }
       return TRUE;
 
    case WM_PAINT:
@@ -219,6 +223,17 @@ static LRESULT CALLBACK RefImageProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARA
       } //lint !e744  switch cmd
       break;
       }  //lint !e438 !e10  end local context
+      
+   case WM_DRAW_IMAGE:
+      {
+      // UpdateWindow(hwnd);  //  this does *NOT* generate WM_PAINT
+      HDC hdc = GetDC(hwnd)      ;
+      // OnPaint(hdc);
+      Graphics    graphics(hdc);
+      graphics.DrawImage(ref_image, 0, 0);
+      ReleaseDC(hwnd, hdc);
+      }
+      break ;
       
    case WM_DRAW_BOX:
       {

@@ -9,8 +9,8 @@ extern HINSTANCE g_hinst ;
 extern HWND hwndRef ;
 
 //lint -esym(757, WM_SET_INPUT_CURSOR)
-// static const UINT WM_ELCAL_ABORT_BTN  = (WM_USER + 101) ;
-static const UINT WM_DRAW_BOX = (WM_USER + 101) ;
+static const UINT WM_DRAW_BOX   = (WM_USER + 101) ;
+static const UINT WM_DRAW_IMAGE = (WM_USER + 102) ;
 // static const UINT WM_DO_COMM_TASK     = (WM_USER + 103) ;
 
 //  struct for WM_DRAW_BOX message

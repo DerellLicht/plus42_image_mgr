@@ -328,6 +328,13 @@ static LRESULT CALLBACK WinProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lPa
       case BN_CLICKED:
          switch(target) {
          
+         case IDB_DRAW_IMAGE:
+            SendMessage(hwndRef, WM_DRAW_IMAGE, (WPARAM) NULL, (WPARAM) NULL);
+            break ;
+            
+         case IDB_LOAD_LAYOUT:
+            break ;
+         
          case IDB_DRAW_BOX:
             // Key: 2 117,450,102,106 127,478,82,58 1389,478
             {  // define local context
