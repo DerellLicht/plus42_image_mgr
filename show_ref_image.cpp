@@ -11,8 +11,12 @@
 #include <stdio.h>
 #include <tchar.h>
 #include <io.h>
-#include <fcntl.h>
-#include <sys/stat.h>
+// #include <fcntl.h>
+// #include <sys/stat.h>
+#include <objidl.h>
+#include <gdiplus.h>
+
+using namespace Gdiplus;
 
 // #include "version.h"
 #include "resource.h"
@@ -22,8 +26,8 @@
 // #include "statbar.h"
 #include "winmsgs.h"
 #include "wthread.h"
-#include "lodepng.h"
-#include "lode_png.h"
+// #include "lodepng.h"
+// #include "lode_png.h"
 
 //lint -esym(551, hwndRef, refImage)
 //lint -esym(844, hwndRef, refImage)
@@ -44,8 +48,8 @@ HWND hwndRef = NULL ;
 
 // static CStatusBar *MainStatusBar = NULL;
 
-static LodePng *refImage = NULL ;
-static std::vector<unsigned char> image; //the raw pixels
+// static LodePng *refImage = NULL ;
+// static std::vector<unsigned char> image; //the raw pixels
 static unsigned width = 0, height = 0 ;
 static unsigned cli_width = 0, cli_height = 0 ;
 //lint -esym(844, ref_image_thread)
@@ -74,6 +78,7 @@ static void resize_window_corrected(HWND hwnd)
 }
       
 /************************************************************************/
+//lint -esym(578, y0, y1, Color)
 static void Box(HWND hwnd, int x0, int y0, int x1, int y1, COLORREF Color)
 {
    HDC hdc = GetDC (hwnd) ;
@@ -100,7 +105,7 @@ static void do_init_dialog(HWND hwnd)
    SetClassLong(hwnd, GCL_HICON,   (LONG) LoadIcon(g_hinst, (LPCTSTR)IDI_PLUS42IM));
    SetClassLong(hwnd, GCL_HICONSM, (LONG) LoadIcon(g_hinst, (LPCTSTR)IDI_PLUS42IM));
    
-   resize_window_corrected(hwnd);
+   // resize_window_corrected(hwnd);
    //  Disable the CLOSE button on title bar;
    //  Window should be closed by command from main dialog
    EnableMenuItem(GetSystemMenu(hwnd, FALSE), SC_CLOSE, MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
@@ -108,9 +113,36 @@ static void do_init_dialog(HWND hwnd)
    center_window(hwnd, -1, 650) ;
    
    //  this does, indeed, draw the png image...
-   HDC hdc = GetDC(hwnd) ;
-   refImage->render_bitmap(hdc, 0, 0, 0) ;
-   ReleaseDC(hwnd, hdc) ;
+//    HDC hdc = GetDC(hwnd) ;
+//    refImage->render_bitmap(hdc, 0, 0, 0) ;
+//    ReleaseDC(hwnd, hdc) ;
+}
+
+//***********************************************************************************
+//  draw text
+static VOID OnPaint(HDC hdc)
+{
+   Graphics    graphics(hdc);
+   SolidBrush  brush(Color(255, 0, 0, 255));
+   FontFamily  fontFamily(L"Times New Roman");
+   Font        font(&fontFamily, 24.0, FontStyleRegular, UnitPixel); //lint !e747 !e641
+   PointF      pointF(10.0f, 20.0f);
+   
+   graphics.DrawString(L"Hello World!", -1, &font, pointF, &brush);
+   
+   Pen      pen(Color(255, 0, 0, 255));
+   graphics.DrawLine(&pen, 220, 220, 250, 100);
+   
+   SolidBrush redBrush(Color::Red);            
+   Pen greenPen(Color::Green, 2.0); //lint !e747
+   graphics.FillRectangle(&redBrush, 120, 120, 100, 100);
+   graphics.DrawEllipse(&greenPen, 300, 50, 80, 80);   
+   graphics.DrawEllipse(&greenPen, 300, 200, 80, 180);
+   
+   
+   Image image(L"binclock.gif");
+   graphics.DrawImage(&image, 30, 500);
+   
 }
 
 //***********************************************************************
@@ -137,29 +169,30 @@ static LRESULT CALLBACK RefImageProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARA
       case WM_COMMAND:  //  prints its own msgs below
          break;
       default:
-         syslog("TOP [%s]\n", lookup_winmsg_name(iMsg)) ;
+         syslog(_T("TOP [%s]\n"), lookup_winmsg_name(iMsg)) ;
          break;
       }
    }
 
    switch(iMsg) {
    case WM_INITDIALOG:
-      {
       refImageFile = (TCHAR *) lParam ;
       _tcscpy(ref_image_file, refImageFile);
-      unsigned error = lodepng::decode(image, width, height, refImageFile, LCT_RGB, 8);
-      if (error) {
-         // std::cout << "error " << error << ": " << lodepng_error_text(error) << std::endl;
-         syslog("decodeWithState: [%u] %s\n", error, lodepng_error_text(error)) ;
-         // syslog("decodeWithState: %u\n", error) ;
-         break;
-      }
-      termout("Reference Image size: %ux%u\n", width, height);
-      refImage = new LodePng(refImageFile);
+      termout(_T("target file: %s"), ref_image_file);
+      // refImage = new LodePng(refImageFile);
       do_init_dialog(hwnd) ;
-      }
+      UpdateWindow(hwnd);
       return TRUE;
 
+   case WM_PAINT:
+      {
+      PAINTSTRUCT  ps;
+      HDC hdc = BeginPaint(hwnd, &ps);
+      OnPaint(hdc);
+      EndPaint(hwnd, &ps);
+      }
+      return 0;
+      
    case WM_COMMAND:
       {  //  create local context
       DWORD cmd = HIWORD (wParam) ;
@@ -191,7 +224,7 @@ static LRESULT CALLBACK RefImageProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARA
       {
       draw_box_msg_t *box_data = (draw_box_msg_t *) wParam ;
       if (box_data == NULL) {
-         syslog("Draw Box: pointer is NULL\n");
+         syslog(_T("Draw Box: pointer is NULL\n"));
       }
       else {
 // typedef struct draw_box_msg_s {
@@ -236,7 +269,7 @@ static DWORD WINAPI fRefImageThread(LPVOID iValue)
    HWND hwnd = CreateDialogParam(g_hinst, 
       MAKEINTRESOURCE(IDD_INPUT_IMAGE_DIALOG), NULL, (DLGPROC) RefImageProc, (LPARAM) iValue) ;
    if (hwnd == NULL) {
-      syslog("CreateDialog: %s\n", get_system_message()) ;
+      syslog(_T("CreateDialog: %s\n"), get_system_message()) ;
       return 0;
    }
    // HACCEL hAccel = LoadAccelerators(g_hinst, MAKEINTRESOURCE(IDR_ACCELERATOR1));  
@@ -270,7 +303,7 @@ static void close_ref_image_thread(LPVOID iValue)
 void stop_ref_image_thread(void)
 {
    if (ref_image_thread != NULL) {
-      syslog("delete ref image thread\n") ;
+      syslog(_T("delete ref image thread\n")) ;
       delete ref_image_thread ;
       ref_image_thread = NULL ;
    }

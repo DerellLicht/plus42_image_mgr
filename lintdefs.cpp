@@ -9,6 +9,7 @@
 //lint -e1776  Converting a string literal to char * is not const safe (initialization)
 //lint -e840   Use of nul character in a string literal
 //lint -e525   Negative indentation from line ...
+//lint -e818   Pointer could be declared as pointing to const
 //lint -e845   The right argument to operator '|' is certain to be 0 
 //lint -e1087  Previous declaration of '__gnu_cxx::__is_signed' (line 72) is
 //lint -e31    Redefinition of symbol '_ctype' compare with line ...

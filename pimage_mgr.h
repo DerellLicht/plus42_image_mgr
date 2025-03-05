@@ -35,8 +35,8 @@ TERM_ERROR
 #define  NUM_TERM_ATTR_ENTRIES   4
 
 void set_term_attr(uint atidx);
-int termout(const char *fmt, ...);
-int put_color_term_msg(uint idx, const char *fmt, ...);
+int termout(const TCHAR *fmt, ...);
+int put_color_term_msg(uint idx, const TCHAR *fmt, ...);
 
 BOOL CmdAbout(HWND hwnd);
 void open_image_window(TCHAR *image_file);

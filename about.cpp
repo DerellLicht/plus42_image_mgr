@@ -20,6 +20,7 @@
 -----------------------------------------------------------------------------*/
 
 #include <windows.h>
+#include <tchar.h>
 
 #include "resource.h"
 #include "version.h"
@@ -48,7 +49,7 @@ static INT_PTR CALLBACK AboutDlgProc(HWND hdlg, UINT uMessage, WPARAM wparam, LP
 {
    switch(uMessage) {
    case WM_INITDIALOG:
-      SetWindowText(GetDlgItem(hdlg, IDC_VERNUM), VerNum) ;
+      SetWindowText(GetDlgItem(hdlg, IDC_VERNUM), (TCHAR *) VerNum) ;
       ConvertStaticToHyperlink(hdlg, IDC_WEBLINK);
       ConvertStaticToHyperlink(hdlg, IDC_WEBLINK2);
       break;
@@ -56,11 +57,11 @@ static INT_PTR CALLBACK AboutDlgProc(HWND hdlg, UINT uMessage, WPARAM wparam, LP
    case WM_COMMAND:
       switch (LOWORD(wparam)) {
       case IDC_WEBLINK:
-         ShellExecute(hdlg, "open", "http://derelllicht.42web.io/wbigcalc.html", "", "", SW_SHOW);
+         ShellExecute(hdlg, _T("open"), _T("http://derelllicht.42web.io/wbigcalc.html"), _T(""), _T(""), SW_SHOW);
          return TRUE;
          
       case IDC_WEBLINK2:
-         ShellExecute(hdlg, "open", "https://github.com/DerellLicht/plus42_image_mgr", "", "", SW_SHOW);
+         ShellExecute(hdlg, _T("open"), _T("https://github.com/DerellLicht/plus42_image_mgr"), _T(""), _T(""), SW_SHOW);
          return TRUE;
          
       case IDOK:

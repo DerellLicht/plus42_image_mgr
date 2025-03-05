@@ -1,4 +1,13 @@
 USE_DEBUG = NO
+USE_UNICODE = YES
+USE_64BIT = NO
+
+ifeq ($(USE_64BIT),YES)
+TOOLS=d:\tdm64\bin
+else
+#TOOLS=c:\mingw\bin
+TOOLS=c:\tdm32\bin
+endif
 
 #*****************************************************************************
 # notes on compiler quirks, using MinGW/G++ V4.3.3
@@ -11,18 +20,25 @@ USE_DEBUG = NO
 #*****************************************************************************
 
 ifeq ($(USE_DEBUG),YES)
-CFLAGS=-Wall -O -g -mwindows 
+CFLAGS=-Wall -O -g -mwindows -Weffc++ 
 LFLAGS=
 else
-CFLAGS=-Wall -O2 -mwindows 
+CFLAGS=-Wall -O2 -mwindows -Weffc++ 
 LFLAGS=-s
 endif
 CFLAGS += -Wno-write-strings
+CFLAGS += -Wno-literal-suffix
+CFLAGS += -Wno-unused-function
+
+ifeq ($(USE_UNICODE),YES)
+CFLAGS += -DUNICODE -D_UNICODE
+LFLAGS += -dUNICODE -d_UNICODE
+endif
 
 # link library files
 LiFLAGS = -Ider_libs
 CFLAGS += -Ider_libs
-CSRC=pimage_mgr.cpp lodepng.cpp lode_png.cpp hyperlinks.cpp about.cpp \
+CSRC=pimage_mgr.cpp hyperlinks.cpp about.cpp \
 show_ref_image.cpp \
 der_libs/common_funcs.cpp \
 der_libs/common_win.cpp \
@@ -41,8 +57,11 @@ BASE=pimage_mgr
 BIN=$(BASE).exe
 
 #************************************************************
+#%.o: %.cpp
+#	g++ $(CFLAGS) -Weffc++ -c $< -o $@
+
 %.o: %.cpp
-	g++ $(CFLAGS) -Weffc++ -c $< -o $@
+	$(TOOLS)\g++ $(CFLAGS) -c $< -o $@
 
 #************************************************************
 all: $(BIN)
@@ -67,27 +86,24 @@ depend:
 	makedepend $(CFLAGS) $(CSRC)
 
 #************************************************************
-lodepng.o: lodepng.cpp
-	g++ $(CFLAGS) -c $< -o $@
+#lodepng.o: lodepng.cpp
+#	g++ $(CFLAGS) -c $< -o $@
 
 $(BIN): $(OBJS)
-	g++ $(CFLAGS) $(LFLAGS) $(OBJS) -o $@ -lgdi32 -lcomctl32 -lhtmlhelp -lolepro32 -lole32 -luuid
+	$(TOOLS)\g++ $(CFLAGS) $(LFLAGS) $(OBJS) -o $@ -lgdi32 -lgdiplus -lcomctl32 -lhtmlhelp -lolepro32 -lole32 -luuid
 
 rc.o: pimage_mgr.rc 
-	windres $< -O coff -o $@
+	$(TOOLS)\windres $< -O coff -o $@
 
 # DO NOT DELETE
 
 pimage_mgr.o: version.h resource.h der_libs/common.h der_libs/commonw.h
 pimage_mgr.o: pimage_mgr.h der_libs/cterminal.h der_libs/vlistview.h
 pimage_mgr.o: der_libs/terminal.h der_libs/winmsgs.h
-lodepng.o: lodepng.h
-lode_png.o: der_libs/common.h lodepng.h lode_png.h
 hyperlinks.o: der_libs/iface_32_64.h hyperlinks.h
 about.o: resource.h version.h der_libs/common.h pimage_mgr.h hyperlinks.h
 show_ref_image.o: resource.h der_libs/common.h der_libs/commonw.h
 show_ref_image.o: pimage_mgr.h der_libs/winmsgs.h der_libs/wthread.h
-show_ref_image.o: lodepng.h lode_png.h
 der_libs/common_funcs.o: der_libs/common.h
 der_libs/common_win.o: der_libs/common.h der_libs/commonw.h
 der_libs/vlistview.o: der_libs/common.h der_libs/commonw.h

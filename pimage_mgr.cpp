@@ -10,6 +10,10 @@
 #include <windows.h>
 #include <stdio.h>   //  vsprintf, sprintf, which supports %f
 #include <tchar.h>
+#include <objidl.h>
+#include <gdiplus.h>
+
+using namespace Gdiplus;
 
 #include "version.h"
 #include "resource.h"
@@ -20,7 +24,7 @@
 #include "terminal.h"
 #include "winmsgs.h"
 
-static TCHAR const * const Version = "Plus42 Image Manager, Version " VerNum " " ;
+static TCHAR const * const Version = _T("Plus42 Image Manager, Version " VerNum " ") ;
 //lint -esym(715, lParam)
 //lint -esym(818, szCmdLine, hPrevInstance)  could be declared as pointing to const
 
@@ -97,6 +101,7 @@ static void ww_get_monitor_dimens(HWND hwnd)
 //lint -esym(714, center_window)
 //lint -esym(759, center_window)
 //lint -esym(765, center_window)
+//lint -esym(578, y0, y1, Color)
 void center_window(HWND hwnd, int x_pos, int y_pos)
 {
    if (screen_width == 0) {
@@ -150,7 +155,7 @@ static void set_local_terminal_colors(void)
 void set_term_attr(uint atidx)
 {
    if (atidx >= NUM_TERM_ATTR_ENTRIES) {
-      syslog("set_term_attr: invalid index %u\n", atidx) ;
+      syslog(_T("set_term_attr: invalid index %u\n"), atidx) ;
       return ;
    }
    term_set_attr(term_atable[atidx].fgnd, term_atable[atidx].bgnd) ;
@@ -159,13 +164,13 @@ void set_term_attr(uint atidx)
 //********************************************************************
 //  This outputs to terminal in default colors
 //********************************************************************
-int termout(const char *fmt, ...)
+int termout(const TCHAR *fmt, ...)
 {
-   char consoleBuffer[MAX_TERM_CHARS + 1];
+   TCHAR consoleBuffer[MAX_TERM_CHARS + 1];
    va_list al; //lint !e522
 
    va_start(al, fmt);   //lint !e1055 !e530
-   vsprintf(consoleBuffer, fmt, al);   //lint !e64
+   _vstprintf(consoleBuffer, fmt, al);   //lint !e64
    set_term_attr(TERM_NORMAL);
    term_put(consoleBuffer);
    va_end(al);
@@ -176,13 +181,13 @@ int termout(const char *fmt, ...)
 //  this *cannot* be called with a color attribute;
 //  it must be called with an index into term_atable[] !!
 //********************************************************************
-int put_color_term_msg(uint idx, const char *fmt, ...)
+int put_color_term_msg(uint idx, const TCHAR *fmt, ...)
 {
-   char consoleBuffer[MAX_TERM_CHARS + 1];
+   TCHAR consoleBuffer[MAX_TERM_CHARS + 1];
    va_list al; //lint !e522
 
    va_start(al, fmt);   //lint !e1055 !e530
-   vsprintf(consoleBuffer, fmt, al);   //lint !e64
+   _vstprintf(consoleBuffer, fmt, al);   //lint !e64
    set_term_attr(idx) ;
    term_put(consoleBuffer);
    va_end(al);
@@ -193,9 +198,10 @@ int put_color_term_msg(uint idx, const char *fmt, ...)
 static void do_init_dialog(HWND hwnd)
 {
    // hwndTopLevel = hwnd ;   //  do I need this?
-   char msgstr[81] ;
-   wsprintfA(msgstr, "%s", Version) ;
+   TCHAR msgstr[81] ;
+   wsprintf(msgstr, _T("%s"), Version) ;
    SetWindowText(hwnd, msgstr) ;
+   syslog(_T("%s\n"), msgstr);
 
    SetClassLong(hwnd, GCL_HICON,   (LONG) LoadIcon(g_hinst, (LPCTSTR)IDI_PLUS42IM));
    SetClassLong(hwnd, GCL_HICONSM, (LONG) LoadIcon(g_hinst, (LPCTSTR)IDI_PLUS42IM));
@@ -241,7 +247,7 @@ static void do_init_dialog(HWND hwnd)
    // setup_terminal_window(hwnd, MainStatusBar->height(), IDB_SKIN_OPEN);
    setup_terminal_window(hwnd, 0, IDB_SKIN_OPEN, IDC_TERMINAL);
    set_local_terminal_colors() ;
-   put_color_term_msg(TERM_INFO, "terminal size: columns=%u, rows=%u",
+   put_color_term_msg(TERM_INFO, _T("terminal size: columns=%u, rows=%u"),
       term_get_columns(), term_get_rows());
       
    // put_color_term_msg(TERM_ERROR, "Testing ERROR report function");
@@ -254,7 +260,7 @@ static uint box_count = 0 ;
 
 static LRESULT CALLBACK WinProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 {
-   char msgstr[81] ;
+   TCHAR msgstr[81] ;
    
    //***************************************************
    //  debug: log all windows messages
@@ -278,7 +284,7 @@ static LRESULT CALLBACK WinProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lPa
       case WM_COMMAND:  //  prints its own msgs below
          break;
       default:
-         syslog("TOP [%s]\n", lookup_winmsg_name(iMsg)) ;
+         syslog(_T("TOP [%s]\n"), lookup_winmsg_name(iMsg)) ;
          break;
       }
    }
@@ -326,7 +332,7 @@ static LRESULT CALLBACK WinProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lPa
             // Key: 2 117,450,102,106 127,478,82,58 1389,478
             {  // define local context
 
-            put_color_term_msg(TERM_INFO, "Draw Box %u", box_count);
+            put_color_term_msg(TERM_INFO, _T("Draw Box %u"), box_count);
             
             switch (box_count) {
             case 0:
@@ -336,7 +342,7 @@ static LRESULT CALLBACK WinProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lPa
                draw_msg.dx = 102 ;
                draw_msg.dy = 106 ;
                draw_msg.cref = 0x00FF00 ;
-               SendMessage(hwndRef, WM_DRAW_BOX, (WPARAM) &draw_msg, NULL);
+               SendMessage(hwndRef, WM_DRAW_BOX, (WPARAM) &draw_msg, (WPARAM) NULL);
                break ;
                
             case 1:
@@ -348,7 +354,7 @@ static LRESULT CALLBACK WinProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lPa
                draw_msg.dx = 82 ;
                draw_msg.dy = 58 + Y_DELTA;
                draw_msg.cref = 0x0000FF ;
-               SendMessage(hwndRef, WM_DRAW_BOX, (WPARAM) &draw_msg, NULL);
+               SendMessage(hwndRef, WM_DRAW_BOX, (WPARAM) &draw_msg, (WPARAM) NULL);
                break ;
                
             case 2:
@@ -358,12 +364,12 @@ static LRESULT CALLBACK WinProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lPa
                draw_msg.dx = 82 ;
                draw_msg.dy = 58 + Y_DELTA;
                draw_msg.cref = 0xFF0000 ;
-               SendMessage(hwndRef, WM_DRAW_BOX, (WPARAM) &draw_msg, NULL);
+               SendMessage(hwndRef, WM_DRAW_BOX, (WPARAM) &draw_msg, (WPARAM) NULL);
                EnableWindow(hwndDrawBox, false);
                break ;
                
             default:
-               put_color_term_msg(TERM_ERROR, "Draw Box %u not valid", box_count);
+               put_color_term_msg(TERM_ERROR, _T("Draw Box %u not valid"), box_count);
                break ;
             }
             }  //  end local context
@@ -372,7 +378,7 @@ static LRESULT CALLBACK WinProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lPa
          case IDB_SKIN_SELECT:
             {  // create local context
             _tcscpy(layout_file, _T("skin.layout")) ;
-            if (select_file(hwnd, layout_file, "layout")) {
+            if (select_file(hwnd, layout_file, _T("layout"))) {
                TCHAR *p = _tcsrchr(layout_file, _T('\\'));
                if (p == NULL) {
                   goto error_path;
@@ -384,7 +390,7 @@ static LRESULT CALLBACK WinProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lPa
                   goto error_path;
                }
                *p = 0 ;
-               sprintf(msgstr, " %s", skin_name) ;
+               _stprintf(msgstr, _T(" %s"), skin_name) ;
                SetWindowText(GetDlgItem(hwnd, IDC_SKIN_NAME), msgstr) ;
                
                //  generate image filename
@@ -393,15 +399,15 @@ static LRESULT CALLBACK WinProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lPa
                if (p == NULL) {
                   goto error_path;
                }
-               strcpy(p, _T(".png"));
-               termout("%s", image_file);
+               _tcscpy(p, _T(".gif"));
+               termout(_T("%s"), image_file);
                
                EnableWindow(hwndOpen, true);
                EnableWindow(hwndDrawBox, true);
             } else {
 error_path:
                layout_file[0] = 0 ; //  make layout filename invalid
-               termout("select_file: %s", get_system_message()) ;
+               termout(_T("select_file: %s"), get_system_message()) ;
             }
             }  // end local context
             return 0 ;
@@ -451,10 +457,16 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine
    {
    g_hinst = hInstance;
 
+   GdiplusStartupInput gdiplusStartupInput;
+   ULONG_PTR           gdiplusToken;
+   
+   // Initialize GDI+.
+   GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
+   
    // hdlTopLevel = OpenProcess(PROCESS_ALL_ACCESS, false, _getpid()) ;
    HWND hwnd = CreateDialog(g_hinst, MAKEINTRESOURCE(IDD_MAIN_DIALOG), NULL, (DLGPROC) WinProc) ;
    if (hwnd == NULL) {
-      syslog("CreateDialog: %s\n", get_system_message()) ;
+      syslog(_T("CreateDialog: %s\n"), get_system_message()) ;
       return 0;
    }
    // HACCEL hAccel = LoadAccelerators(g_hinst, MAKEINTRESOURCE(IDR_ACCELERATOR1));  
@@ -473,6 +485,7 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine
           DispatchMessage(&Msg);
       }
    }
+   GdiplusShutdown(gdiplusToken);
 
    return (int) Msg.wParam ;
 }  //lint !e715
