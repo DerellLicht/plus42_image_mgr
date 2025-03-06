@@ -32,8 +32,8 @@ Usage instructions (development version)
 4. This will display the reference .gif image for the skin that you selected earlier.
 5. Last but not least... click the <code>Draw Box</code> three times...
    This will highlight the defined fields around 'Key: 2' fields ...
+   [ NOTE: This is using hard-coded values, and only works for LandscapeRight skin. ]
 6. and that's it for now... more to come!   
-      
    
 That's all that's working at this point...
    
