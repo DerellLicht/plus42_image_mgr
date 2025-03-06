@@ -26,7 +26,7 @@ The sequence of operations will be thus:
 
 Usage instructions (development version)  
 
-1. Click the button labeled 'Start here'
+1. Click the button labeled <code>Start here</code>
 2. Select a .layout file from some existing skin  
    You *may* need to do some folder-cruising to find such skins,
    but once you get there, it will remember the location for future runs.  
