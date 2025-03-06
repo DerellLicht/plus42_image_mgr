@@ -74,7 +74,6 @@ CAPTION "Plus42 Image Manager"
 FONT 10, "Times New Roman"
 BEGIN
    PUSHBUTTON      "Draw Box",         IDB_DRAW_BOX,     10,  5,  40,  10
-   PUSHBUTTON      "Draw Image",       IDB_DRAW_IMAGE,   55,  5,  45,  10
    PUSHBUTTON      "Load Layout File", IDB_LOAD_LAYOUT, 105,  5,  60,  10
    PUSHBUTTON      "Help",             IDB_HELP,        170,  5,  40,  10
    PUSHBUTTON      "About",            IDD_ABOUT,       215,  5,  40,  10
@@ -83,11 +82,6 @@ BEGIN
    LTEXT           "Base skin name",   IDS_SKIN_NAME,   10,  20,  50,  10
    EDITTEXT                            IDC_SKIN_NAME,   62,  20, 150,  10, ES_READONLY
    PUSHBUTTON      "Start Here",       IDB_SKIN_SELECT, 217, 20,  50,  10
-   PUSHBUTTON      "Open Image",       IDB_SKIN_OPEN,   270, 20,  45,  10
-
-   // LTEXT           " ",       IDC_MAP_AREA, 2, 1, 200, 200, 0, WS_EX_STATICEDGE
-   // LTEXT           " ",          IDC_MAP_AREA, 2, 20, 340, 350, 0, WS_EX_CLIENTEDGE
-   // LTEXT           " ",       IDC_MAP_AREA, 3, 3, 200, 200, WS_EX_CLIENTEDGE  //  doesn't draw
 END
 
 //*******************************************************************
@@ -98,7 +92,6 @@ STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU | WS_MINIM
 CAPTION "Input Image View"
 FONT 10, "Times New Roman"
 BEGIN
-
    // LTEXT           " ",           IDC_MAP_AREA, 2, 1, 200, 200, 0, WS_EX_STATICEDGE
    // LTEXT           " ",              IDC_IMG_AREA, 2, 1, 200, 200, 0, WS_EX_CLIENTEDGE
    // LTEXT           " ",           IDC_MAP_AREA, 3, 3, 200, 200, WS_EX_CLIENTEDGE  //  doesn't draw

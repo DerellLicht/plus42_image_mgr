@@ -26,14 +26,11 @@ Usage instructions (development version)
 2. Select a .layout file from some existing skin  
    You *may* need to do some folder-cruising to find such skins,
    but once you get there, it will remember the location for future runs.  
-3. After selecting a layout file, click the <code>Open Image</code> button.  
-   Okay, this is a practice page for gdiplus operations... it'll go away in a while.  
-   Just click the <code>Draw Image</code> button...
-4. This will display the reference .gif image for the skin that you selected earlier.
-5. Last but not least... click the <code>Draw Box</code> three times...   
+   
+   This will display the reference .gif image for the skin that you selected earlier.
+3. Last but not least... click the <code>Draw Box</code> three times...   
    This will highlight the defined fields around 'Key: 2' fields...  
    [ NOTE: This is using hard-coded values, and only works for LandscapeRight skin. ]
-6. and that's it for now... more to come!   
    
 That's all that's working at this point...
    

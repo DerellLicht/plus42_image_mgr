@@ -34,11 +34,11 @@
 
 #define  IDS_SKIN_NAME     601
 #define  IDC_SKIN_NAME     602
-#define  IDB_SKIN_OPEN     603
+// #define  IDB_SKIN_OPEN     603
 #define  IDB_SKIN_SELECT   604
 #define  IDC_TERMINAL      605
 #define  IDB_DRAW_BOX      606
-#define  IDB_DRAW_IMAGE    607
+// #define  IDB_DRAW_IMAGE    607
 #define  IDB_LOAD_LAYOUT   608
 
 //  about.cpp constants

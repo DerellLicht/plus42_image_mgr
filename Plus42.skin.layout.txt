@@ -95,8 +95,8 @@ key images, use the AltBkgd and AltKey elements:
 
 AltBkgd: mode src_rect dst_point
   Defines an image to be overlaid on the skin when the given mode is in effect.
-  Note that there can be multiple AltBkgd elements for each mode; all of them
-  will be drawn when the given mode is in effect.
+  Note that there can be multiple AltBkgd elements for each mode; 
+  all of them will be drawn when the given mode is in effect.
   
 AltKey: mode code src_point
   Defines an alternate pressed-key image to be used instead of the default
@@ -105,9 +105,7 @@ AltKey: mode code src_point
   assumed to match the size of the default pressed-key image for the given key
   code.
 
-The mode can be 1 (equation editor in RDX. mode) or 2 (equation editor in RDX,
-mode).
-
+The mode can be 1 (equation editor in RDX. mode) or 2 (equation editor in RDX, mode).
 
 For examples, look at the *.layout and *.gif files in this directory.
 

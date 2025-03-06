@@ -30,19 +30,12 @@ static TCHAR const * const Version = _T("Plus42 Image Manager, Version " VerNum 
 
 // static char szAppName[] = "pimage_mgr";
 
-//  taken from CTerminal.h
-//  if a function needs a longer line than this, they should
-//  define their own termout() derivative function(s)
-// #define  MAX_TERM_CHARS    1024
-
 //***********************************************************************
 HINSTANCE g_hinst = 0;
 
 static HWND hwndMain = NULL ;
-static HWND hwndOpen = NULL ;
 static HWND hwndSelectSkin = NULL ;
 static HWND hwndDrawBox = NULL ;
-static HWND hwndDrawImage = NULL ;
 static HWND hwndLoadLayout = NULL ;
 
 //lint -esym(843, dbg_flags)  could be declared as const
@@ -203,22 +196,20 @@ static void do_init_dialog(HWND hwnd)
    TCHAR msgstr[81] ;
    wsprintf(msgstr, _T("%s"), Version) ;
    SetWindowText(hwnd, msgstr) ;
-   syslog(_T("%s\n"), msgstr);
+   // syslog(_T("%s\n"), msgstr);
 
    SetClassLong(hwnd, GCL_HICON,   (LONG) LoadIcon(g_hinst, (LPCTSTR)IDI_PLUS42IM));
    SetClassLong(hwnd, GCL_HICONSM, (LONG) LoadIcon(g_hinst, (LPCTSTR)IDI_PLUS42IM));
 
    hwndMain = hwnd ;
    hwndSelectSkin = GetDlgItem(hwnd, IDB_SKIN_SELECT);
-   hwndOpen = GetDlgItem(hwnd, IDB_SKIN_OPEN);
-   hwndDrawBox = GetDlgItem(hwnd, IDB_DRAW_BOX);
-   hwndDrawImage = GetDlgItem(hwnd, IDB_DRAW_IMAGE);
+   // hwndOpen       = GetDlgItem(hwnd, IDB_SKIN_OPEN);
+   hwndDrawBox    = GetDlgItem(hwnd, IDB_DRAW_BOX);
+   // hwndDrawImage  = GetDlgItem(hwnd, IDB_DRAW_IMAGE);
    hwndLoadLayout = GetDlgItem(hwnd, IDB_LOAD_LAYOUT);
    
-   
-   EnableWindow(hwndOpen, false);
+   // EnableWindow(hwndOpen, false);
    EnableWindow(hwndDrawBox, false);
-   EnableWindow(hwndDrawImage, false);
    EnableWindow(hwndLoadLayout, false);
 
    // setup_main_menu(hwnd) ;
@@ -228,37 +219,14 @@ static void do_init_dialog(HWND hwnd)
    //***************************************************************************
    // create_and_add_tooltips(hwnd, 150, 100, 10000, main_tooltips);
 
-   // RECT myRect ;
-   // // GetWindowRect(hwnd, &myRect) ;
-   // GetClientRect(hwnd, &myRect) ;
-   // uint cxClient = (myRect.right - myRect.left) ;
-   // uint cyClient = (myRect.bottom - myRect.top) ;
-
-   center_window(hwnd, -1, 100) ;
-   //****************************************************************
-   //  create/configure status bar
-   //****************************************************************
-   // MainStatusBar = new CStatusBar(hwnd) ;
-   // MainStatusBar->MoveToBottom(cxClient, cyClient) ;
-   // //  re-position status-bar parts
-   // {
-   // int sbparts[3];
-   // sbparts[0] = (int) (6 * cxClient / 10) ;
-   // sbparts[1] = (int) (8 * cxClient / 10) ;
-   // sbparts[2] = -1;
-   // MainStatusBar->SetParts(3, &sbparts[0]);
-   // }
-
    //****************************************************************
    //  create/configure terminal
    //****************************************************************
-   // setup_terminal_window(hwnd, MainStatusBar->height(), IDB_SKIN_OPEN);
-   setup_terminal_window(hwnd, 0, IDB_SKIN_OPEN, IDC_TERMINAL);
+   center_window(hwnd, -1, 100) ;
+   setup_terminal_window(hwnd, 0, IDB_SKIN_SELECT, IDC_TERMINAL);
    set_local_terminal_colors() ;
    put_color_term_msg(TERM_INFO, _T("terminal size: columns=%u, rows=%u"),
       term_get_columns(), term_get_rows());
-      
-   // put_color_term_msg(TERM_ERROR, "Testing ERROR report function");
 }
 
 //***********************************************************************
@@ -305,26 +273,6 @@ static LRESULT CALLBACK WinProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lPa
    case WM_NOTIFY:
       return term_notify(hwnd, lParam) ;
 
-   //***********************************************************************************************
-   //  04/16/14 - unfortunately, I cannot use WM_SIZE, nor any other message, to draw my graphics,
-   //  because some other message occurs later and over-writes my work...
-   //***********************************************************************************************
-   // case WM_SIZE:
-   //    if (wParam == SIZE_RESTORED) {
-   //       // syslog("WM_SIZE\n") ;
-   //       redraw_in_progress = true ;
-   //    } 
-      //********************************************************************************************
-      //  The last operations in the dialog redraw, are subclassed WM_CTLCOLORSTATIC messages.
-      //  So, to determine when it is all done, I need to somehow recognize when these are done,
-      //  and then update our graphics objects.
-      //********************************************************************************************
-   //    return TRUE;
-   //  this occurs during program startup
-   // case WM_ERASEBKGND:
-   //    // syslog("WM_ERASEBKGND\n") ;
-   //    break;
-
    case WM_COMMAND:
       {  //  create local context
       DWORD cmd = HIWORD (wParam) ;
@@ -336,11 +284,45 @@ static LRESULT CALLBACK WinProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lPa
       case BN_CLICKED:
          switch(target) {
          
-         case IDB_DRAW_IMAGE:
-            SendMessage(hwndRef, WM_DRAW_IMAGE, (WPARAM) NULL, (WPARAM) NULL);
-            EnableWindow(hwndDrawBox, true);
-            EnableWindow(hwndDrawImage, false);
-            break ;
+         //  "Start Here" button         
+         case IDB_SKIN_SELECT:
+            {  // create local context
+            _tcscpy(layout_file, _T("skin.layout")) ;
+            if (select_file(hwnd, layout_file, _T("layout"))) {
+               TCHAR *p = _tcsrchr(layout_file, _T('\\'));
+               if (p == NULL) {
+                  goto error_path;
+               }
+               p++ ;
+               _tcscpy(skin_name, p);
+               p = _tcschr(skin_name, _T('.'));
+               if (p == NULL) {
+                  goto error_path;
+               }
+               *p = 0 ;
+               _stprintf(msgstr, _T(" %s"), skin_name) ;
+               SetWindowText(GetDlgItem(hwnd, IDC_SKIN_NAME), msgstr) ;
+               
+               //  generate image filename
+               _tcscpy(image_file, layout_file);
+               p = _tcschr(image_file, _T('.'));
+               if (p == NULL) {
+                  goto error_path;
+               }
+               _tcscpy(p, _T(".gif"));
+               termout(_T("%s"), image_file);
+               
+               EnableWindow(hwndDrawBox, true);
+               EnableWindow(hwndSelectSkin, false);
+               open_image_window(image_file);
+            } 
+            else {
+error_path:
+               layout_file[0] = 0 ; //  make layout filename invalid
+               put_color_term_msg(TERM_ERROR, _T("select_file: %s"), get_system_message()) ;
+            }
+            }  // end local context
+            return 0 ;
             
          case IDB_LOAD_LAYOUT:
             break ;
@@ -391,51 +373,9 @@ static LRESULT CALLBACK WinProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lPa
             }
             }  //  end local context
             break ;
-         
-         case IDB_SKIN_SELECT:
-            {  // create local context
-            _tcscpy(layout_file, _T("skin.layout")) ;
-            if (select_file(hwnd, layout_file, _T("layout"))) {
-               TCHAR *p = _tcsrchr(layout_file, _T('\\'));
-               if (p == NULL) {
-                  goto error_path;
-               }
-               p++ ;
-               _tcscpy(skin_name, p);
-               p = _tcschr(skin_name, _T('.'));
-               if (p == NULL) {
-                  goto error_path;
-               }
-               *p = 0 ;
-               _stprintf(msgstr, _T(" %s"), skin_name) ;
-               SetWindowText(GetDlgItem(hwnd, IDC_SKIN_NAME), msgstr) ;
-               
-               //  generate image filename
-               _tcscpy(image_file, layout_file);
-               p = _tcschr(image_file, _T('.'));
-               if (p == NULL) {
-                  goto error_path;
-               }
-               _tcscpy(p, _T(".gif"));
-               termout(_T("%s"), image_file);
-               
-               EnableWindow(hwndOpen, true);
-               EnableWindow(hwndSelectSkin, false);
-            } else {
-error_path:
-               layout_file[0] = 0 ; //  make layout filename invalid
-               termout(_T("select_file: %s"), get_system_message()) ;
-            }
-            }  // end local context
-            return 0 ;
-            
-         case IDB_SKIN_OPEN:
-            open_image_window(image_file);
-            EnableWindow(hwndDrawImage, true);
-   EnableWindow(hwndOpen, false);
-            break ;
-            
+
          case IDB_HELP:
+            put_color_term_msg(TERM_INFO, _T("Help file is not yet created"));
             break;
             
          case IDD_ABOUT : 

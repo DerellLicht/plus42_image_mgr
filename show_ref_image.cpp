@@ -112,12 +112,14 @@ static void do_init_dialog(HWND hwnd)
 }
 
 //***********************************************************************************
-//  draw text
-static Image *binclock_image = NULL;
+#undef  DRAW_TEST_IMAGES   
 
 static VOID OnPaint(HDC hdc)
 {
    Graphics    graphics(hdc);
+   
+#ifdef  DRAW_TEST_IMAGES   
+   Image *binclock_image = NULL;
    SolidBrush  brush(Color(255, 0, 0, 255));
    FontFamily  fontFamily(L"Times New Roman");
    Font        font(&fontFamily, 24.0, FontStyleRegular, UnitPixel); //lint !e747 !e641
@@ -140,6 +142,9 @@ static VOID OnPaint(HDC hdc)
    binclock_image = new Image(L"binclock.gif");
    // termout(_T("image size: %u x %u"), binclock_image->GetWidth(), binclock_image->GetHeight()); //lint !e864
    graphics.DrawImage(binclock_image, 420, 200);
+#else   
+   graphics.DrawImage(ref_image, 0, 0);
+#endif     
 }
 
 //***********************************************************************
@@ -209,10 +214,6 @@ static LRESULT CALLBACK RefImageProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARA
          switch(target) {
             
          // case IDB_HELP:
-         //    queryout("Terminal keyboard shortcuts") ;
-         //    infoout("Alt-s = send command (i.e., print command in terminal)") ;
-         //    infoout("Alt-h = show this help screen") ;
-         //    infoout("Alt-c = Close this program") ;
          //    break;
             
          case IDB_CLOSE:

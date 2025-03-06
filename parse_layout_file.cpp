@@ -14,15 +14,77 @@
 #include "pimage_mgr.h"
 
 //********************************************************************************
+//  table of field types and associated keyboard areas
+//  
+//  field type    touch    draw     select
+//  ==========    =====    ====     ======
+//  key             X       X         X
+//  annunciator             X         X
+//  AltBgnd                src      dest
+//  AltKey                            X
+//********************************************************************************
+
+typedef enum LAYOUT_FIELD_TYPES_e {
+LAYOUT_KEY=0,
+LAYOUT_ANNUN,
+LAYOUT_ALT_BG,
+LAYOUT_ALT_KEY
+} LAYOUT_FIELD_TYPES_t;
+
+typedef struct key_pos_s {
+   uint x0 ;
+   uint y0 ;
+   uint dx ;
+   uint dy ;
+} key_pos_t ;
+
+typedef struct key_layout_data_s {
+   struct key_layout_data_s *next ;
+   LAYOUT_FIELD_TYPES_t lftype ;
+   uint key_norm ;
+   uint key_shift ;
+   key_pos_t touch_area ;
+   key_pos_t draw_area ;
+   key_pos_t selected_area ;
+} key_layout_data_t, *key_layout_data_p ;
+
+static key_layout_data_p top = NULL ;
+static key_layout_data_p tail = NULL ;
+
+//********************************************************************************
+static key_layout_data_p alloc_new_field(LAYOUT_FIELD_TYPES_t lftype)
+{
+   key_layout_data_p kltemp = new key_layout_data_t ;
+   ZeroMemory(kltemp, sizeof(key_layout_data_t));
+   kltemp->lftype = lftype ;
+   return kltemp ;
+}
+
+//********************************************************************************
+static void add_field_to_list(key_layout_data_p kltemp)
+{
+   if (top == NULL) {
+      top = kltemp ;
+   }
+   else {
+      tail->next = kltemp ;
+   }
+   tail = kltemp ;
+}
+
+//********************************************************************************
 //Annunciator: 1 60,90,30,26 1330,94
 //********************************************************************************
-static int parse_annunciator(TCHAR *inpstr, FILE *outfd)
+static int parse_annunciator(TCHAR *inpstr)
 {
    static bool entry_shown = false ;
    TCHAR outstr[MAX_LINE_LEN+1] ;
    uint outlen ;
    uint xnum, ynum ;
    TCHAR *hd ;
+   
+   key_layout_data_p kltemp = alloc_new_field(LAYOUT_ANNUN);
+
    // put_color_term_msg(TERM_ERROR, "found Annunciator");
    hd = next_field(inpstr);
    if (hd == NULL) { put_color_term_msg(TERM_ERROR, _T("PARSE ERROR")); return 1 ; }
@@ -71,7 +133,8 @@ static int parse_annunciator(TCHAR *inpstr, FILE *outfd)
       put_color_term_msg(TERM_NORMAL, _T("Annun: out: [%s]\n"), outstr);
       entry_shown = true ;
    }
-   _ftprintf(outfd, _T("%s\n"), outstr);
+
+   add_field_to_list(kltemp);
    return 0 ;
 }
 
@@ -79,13 +142,16 @@ static int parse_annunciator(TCHAR *inpstr, FILE *outfd)
 //Key: 2 117,450,102,106 127,478,82,58 1389,478
 //  Anything tweaked in Key: must be tweaked the same in AltBkgd:
 //********************************************************************************
-static int parse_key(TCHAR *inpstr, FILE *outfd)
+static int parse_key(TCHAR *inpstr)
 {
    static bool entry_shown = false ;
    TCHAR outstr[MAX_LINE_LEN+1] ;
    uint outlen ;
    uint xnum, ynum ;
    TCHAR *hd ;
+
+   key_layout_data_p kltemp = alloc_new_field(LAYOUT_KEY);
+
    // put_color_term_msg(TERM_ERROR, "found Annunciator");
    hd = next_field(inpstr);
    if (hd == NULL) { put_color_term_msg(TERM_ERROR, _T("PARSE ERROR")); return 1 ; }
@@ -159,14 +225,13 @@ static int parse_key(TCHAR *inpstr, FILE *outfd)
    put_color_term_msg(TERM_NORMAL, outstr+outlen, _T("%u,%u"), xnum, ynum);
    outlen = _tcslen(outstr);  //lint !e438
    
-   // put_color_term_msg(TERM_ERROR, "found Key");
-   // put_color_term_msg(TERM_NORMAL, outfd, "%s\n", inpstr);
    if (!entry_shown) {
       put_color_term_msg(TERM_NORMAL, _T("Key: in:  [%s]\n"), inpstr);
       put_color_term_msg(TERM_NORMAL, _T("Key: out: [%s]\n"), outstr);
       entry_shown = true ;
    }
-   _ftprintf(outfd, _T("%s\n"), outstr);
+   add_field_to_list(kltemp);
+
    return 0 ;
 }
 
@@ -174,15 +239,16 @@ static int parse_key(TCHAR *inpstr, FILE *outfd)
 //AltBkgd: 1 1294,2,192,84 864,196
 //  Anything tweaked in Key: must be tweaked the same in AltBkgd:
 //********************************************************************************
-static int parse_altbkgd(TCHAR *inpstr, FILE *outfd)
+static int parse_altbkgd(TCHAR *inpstr)
 {
-   // put_color_term_msg(TERM_ERROR, "found AltBkgd");
-   // put_color_term_msg(TERM_NORMAL, outfd, "%s\n", inpstr);
    static bool entry_shown = false ;
    TCHAR outstr[MAX_LINE_LEN+1] ;
    uint outlen ;
    uint xnum, ynum ;
    TCHAR *hd ;
+
+   key_layout_data_p kltemp = alloc_new_field(LAYOUT_ALT_BG);
+
    // put_color_term_msg(TERM_ERROR, "found Annunciator");
    hd = next_field(inpstr);
    if (hd == NULL) { put_color_term_msg(TERM_ERROR, _T("PARSE ERROR 1")); return 1 ; }
@@ -231,14 +297,15 @@ static int parse_altbkgd(TCHAR *inpstr, FILE *outfd)
       put_color_term_msg(TERM_NORMAL, _T("altbg: out: [%s]\n"), outstr);
       entry_shown = true ;
    }
-   _ftprintf(outfd, _T("%s\n"), outstr);
+
+   add_field_to_list(kltemp);
    return 0 ;
 }
 
 //********************************************************************************
 //AltKey: 1 14 1298,386
 //********************************************************************************
-static int parse_altkey(TCHAR *inpstr, FILE *outfd)
+static int parse_altkey(TCHAR *inpstr)
 {
    // put_color_term_msg(TERM_ERROR, "found AltKey");
    static bool entry_shown = false ;
@@ -246,6 +313,9 @@ static int parse_altkey(TCHAR *inpstr, FILE *outfd)
    uint outlen ;
    uint xnum, ynum ;
    TCHAR *hd ;
+
+   key_layout_data_p kltemp = alloc_new_field(LAYOUT_ALT_KEY);
+
    // put_color_term_msg(TERM_ERROR, "found Annunciator");
    hd = next_field(inpstr);
    if (hd == NULL) { put_color_term_msg(TERM_ERROR, _T("PARSE ERROR 1")); return 1 ; }
@@ -271,25 +341,20 @@ static int parse_altkey(TCHAR *inpstr, FILE *outfd)
       put_color_term_msg(TERM_NORMAL, _T("altkey: out: [%s]\n"), outstr);
       entry_shown = true ;
    }
-   _ftprintf(outfd, _T("%s\n"), outstr);
+
+   add_field_to_list(kltemp);
    return 0 ;
 }
 
 //********************************************************************************
-static int parse_layout_values(TCHAR *dest_file, TCHAR *source_file)
+static int parse_layout_values(TCHAR *layout_file)
 {
    int result ;
-   FILE *infd = _tfopen(source_file, _T("rt"));
+   FILE *infd = _tfopen(layout_file, _T("rt"));
    if (infd == NULL) {
-      put_color_term_msg(TERM_ERROR, _T("%s: cannot open for reading\n"), source_file);
+      put_color_term_msg(TERM_ERROR, _T("%s: cannot open for reading\n"), layout_file);
       return 1 ;
    }
-   FILE *outfd = _tfopen(dest_file, _T("wt"));
-   if (outfd == NULL) {
-      put_color_term_msg(TERM_ERROR, _T("%s: cannot open file for writing\n"), dest_file);
-      return 1 ;
-   }
-   
    TCHAR inpstr[MAX_LINE_LEN+1] ;
    while (_fgetts(inpstr, MAX_LINE_LEN, infd) != NULL) {
       strip_newlines(inpstr);
@@ -297,7 +362,7 @@ static int parse_layout_values(TCHAR *dest_file, TCHAR *source_file)
       //*******************************************************************
       //Annunciator: 1 60,90,30,26 1330,94
       if (_tcsncmp(inpstr, _T("Annunciator:"), 12) == 0) {
-         result = parse_annunciator(inpstr, outfd);
+         result = parse_annunciator(inpstr);
          if (result != 0) {
             break ;
          }
@@ -306,7 +371,7 @@ static int parse_layout_values(TCHAR *dest_file, TCHAR *source_file)
       //*******************************************************************
       //Key: 2 117,450,102,106 127,478,82,58 1389,478
       else if (_tcsncmp(inpstr, _T("Key:"), 4) == 0) {
-         result = parse_key(inpstr, outfd);
+         result = parse_key(inpstr);
          if (result != 0) {
             break ;
          }
@@ -315,7 +380,7 @@ static int parse_layout_values(TCHAR *dest_file, TCHAR *source_file)
       //*******************************************************************
       //AltBkgd: 1 1294,2,192,84 864,196
       else if (_tcsncmp(inpstr, _T("AltBkgd:"), 8) == 0) {
-         result = parse_altbkgd(inpstr, outfd);
+         result = parse_altbkgd(inpstr);
          if (result != 0) {
             break ;
          }
@@ -324,18 +389,17 @@ static int parse_layout_values(TCHAR *dest_file, TCHAR *source_file)
       //*******************************************************************
       //AltKey: 1 14 1298,386
       else if (_tcsncmp(inpstr, _T("AltKey:"), 7) == 0) {
-         result = parse_altkey(inpstr, outfd);
+         result = parse_altkey(inpstr);
          if (result != 0) {
             break ;
          }
       }
-      else {
-         _ftprintf(outfd, _T("%s\n"), inpstr);
-      }
+      // else {
+      //    _ftprintf(outfd, _T("%s\n"), inpstr);
+      // }
    }
    
    fclose(infd);
-   fclose(outfd);
    return 0 ;
 }
 
