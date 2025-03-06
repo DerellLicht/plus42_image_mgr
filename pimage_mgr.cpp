@@ -40,8 +40,10 @@ HINSTANCE g_hinst = 0;
 
 static HWND hwndMain = NULL ;
 static HWND hwndOpen = NULL ;
+static HWND hwndSelectSkin = NULL ;
 static HWND hwndDrawBox = NULL ;
-// static HMENU hMainMenu = NULL ;
+static HWND hwndDrawImage = NULL ;
+static HWND hwndLoadLayout = NULL ;
 
 //lint -esym(843, dbg_flags)  could be declared as const
 uint dbg_flags = 0
@@ -207,11 +209,17 @@ static void do_init_dialog(HWND hwnd)
    SetClassLong(hwnd, GCL_HICONSM, (LONG) LoadIcon(g_hinst, (LPCTSTR)IDI_PLUS42IM));
 
    hwndMain = hwnd ;
+   hwndSelectSkin = GetDlgItem(hwnd, IDB_SKIN_SELECT);
    hwndOpen = GetDlgItem(hwnd, IDB_SKIN_OPEN);
    hwndDrawBox = GetDlgItem(hwnd, IDB_DRAW_BOX);
+   hwndDrawImage = GetDlgItem(hwnd, IDB_DRAW_IMAGE);
+   hwndLoadLayout = GetDlgItem(hwnd, IDB_LOAD_LAYOUT);
+   
    
    EnableWindow(hwndOpen, false);
    EnableWindow(hwndDrawBox, false);
+   EnableWindow(hwndDrawImage, false);
+   EnableWindow(hwndLoadLayout, false);
 
    // setup_main_menu(hwnd) ;
    // set_up_working_spaces(hwnd) ; //  do this *before* tooltips !!
@@ -330,6 +338,8 @@ static LRESULT CALLBACK WinProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lPa
          
          case IDB_DRAW_IMAGE:
             SendMessage(hwndRef, WM_DRAW_IMAGE, (WPARAM) NULL, (WPARAM) NULL);
+            EnableWindow(hwndDrawBox, true);
+            EnableWindow(hwndDrawImage, false);
             break ;
             
          case IDB_LOAD_LAYOUT:
@@ -410,7 +420,7 @@ static LRESULT CALLBACK WinProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lPa
                termout(_T("%s"), image_file);
                
                EnableWindow(hwndOpen, true);
-               EnableWindow(hwndDrawBox, true);
+               EnableWindow(hwndSelectSkin, false);
             } else {
 error_path:
                layout_file[0] = 0 ; //  make layout filename invalid
@@ -421,6 +431,8 @@ error_path:
             
          case IDB_SKIN_OPEN:
             open_image_window(image_file);
+            EnableWindow(hwndDrawImage, true);
+   EnableWindow(hwndOpen, false);
             break ;
             
          case IDB_HELP:

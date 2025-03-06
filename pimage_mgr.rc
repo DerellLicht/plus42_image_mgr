@@ -75,15 +75,15 @@ FONT 10, "Times New Roman"
 BEGIN
    PUSHBUTTON      "Draw Box",         IDB_DRAW_BOX,     10,  5,  40,  10
    PUSHBUTTON      "Draw Image",       IDB_DRAW_IMAGE,   55,  5,  45,  10
-   PUSHBUTTON      "Load Layout File", IDB_LOAD_LAYOUT,  55,  5,  45,  10
-   PUSHBUTTON      "Help",             IDB_HELP,        105,  5,  40,  10
-   PUSHBUTTON      "About",            IDD_ABOUT,       150,  5,  40,  10
-   PUSHBUTTON      "Close",            IDB_CLOSE,       195,  5,  40,  10
+   PUSHBUTTON      "Load Layout File", IDB_LOAD_LAYOUT, 105,  5,  60,  10
+   PUSHBUTTON      "Help",             IDB_HELP,        170,  5,  40,  10
+   PUSHBUTTON      "About",            IDD_ABOUT,       215,  5,  40,  10
+   PUSHBUTTON      "Close",            IDB_CLOSE,       260,  5,  40,  10
    
    LTEXT           "Base skin name",   IDS_SKIN_NAME,   10,  20,  50,  10
    EDITTEXT                            IDC_SKIN_NAME,   62,  20, 150,  10, ES_READONLY
-   PUSHBUTTON      "...",              IDB_SKIN_SELECT, 217, 20,  20,  10
-   PUSHBUTTON      "Open Image",       IDB_SKIN_OPEN,   240, 20,  45,  10
+   PUSHBUTTON      "Start Here",       IDB_SKIN_SELECT, 217, 20,  50,  10
+   PUSHBUTTON      "Open Image",       IDB_SKIN_OPEN,   270, 20,  45,  10
 
    // LTEXT           " ",       IDC_MAP_AREA, 2, 1, 200, 200, 0, WS_EX_STATICEDGE
    // LTEXT           " ",          IDC_MAP_AREA, 2, 20, 340, 350, 0, WS_EX_CLIENTEDGE
@@ -119,7 +119,7 @@ BEGIN
     LTEXT           "http://derelllicht.42web.io/pimage_mgr.html",     
                                              IDC_WEBLINK,  36, 45, 180, 10
     LTEXT           "https://github.com/DerellLicht/plus42_image_mgr", 
-                                             IDC_WEBLINK2, 36, 58, 180, 10
+                                             IDC_WEBLINK2, 36, 56, 180, 10
     DEFPUSHBUTTON   "Close",                 IDOK,         36, 72, 100, 14
 END
 

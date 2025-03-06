@@ -123,7 +123,7 @@ static VOID OnPaint(HDC hdc)
    Font        font(&fontFamily, 24.0, FontStyleRegular, UnitPixel); //lint !e747 !e641
    PointF      pointF(10.0f, 20.0f);
    
-   graphics.DrawString(L"Hello World!", -1, &font, pointF, &brush);
+   graphics.DrawString(L"gdiplus practice page", -1, &font, pointF, &brush);
    
    Pen      pen(Color(255, 0, 0, 255));
    graphics.DrawLine(&pen, 220, 220, 250, 100);
@@ -138,7 +138,7 @@ static VOID OnPaint(HDC hdc)
    // graphics.DrawImage(&image, 30, 500);
    
    binclock_image = new Image(L"binclock.gif");
-   termout(_T("image size: %u x %u"), binclock_image->GetWidth(), binclock_image->GetHeight()); //lint !e864
+   // termout(_T("image size: %u x %u"), binclock_image->GetWidth(), binclock_image->GetHeight()); //lint !e864
    graphics.DrawImage(binclock_image, 420, 200);
 }
 

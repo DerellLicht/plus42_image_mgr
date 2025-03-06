@@ -57,7 +57,7 @@ static INT_PTR CALLBACK AboutDlgProc(HWND hdlg, UINT uMessage, WPARAM wparam, LP
    case WM_COMMAND:
       switch (LOWORD(wparam)) {
       case IDC_WEBLINK:
-         ShellExecute(hdlg, _T("open"), _T("http://derelllicht.42web.io/wbigcalc.html"), _T(""), _T(""), SW_SHOW);
+         ShellExecute(hdlg, _T("open"), _T("http://derelllicht.42web.io/pimage_mgr.html"), _T(""), _T(""), SW_SHOW);
          return TRUE;
          
       case IDC_WEBLINK2:
