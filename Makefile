@@ -38,8 +38,8 @@ endif
 # link library files
 LiFLAGS = -Ider_libs
 CFLAGS += -Ider_libs
-CSRC=pimage_mgr.cpp hyperlinks.cpp about.cpp \
-show_ref_image.cpp \
+CSRC=pimage_mgr.cpp show_ref_image.cpp parse_layout_file.cpp \
+hyperlinks.cpp about.cpp \
 der_libs/common_funcs.cpp \
 der_libs/common_win.cpp \
 der_libs/winmsgs.cpp \
@@ -100,10 +100,11 @@ rc.o: pimage_mgr.rc
 pimage_mgr.o: version.h resource.h der_libs/common.h der_libs/commonw.h
 pimage_mgr.o: pimage_mgr.h der_libs/cterminal.h der_libs/vlistview.h
 pimage_mgr.o: der_libs/terminal.h der_libs/winmsgs.h
-hyperlinks.o: der_libs/iface_32_64.h hyperlinks.h
-about.o: resource.h version.h der_libs/common.h pimage_mgr.h hyperlinks.h
 show_ref_image.o: resource.h der_libs/common.h der_libs/commonw.h
 show_ref_image.o: pimage_mgr.h der_libs/winmsgs.h der_libs/wthread.h
+parse_layout_file.o: der_libs/common.h pimage_mgr.h
+hyperlinks.o: der_libs/iface_32_64.h hyperlinks.h
+about.o: resource.h version.h der_libs/common.h pimage_mgr.h hyperlinks.h
 der_libs/common_funcs.o: der_libs/common.h
 der_libs/common_win.o: der_libs/common.h der_libs/commonw.h
 der_libs/vlistview.o: der_libs/common.h der_libs/commonw.h
