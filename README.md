@@ -17,11 +17,7 @@ The sequence of operations will be thus:
 1. manually create a skin-format file describing indices and positions of images
    within new image
 2. Let program generate a new .layout file for the new skin
-   
-### Caveats
-> Initially, development will take place using .png image files, not .gif.  
-  This is because I'm more familiar with the former format than the latter.
-  
+    
 <hr>
 
 Usage instructions (development version)  
