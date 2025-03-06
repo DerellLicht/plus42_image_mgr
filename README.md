@@ -27,7 +27,7 @@ Usage instructions (development version)
    You *may* need to do some folder-cruising to find such skins,
    but once you get there, it will remember the location for future runs.  
 3. After selecting a layout file, click the <code>Open Image</code> button.  
-   Okay, this is a practice page for gdiplus operations... it'll go away in a while.
+   Okay, this is a practice page for gdiplus operations... it'll go away in a while.  
    Just click the <code>Draw Image</code> button...
 4. This will display the reference .gif image for the skin that you selected earlier.
 5. Last but not least... click the <code>Draw Box</code> three times...
