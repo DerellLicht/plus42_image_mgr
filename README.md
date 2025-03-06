@@ -31,7 +31,7 @@ Usage instructions (development version)
    You *may* need to do some folder-cruising to find such skins,
    but once you get there, it will remember the location for future runs.  
 3. After selecting a layout file, click the <code>Open Image</code> button.  
-   This will open a new window which will display the .png file for the skin.  
+   This will open a new window which will display the .gif file for the skin.  
 4. Okay, this is a practice page for gdiplus operations... it'll go away in a while.
    Just click the <code>Draw Image</code> button...
 5. This will display the reference .gif image for the skin that you selected earlier.
