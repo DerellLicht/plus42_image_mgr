@@ -380,7 +380,7 @@ static LRESULT CALLBACK WinProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lPa
                draw_msg.y0 = 478 - Y_DELTA;
                draw_msg.dx = 82 ;
                draw_msg.dy = 58 + Y_DELTA;
-               draw_msg.cref = 0xFF0000 ;
+               draw_msg.cref = 0xFFFF00 ;
                SendMessage(hwndRef, WM_DRAW_BOX, (WPARAM) &draw_msg, (WPARAM) NULL);
                EnableWindow(hwndDrawBox, false);
                break ;
