@@ -50,4 +50,11 @@ void open_image_window(TCHAR *image_file);
 //***********************************************************************
 void center_window(HWND hwnd, int x_pos, int y_pos);
 
+//  show_ref_image.cpp
+void stop_ref_image_thread(void);
+
+//  parse_layout_file.cpp
+int parse_layout_values(TCHAR *layout_file);
+void show_layout_info(void);
+
 

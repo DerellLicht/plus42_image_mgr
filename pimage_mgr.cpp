@@ -49,11 +49,6 @@ static TCHAR layout_file[MAX_PATH_LEN] = _T("skin.layout") ;
 static TCHAR skin_name[MAX_PATH_LEN]   = _T("") ;
 static TCHAR image_file[MAX_PATH_LEN]  = _T("") ;
 
-//  external functions
-
-//  show_ref_image.cpp
-extern void stop_ref_image_thread(void);
-
 //***********************************************************************
 // LodePng pngSprites("tiles32.png", SPRITE_HEIGHT, SPRITE_WIDTH) ;
 // LodePng pngTiles  ("images.png",  IMAGE_WIDTH,   IMAGE_HEIGHT) ;
@@ -314,6 +309,7 @@ static LRESULT CALLBACK WinProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lPa
                
                EnableWindow(hwndDrawBox, true);
                EnableWindow(hwndSelectSkin, false);
+               EnableWindow(hwndLoadLayout, true);
                open_image_window(image_file);
             } 
             else {
@@ -325,6 +321,8 @@ error_path:
             return 0 ;
             
          case IDB_LOAD_LAYOUT:
+            parse_layout_values(layout_file);
+            show_layout_info();
             break ;
          
          case IDB_DRAW_BOX:
@@ -345,7 +343,6 @@ error_path:
                break ;
                
             case 1:
-            
 #define  Y_DELTA  5            
                draw_msg.box_count = box_count++ ;
                draw_msg.x0 = 127 ;
