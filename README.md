@@ -28,10 +28,10 @@ Usage instructions (development version)
    but once you get there, it will remember the location for future runs.  
    
    This will display the reference .gif image for the skin that you selected earlier.
-3. Click <code>Load Layout File</code> button to load the file [base skin name].layout.
-   A summary of fields decoded will be displayed in the terminal.
-4a. Click <code>Show Layout Data</code> button to display the fields read from the .layout file.
-4b. Click <code>Draw Boxes</code> button to highlight the data fields which have been
+3. Click <code>Load Layout File</code> button to load the file [base skin name].layout.  
+   A summary of fields decoded will be displayed in the terminal.  
+4a. Click <code>Show Layout Data</code> button to display the fields read from the .layout file.  
+4b. Click <code>Draw Boxes</code> button to highlight the data fields which have been  
     extracted from the .layout data.  
     
     That is all that is completed at this point.
