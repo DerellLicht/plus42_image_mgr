@@ -40,6 +40,7 @@
 #define  IDB_DRAW_BOX      606
 #define  IDB_LOAD_LAYOUT   607
 #define  IDB_SHOW_LAYOUT   608
+#define  IDB_DRAW_BOXES    609
 
 //  about.cpp constants
 #define  IDC_VERNUM        701

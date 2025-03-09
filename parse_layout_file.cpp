@@ -496,3 +496,61 @@ void show_layout_info(bool show_summary_only)
    termout(_T("counts: key: %u, annun: %u, altbg: %u, altkey: %u, total: %u"),
       counts[0], counts[1], counts[2], counts[3], counts[4]);
 }
+
+//***********************************************************************************
+static const COLORREF BGR_TOUCH  = 0x00C000 ;
+static const COLORREF BGR_DRAW   = 0x0000C0 ;
+static const COLORREF BGR_SELECT = 0x00FFFF ;
+
+void draw_object_boxes(HWND hwnd)
+{
+   key_layout_data_p kltemp;
+   for (kltemp = top; kltemp != NULL; kltemp = kltemp->next) {
+      switch(kltemp->lftype) {
+      case LAYOUT_ANNUN:
+         Box(hwnd, 
+            kltemp->draw_area.x0, 
+            kltemp->draw_area.y0,
+            kltemp->draw_area.x0 + kltemp->draw_area.dx, 
+            kltemp->draw_area.y0 + kltemp->draw_area.dy,
+            BGR_DRAW);
+         Box(hwnd, 
+            kltemp->selected_area.x0, 
+            kltemp->selected_area.y0,
+            kltemp->selected_area.x0 + kltemp->selected_area.dx, 
+            kltemp->selected_area.y0 + kltemp->selected_area.dy,
+            BGR_SELECT);
+         break ;
+      
+      case LAYOUT_KEY:
+         Box(hwnd, 
+            kltemp->touch_area.x0, 
+            kltemp->touch_area.y0,
+            kltemp->touch_area.x0 + kltemp->touch_area.dx, 
+            kltemp->touch_area.y0 + kltemp->touch_area.dy,
+            BGR_TOUCH);
+         Box(hwnd, 
+            kltemp->draw_area.x0, 
+            kltemp->draw_area.y0,
+            kltemp->draw_area.x0 + kltemp->draw_area.dx, 
+            kltemp->draw_area.y0 + kltemp->draw_area.dy,
+            BGR_DRAW);
+         Box(hwnd, 
+            kltemp->selected_area.x0, 
+            kltemp->selected_area.y0,
+            kltemp->selected_area.x0 + kltemp->selected_area.dx, 
+            kltemp->selected_area.y0 + kltemp->selected_area.dy,
+            BGR_SELECT);
+         break ;
+         
+      case LAYOUT_ALT_BG:
+         break ;
+         
+      case LAYOUT_ALT_KEY:
+         break ;
+         
+      default:
+         break ;
+      }
+   }
+}

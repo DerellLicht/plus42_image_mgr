@@ -71,25 +71,6 @@ static void resize_window_corrected(HWND hwnd)
    resize_window(hwnd, cli_width, cli_height);
 }
       
-/************************************************************************/
-//lint -esym(578, y0, y1, Color)
-static void Box(HWND hwnd, int x0, int y0, int x1, int y1, COLORREF Color)
-{
-   HDC hdc = GetDC (hwnd) ;
-   HPEN hPen = CreatePen(PS_SOLID, 1, Color) ;
-   SelectObject(hdc, hPen) ;
-
-   MoveToEx(hdc, x0, y0, NULL) ;
-   LineTo  (hdc, x1, y0) ;
-   LineTo  (hdc, x1, y1) ;
-   LineTo  (hdc, x0, y1) ;
-   LineTo  (hdc, x0, y0) ;
-
-   SelectObject(hdc, GetStockObject(BLACK_PEN)) ;  //  deselect my pen
-   DeleteObject (hPen) ;
-   ReleaseDC (hwnd, hdc) ;
-}
-
 //***********************************************************************
 static void do_init_dialog(HWND hwnd)
 {
@@ -145,6 +126,25 @@ static VOID OnPaint(HDC hdc)
 #else   
    graphics.DrawImage(ref_image, 0, 0);
 #endif     
+}
+
+/************************************************************************/
+//lint -esym(578, y0, y1, Color)
+void Box(HWND hwnd, int x0, int y0, int x1, int y1, COLORREF Color)
+{
+   HDC hdc = GetDC (hwnd) ;
+   HPEN hPen = CreatePen(PS_SOLID, 1, Color) ;
+   SelectObject(hdc, hPen) ;
+
+   MoveToEx(hdc, x0, y0, NULL) ;
+   LineTo  (hdc, x1, y0) ;
+   LineTo  (hdc, x1, y1) ;
+   LineTo  (hdc, x0, y1) ;
+   LineTo  (hdc, x0, y0) ;
+
+   SelectObject(hdc, GetStockObject(BLACK_PEN)) ;  //  deselect my pen
+   DeleteObject (hPen) ;
+   ReleaseDC (hwnd, hdc) ;
 }
 
 //***********************************************************************
@@ -236,35 +236,12 @@ static LRESULT CALLBACK RefImageProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARA
       }
       break ;
       
-   case WM_DRAW_BOX:
-      {
-      draw_box_msg_t *box_data = (draw_box_msg_t *) wParam ;
-      if (box_data == NULL) {
-         syslog(_T("Draw Box: pointer is NULL\n"));
-      }
-      else {
-// typedef struct draw_box_msg_s {
-//    uint box_count ;
-//    uint box_data->x0 ;
-//    uint box_data->y0 ;
-//    uint box_data->dx ;
-//    uint box_data->dy ;
-//    COLORREF box_data->cref ;
-// } draw_box_msg_t ;
-         Box(hwnd, box_data->x0,                
-                   box_data->y0, 
-                   box_data->x0 + box_data->dx, 
-                   box_data->y0 + box_data->dy, 
-                   box_data->cref);
-      }
-      }
-      break ;
-      
    case WM_LOAD_LAYOUT:
       //  send message to another message queue, to do this...
       //  we are freezing our message queue 
       parse_layout_values(layout_file);
       enable_show_layout_button(true);
+      enable_draw_boxes_button(true);
       break ;
 
    case WM_SHOW_LAYOUT:
@@ -273,6 +250,10 @@ static LRESULT CALLBACK RefImageProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARA
       show_layout_info(false);
       break ;
 
+   case WM_DRAW_BOX:
+      draw_object_boxes(hwnd);
+      break ;
+      
    //********************************************************************
    //  application shutdown handlers
    //********************************************************************

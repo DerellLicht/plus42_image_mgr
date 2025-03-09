@@ -35,9 +35,9 @@ HINSTANCE g_hinst = 0;
 
 static HWND hwndMain = NULL ;
 static HWND hwndSelectSkin = NULL ;
-static HWND hwndDrawBox = NULL ;
 static HWND hwndLoadLayout = NULL ;
 static HWND hwndShowLayout = NULL ;
+static HWND hwndDrawBoxes = NULL ;
 static HWND hwndCounter = NULL ;
 
 //lint -esym(843, dbg_flags)  could be declared as const
@@ -77,6 +77,12 @@ void enable_load_layout_button(bool state)
 void enable_show_layout_button(bool state)
 {
    EnableWindow(hwndShowLayout, state);
+}
+
+//***********************************************************************
+void enable_draw_boxes_button(bool state)
+{
+   EnableWindow(hwndDrawBoxes, state);
 }
 
 //***********************************************************************
@@ -212,15 +218,15 @@ static void do_init_dialog(HWND hwnd)
 
    hwndMain = hwnd ;
    hwndSelectSkin = GetDlgItem(hwnd, IDB_SKIN_SELECT);
-   hwndDrawBox    = GetDlgItem(hwnd, IDB_DRAW_BOX);
+   hwndDrawBoxes  = GetDlgItem(hwnd, IDB_DRAW_BOXES);
    hwndLoadLayout = GetDlgItem(hwnd, IDB_LOAD_LAYOUT);
    hwndShowLayout = GetDlgItem(hwnd, IDB_SHOW_LAYOUT);
    hwndCounter    = GetDlgItem(hwnd, IDC_COUNTER);
    
    // EnableWindow(hwndOpen, false);
-   EnableWindow(hwndDrawBox, false);
    EnableWindow(hwndLoadLayout, false);
    EnableWindow(hwndShowLayout, false);
+   EnableWindow(hwndDrawBoxes, false);
 
    // setup_main_menu(hwnd) ;
    // set_up_working_spaces(hwnd) ; //  do this *before* tooltips !!
@@ -252,9 +258,6 @@ void update_counter_field(uint counter)
 
 //***********************************************************************
 //lint -esym(551, draw_msg)
-static draw_box_msg_t draw_msg ;
-static uint box_count = 0 ;
-
 static LRESULT CALLBACK WinProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 {
    TCHAR msgstr[81] ;
@@ -333,7 +336,6 @@ static LRESULT CALLBACK WinProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lPa
                _tcscpy(p, _T(".gif"));
                termout(_T("%s"), image_file);
                
-               EnableWindow(hwndDrawBox, true);
                EnableWindow(hwndSelectSkin, false);
                EnableWindow(hwndLoadLayout, true);
                open_image_window(image_file);
@@ -354,50 +356,9 @@ error_path:
             PostMessage(hwndRef, WM_SHOW_LAYOUT, (WPARAM) NULL, (LPARAM) NULL);
             break ;
          
-         case IDB_DRAW_BOX:
+         case IDB_DRAW_BOXES:
             // Key: 2 117,450,102,106 127,478,82,58 1389,478
-            {  // define local context
-
-            put_color_term_msg(TERM_INFO, _T("Draw Box %u"), box_count);
-            
-            switch (box_count) {
-            case 0:
-               draw_msg.box_count = box_count++ ;
-               draw_msg.x0 = 117 ;
-               draw_msg.y0 = 450 ;
-               draw_msg.dx = 102 ;
-               draw_msg.dy = 106 ;
-               draw_msg.cref = 0x00FF00 ;
-               SendMessage(hwndRef, WM_DRAW_BOX, (WPARAM) &draw_msg, (LPARAM) NULL);
-               break ;
-               
-            case 1:
-#define  Y_DELTA  5            
-               draw_msg.box_count = box_count++ ;
-               draw_msg.x0 = 127 ;
-               draw_msg.y0 = 478 - Y_DELTA;
-               draw_msg.dx = 82 ;
-               draw_msg.dy = 58 + Y_DELTA;
-               draw_msg.cref = 0x0000FF ;
-               SendMessage(hwndRef, WM_DRAW_BOX, (WPARAM) &draw_msg, (LPARAM) NULL);
-               break ;
-               
-            case 2:
-               draw_msg.box_count = box_count++ ;
-               draw_msg.x0 = 1389 ;
-               draw_msg.y0 = 478 - Y_DELTA;
-               draw_msg.dx = 82 ;
-               draw_msg.dy = 58 + Y_DELTA;
-               draw_msg.cref = 0xFFFF00 ;
-               SendMessage(hwndRef, WM_DRAW_BOX, (WPARAM) &draw_msg, (LPARAM) NULL);
-               EnableWindow(hwndDrawBox, false);
-               break ;
-               
-            default:
-               put_color_term_msg(TERM_ERROR, _T("Draw Box %u not valid"), box_count);
-               break ;
-            }
-            }  //  end local context
+            PostMessage(hwndRef, WM_DRAW_BOX, (WPARAM) NULL, (LPARAM) NULL);
             break ;
 
          case IDB_HELP:

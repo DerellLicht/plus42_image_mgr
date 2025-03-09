@@ -73,9 +73,10 @@ STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU | WS_MINIM
 CAPTION "Plus42 Image Manager"
 FONT 10, "Times New Roman"
 BEGIN
-   PUSHBUTTON      "Draw Box",         IDB_DRAW_BOX,     10,  5,  40,  10
-   PUSHBUTTON      "Load Layout File", IDB_LOAD_LAYOUT,  55,  5,  60,  10
-   PUSHBUTTON      "Show Layout Data", IDB_SHOW_LAYOUT, 120,  5,  65,  10
+   PUSHBUTTON      "Load Layout File", IDB_LOAD_LAYOUT,  10,  5,  60,  10
+   PUSHBUTTON      "Show Layout Data", IDB_SHOW_LAYOUT,  75,  5,  65,  10
+   // PUSHBUTTON      "Draw Box",         IDB_DRAW_BOX,    145,  5,  40,  10
+   PUSHBUTTON      "Draw Boxes",       IDB_DRAW_BOXES,  145,  5,  40,  10
    PUSHBUTTON      "Help",             IDB_HELP,        190,  5,  40,  10
    PUSHBUTTON      "About",            IDD_ABOUT,       235,  5,  40,  10
    PUSHBUTTON      "Close",            IDB_CLOSE,       280,  5,  40,  10

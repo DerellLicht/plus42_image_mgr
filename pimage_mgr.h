@@ -17,16 +17,6 @@ static const UINT WM_DRAW_IMAGE  = (WM_USER + 102) ;
 static const UINT WM_LOAD_LAYOUT = (WM_USER + 103) ;
 static const UINT WM_SHOW_LAYOUT = (WM_USER + 104) ;
 
-//  struct for WM_DRAW_BOX message
-typedef struct draw_box_msg_s {
-   uint box_count ;
-   uint x0 ;
-   uint y0 ;
-   uint dx ;
-   uint dy ;
-   COLORREF cref ;
-} draw_box_msg_t ;
-
 //lint -esym(769, TERM_INFO, TERM_QUERY, TERM_ERROR)
 //  indices into term_atable[]
 enum {
@@ -55,12 +45,15 @@ void update_counter_field(uint counter);
 void center_window(HWND hwnd, int x_pos, int y_pos);
 void enable_load_layout_button(bool state);
 void enable_show_layout_button(bool state);
+void enable_draw_boxes_button(bool state);
 
 //  show_ref_image.cpp
+void Box(HWND hwnd, int x0, int y0, int x1, int y1, COLORREF Color);
 void stop_ref_image_thread(void);
 
 //  parse_layout_file.cpp
 int parse_layout_values(TCHAR *layout_file);
 void show_layout_info(bool show_summary_only);
+void draw_object_boxes(HWND hwnd);
 
 
