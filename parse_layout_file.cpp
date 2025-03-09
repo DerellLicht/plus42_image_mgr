@@ -77,14 +77,10 @@ static void add_field_to_list(key_layout_data_p kltemp)
 //********************************************************************************
 static int parse_annunciator(TCHAR *inpstr)
 {
-   // static bool entry_shown = false ;
-   TCHAR outstr[MAX_LINE_LEN+1] ;
-   int outlen ;
    uint xnum, ynum ;
    TCHAR *hd ;
    
    key_layout_data_p kltemp = alloc_new_field(LAYOUT_ANNUN);
-   // put_color_term_msg(TERM_ERROR, "found Annunciator");
    //  get annunciator index
    hd = next_field(inpstr);
    if (hd == NULL) { put_color_term_msg(TERM_ERROR, _T("PARSE ERROR")); return 1 ; }
@@ -92,17 +88,9 @@ static int parse_annunciator(TCHAR *inpstr)
    xnum = (uint) _ttoi(hd) ;
    kltemp->key_norm = xnum ;
    
+   //  get x0, y0
    hd = next_field(hd);
    if (hd == NULL) { put_color_term_msg(TERM_ERROR, _T("PARSE ERROR")); return 1 ; }
-   // outlen = (uint) hd - (uint) inpstr ;   //  this doesn't work for UNICODE
-   // outlen /= sizeof(TCHAR) ;
-   TCHAR holdchr = *hd ;
-   *hd = 0 ;
-   _tcscpy(outstr, inpstr);   //  copy intro data to output
-   *hd = holdchr ;
-   outlen = _tcslen(outstr);  //  used for appending later data
-   
-   //  get x0, y0
    xnum = (uint) _ttoi(hd) ;
    hd = _tcschr(hd, ',');
    if (hd == NULL) { put_color_term_msg(TERM_ERROR, _T("PARSE ERROR")); return 1 ; }
@@ -125,13 +113,9 @@ static int parse_annunciator(TCHAR *inpstr)
    
    kltemp->draw_area.dx = xnum ;
    kltemp->draw_area.dy = ynum ;
-   outlen += _stprintf(outstr+outlen, _T("D%u,%u,%u,%u "), 
-      kltemp->draw_area.x0, kltemp->draw_area.y0,
-      kltemp->draw_area.dx, kltemp->draw_area.dy);
-   
-   hd = next_field(hd) ;
    
    //  get x0, y0 for active-state bitmap
+   hd = next_field(hd) ;
    xnum = (uint) _ttoi(hd) ;
    hd = _tcschr(hd, ',');
    if (hd == NULL) { put_color_term_msg(TERM_ERROR, _T("PARSE ERROR")); return 1 ; }
@@ -141,15 +125,6 @@ static int parse_annunciator(TCHAR *inpstr)
    kltemp->selected_area.y0 = ynum ;
    kltemp->selected_area.dx = kltemp->draw_area.dx ;
    kltemp->selected_area.dy = kltemp->draw_area.dy ;
-   outlen += _stprintf(outstr+outlen, _T("S%u,%u,%u,%u "), 
-      kltemp->selected_area.x0, kltemp->selected_area.y0,
-      kltemp->selected_area.dx, kltemp->selected_area.dy);
-   
-   // if (!entry_shown) {
-   //    put_color_term_msg(TERM_NORMAL, _T("Annun: in:  [%s]"), inpstr);
-   //    put_color_term_msg(TERM_NORMAL, _T("Annun: out: [%s]"), outstr);
-   //    entry_shown = true ;
-   // }
 
    add_field_to_list(kltemp);
    return 0 ;
@@ -190,9 +165,6 @@ static TCHAR *check_comma_in_field(TCHAR *input)
 //********************************************************************************
 static int parse_key(TCHAR *inpstr)
 {
-   // static bool entry_shown = false ;
-   TCHAR outstr[MAX_LINE_LEN+1] ;
-   int outlen ;
    uint xnum, ynum = 0;
    TCHAR *hd ;
    TCHAR *tl ;
@@ -213,19 +185,10 @@ static int parse_key(TCHAR *inpstr)
       kltemp->key_shift = ynum ;
    }
    
-   hd = next_field(hd);
-   if (hd == NULL) { put_color_term_msg(TERM_ERROR, _T("PARSE ERROR")); return 1 ; }
-   // outlen = (uint) hd - (uint) inpstr ;
-   // _tcsncpy(outstr, inpstr, outlen);   //  copy intro data to output
-   // outlen = _tcslen(outstr);  //  used for appending later data
-   TCHAR holdchr = *hd ;
-   *hd = 0 ;
-   _tcscpy(outstr, inpstr);   //  copy intro data to output
-   *hd = holdchr ;
-   outlen = _tcslen(outstr);  //  used for appending later data
-   
    //******************************************************************
    //  get x0, y0 (sensitive rectangle)
+   hd = next_field(hd);
+   if (hd == NULL) { put_color_term_msg(TERM_ERROR, _T("PARSE ERROR")); return 1 ; }
    xnum = (uint) _ttoi(hd) ;
    hd = _tcschr(hd, ',');
    if (hd == NULL) { put_color_term_msg(TERM_ERROR, _T("PARSE ERROR")); return 1 ; }
@@ -235,12 +198,10 @@ static int parse_key(TCHAR *inpstr)
    kltemp->touch_area.x0 = xnum ;
    kltemp->touch_area.y0 = ynum ;
    
+   //  get dx, dy
    hd = _tcschr(hd, ',');
    if (hd == NULL) { put_color_term_msg(TERM_ERROR, _T("PARSE ERROR")); return 1 ; }
    hd = skip_spaces_and_commas(hd);
-   // hd++ ;
-   
-   //  get dx, dy
    xnum = (uint) _ttoi(hd) ;
    hd = _tcschr(hd, ',');
    if (hd == NULL) { put_color_term_msg(TERM_ERROR, _T("PARSE ERROR")); return 1 ; }
@@ -249,14 +210,10 @@ static int parse_key(TCHAR *inpstr)
 
    kltemp->touch_area.dx = xnum ;
    kltemp->touch_area.dy = ynum ;
-   outlen += _stprintf(outstr+outlen, _T("T%u,%u,%u,%u "), 
-      kltemp->touch_area.x0, kltemp->touch_area.y0,
-      kltemp->touch_area.dx, kltemp->touch_area.dy);
-
-   hd = next_field(hd) ;
    
    //******************************************************************
    //  get x0, y0 (display rectangle)
+   hd = next_field(hd) ;
    xnum = (uint) _ttoi(hd) ;
    hd = _tcschr(hd, ',');
    if (hd == NULL) { put_color_term_msg(TERM_ERROR, _T("PARSE ERROR")); return 1 ; }
@@ -266,12 +223,10 @@ static int parse_key(TCHAR *inpstr)
    kltemp->draw_area.x0 = xnum ;
    kltemp->draw_area.y0 = ynum ;
    
+   //  get dx, dy
    hd = _tcschr(hd, ',');
    if (hd == NULL) { put_color_term_msg(TERM_ERROR, _T("PARSE ERROR")); return 1 ; }
    hd = skip_spaces_and_commas(hd);
-   // hd++ ;
-   
-   //  get dx, dy
    xnum = (uint) _ttoi(hd) ;
    hd = _tcschr(hd, ',');
    if (hd == NULL) { put_color_term_msg(TERM_ERROR, _T("PARSE ERROR")); return 1 ; }
@@ -280,9 +235,9 @@ static int parse_key(TCHAR *inpstr)
    
    kltemp->draw_area.dx = xnum ;
    kltemp->draw_area.dy = ynum ;
-   outlen += _stprintf(outstr+outlen, _T("D%u,%u,%u,%u "), 
-      kltemp->draw_area.x0, kltemp->draw_area.y0,
-      kltemp->draw_area.dx, kltemp->draw_area.dy);
+   // outlen += _stprintf(outstr+outlen, _T("D%u,%u,%u,%u "), 
+   //    kltemp->draw_area.x0, kltemp->draw_area.y0,
+   //    kltemp->draw_area.dx, kltemp->draw_area.dy);
    
    hd = next_field(hd) ;
    
@@ -298,17 +253,8 @@ static int parse_key(TCHAR *inpstr)
    kltemp->selected_area.y0 = ynum ;
    kltemp->selected_area.dx = kltemp->draw_area.dx ;
    kltemp->selected_area.dy = kltemp->draw_area.dy ;
-   outlen += _stprintf(outstr+outlen, _T("S%u,%u,%u,%u "), 
-      kltemp->selected_area.x0, kltemp->selected_area.y0,
-      kltemp->selected_area.dx, kltemp->selected_area.dy);
    
-   // if (!entry_shown) {
-   //    put_color_term_msg(TERM_NORMAL, _T("Key: in:  [%s]\n"), inpstr);
-   //    put_color_term_msg(TERM_NORMAL, _T("Key: out: [%s]\n"), outstr);
-   //    entry_shown = true ;
-   // }
    add_field_to_list(kltemp);
-
    return 0 ;
 }
 
@@ -318,33 +264,20 @@ static int parse_key(TCHAR *inpstr)
 //********************************************************************************
 static int parse_altbkgd(TCHAR *inpstr)
 {
-   // static bool entry_shown = false ;
-   TCHAR outstr[MAX_LINE_LEN+1] ;
-   int outlen ;
    uint xnum, ynum ;
    TCHAR *hd ;
 
    key_layout_data_p kltemp = alloc_new_field(LAYOUT_ALT_BG);
 
-   // put_color_term_msg(TERM_ERROR, "found Annunciator");
    hd = next_field(inpstr);
    if (hd == NULL) { put_color_term_msg(TERM_ERROR, _T("PARSE ERROR 1")); return 1 ; }
    xnum = (uint) _ttoi(hd) ;
    kltemp->key_norm = xnum ;
    
-   hd = next_field(hd);
-   if (hd == NULL) { put_color_term_msg(TERM_ERROR, _T("PARSE ERROR 2")); return 1 ; }
-   // outlen = (uint) hd - (uint) inpstr ;
-   // _tcsncpy(outstr, inpstr, outlen);   //  copy intro data to output
-   // outlen = _tcslen(outstr);  //  used for appending later data
-   TCHAR holdchr = *hd ;
-   *hd = 0 ;
-   _tcscpy(outstr, inpstr);   //  copy intro data to output
-   *hd = holdchr ;
-   outlen = _tcslen(outstr);  //  used for appending later data
-   
    //******************************************************************
    //  get x0, y0 
+   hd = next_field(hd);
+   if (hd == NULL) { put_color_term_msg(TERM_ERROR, _T("PARSE ERROR 2")); return 1 ; }
    xnum = (uint) _ttoi(hd) ;
    hd = _tcschr(hd, ',');
    if (hd == NULL) { put_color_term_msg(TERM_ERROR, _T("PARSE ERROR 3")); return 1 ; }
@@ -354,11 +287,10 @@ static int parse_altbkgd(TCHAR *inpstr)
    kltemp->draw_area.x0 = xnum ;
    kltemp->draw_area.y0 = ynum ;
    
+   //  get dx, dy
    hd = _tcschr(hd, ',');
    if (hd == NULL) { put_color_term_msg(TERM_ERROR, _T("PARSE ERROR 4")); return 1 ; }
    hd = skip_spaces_and_commas(hd);
-   
-   //  get dx, dy
    xnum = (uint) _ttoi(hd) ;
    hd = _tcschr(hd, ',');
    if (hd == NULL) { put_color_term_msg(TERM_ERROR, _T("PARSE ERROR 5")); return 1 ; }
@@ -367,13 +299,9 @@ static int parse_altbkgd(TCHAR *inpstr)
 
    kltemp->draw_area.dx = xnum ;
    kltemp->draw_area.dy = ynum ;
-   outlen += _stprintf(outstr+outlen, _T("D%u,%u,%u,%u "), 
-      kltemp->draw_area.x0, kltemp->draw_area.y0,
-      kltemp->draw_area.dx, kltemp->draw_area.dy);
-   
-   hd = next_field(hd) ;
    
    //  get x0, y0 for active-state bitmap
+   hd = next_field(hd) ;
    xnum = (uint) _ttoi(hd) ;
    hd = _tcschr(hd, ',');
    if (hd == NULL) { put_color_term_msg(TERM_ERROR, _T("PARSE ERROR 6")); return 1 ; }
@@ -384,15 +312,6 @@ static int parse_altbkgd(TCHAR *inpstr)
    kltemp->selected_area.y0 = ynum ;
    kltemp->selected_area.dx = kltemp->draw_area.dx ;
    kltemp->selected_area.dy = kltemp->draw_area.dy ;
-   outlen += _stprintf(outstr+outlen, _T("S%u,%u,%u,%u "), 
-      kltemp->selected_area.x0, kltemp->selected_area.y0,
-      kltemp->selected_area.dx, kltemp->selected_area.dy);
-   
-   // if (!entry_shown) {
-   //    put_color_term_msg(TERM_NORMAL, _T("altbg: in:  [%s]\n"), inpstr);
-   //    put_color_term_msg(TERM_NORMAL, _T("altbg: out: [%s]\n"), outstr);
-   //    entry_shown = true ;
-   // }
 
    add_field_to_list(kltemp);
    return 0 ;
@@ -403,10 +322,6 @@ static int parse_altbkgd(TCHAR *inpstr)
 //********************************************************************************
 static int parse_altkey(TCHAR *inpstr)
 {
-   // put_color_term_msg(TERM_ERROR, "found AltKey");
-   // static bool entry_shown = false ;
-   TCHAR outstr[MAX_LINE_LEN+1] ;
-   int outlen ;
    uint xnum, ynum ;
    TCHAR *hd ;
 
@@ -424,13 +339,6 @@ static int parse_altkey(TCHAR *inpstr)
    
    hd = next_field(hd);
    if (hd == NULL) { put_color_term_msg(TERM_ERROR, _T("PARSE ERROR 3")); return 1 ; }
-//    outlen = (uint) hd - (uint) inpstr ;
-//    _tcsncpy(outstr, inpstr, outlen);   //  copy intro data to output
-   TCHAR holdchr = *hd ;
-   *hd = 0 ;
-   _tcscpy(outstr, inpstr);   //  copy intro data to output
-   *hd = holdchr ;
-   outlen = _tcslen(outstr);  //  used for appending later data
    
    //  get x0, y0 for active-state bitmap
    xnum = (uint) _ttoi(hd) ;
@@ -443,15 +351,6 @@ static int parse_altkey(TCHAR *inpstr)
    kltemp->selected_area.y0 = ynum ;
    kltemp->selected_area.dx = 100 ;
    kltemp->selected_area.dy = 100 ;
-   outlen += _stprintf(outstr+outlen, _T("S%u,%u,%u,%u "), 
-      kltemp->selected_area.x0, kltemp->selected_area.y0,
-      kltemp->selected_area.dx, kltemp->selected_area.dy);
-   
-   // if (!entry_shown) {
-   //    put_color_term_msg(TERM_NORMAL, _T("altkey: in:  [%s]\n"), inpstr);
-   //    put_color_term_msg(TERM_NORMAL, _T("altkey: out: [%s]\n"), outstr);
-   //    entry_shown = true ;
-   // }
 
    add_field_to_list(kltemp);
    return 0 ;
@@ -467,13 +366,13 @@ int parse_layout_values(TCHAR *tlayout_file)
       return 1 ;
    }
    // termout(_T("Entering parse_layout_values()"));
-   uint lcount = 0 ;
+   // uint lcount = 0 ;
    TCHAR inpstr[MAX_LINE_LEN+1] ;
    bool done = false ;
    while (_fgetts(inpstr, MAX_LINE_LEN, infd) != NULL) {
       strip_newlines(inpstr);
-      update_counter_field(lcount++);  //  DEBUG
-      // syslog(_T("[%u] %s\n"), lcount++, inpstr);
+      // update_counter_field(lcount++);  //  DEBUG
+      
       //*******************************************************************
       //Annunciator: 1 60,90,30,26 1330,94
       if (_tcsncmp(inpstr, _T("Annunciator:"), 12) == 0) {
@@ -518,12 +417,14 @@ int parse_layout_values(TCHAR *tlayout_file)
    }
    
    fclose(infd);
-   termout(_T("Leaving parse_layout_values(), line count: %u"), lcount);
+   enable_load_layout_button(false);
+   show_layout_info(true);
+   // termout(_T("Leaving parse_layout_values(), line count: %u"), lcount);
    return 0 ;
 }
 
 //********************************************************************************
-void show_layout_info(void)
+void show_layout_info(bool show_summary_only)
 {
    key_layout_data_p kltemp;
    TCHAR outstr[MAX_LINE_LEN+1] ;
@@ -531,63 +432,65 @@ void show_layout_info(void)
    uint counts[5] = {
       0, 0, 0, 0, 0
    };
-   termout(_T("Entering show_layout_info()"));
+   // termout(_T("Entering show_layout_info()"));
    for (kltemp = top; kltemp != NULL; kltemp = kltemp->next) {
       counts[kltemp->lftype]++ ;
       counts[4]++ ;  //  total count
 
-      outlen = 0 ;      
-      switch(kltemp->lftype) {
-      case LAYOUT_ANNUN:
-         outlen += _stprintf(outstr+outlen, _T("annun: %u "),
-            kltemp->key_norm) ;
-         outlen += _stprintf(outstr+outlen, _T("D%u,%u,%u,%u "), 
-            kltemp->draw_area.x0, kltemp->draw_area.y0,
-            kltemp->draw_area.dx, kltemp->draw_area.dy);
-         outlen += _stprintf(outstr+outlen, _T("S%u,%u,%u,%u "), 
-            kltemp->selected_area.x0, kltemp->selected_area.y0,
-            kltemp->selected_area.dx, kltemp->selected_area.dy);
-         put_color_term_msg(TERM_NORMAL, _T("%s"), outstr);
-         break ;
-      
-      case LAYOUT_KEY:
-         outlen += _stprintf(outstr+outlen, _T("key: %u,%u "),
-            kltemp->key_norm, kltemp->key_shift) ;
-         outlen += _stprintf(outstr+outlen, _T("T%u,%u,%u,%u "), 
-            kltemp->touch_area.x0, kltemp->touch_area.y0,
-            kltemp->touch_area.dx, kltemp->touch_area.dy);
-         outlen += _stprintf(outstr+outlen, _T("D%u,%u,%u,%u "), 
-            kltemp->draw_area.x0, kltemp->draw_area.y0,
-            kltemp->draw_area.dx, kltemp->draw_area.dy);
-         outlen += _stprintf(outstr+outlen, _T("S%u,%u,%u,%u "), 
-            kltemp->selected_area.x0, kltemp->selected_area.y0,
-            kltemp->selected_area.dx, kltemp->selected_area.dy);
-         put_color_term_msg(TERM_NORMAL, _T("%s"), outstr);
-         break ;
+      if (!show_summary_only) {
+         outlen = 0 ;      
+         switch(kltemp->lftype) {
+         case LAYOUT_ANNUN:
+            outlen += _stprintf(outstr+outlen, _T("annun: %u "),
+               kltemp->key_norm) ;
+            outlen += _stprintf(outstr+outlen, _T("D%u,%u,%u,%u "), 
+               kltemp->draw_area.x0, kltemp->draw_area.y0,
+               kltemp->draw_area.dx, kltemp->draw_area.dy);
+            outlen += _stprintf(outstr+outlen, _T("S%u,%u,%u,%u "), 
+               kltemp->selected_area.x0, kltemp->selected_area.y0,
+               kltemp->selected_area.dx, kltemp->selected_area.dy);
+            put_color_term_msg(TERM_NORMAL, _T("%s"), outstr);
+            break ;
          
-      case LAYOUT_ALT_BG:
-         outlen += _stprintf(outstr+outlen, _T("altbg: %u "),
-            kltemp->key_norm) ;
-         outlen += _stprintf(outstr+outlen, _T("D%u,%u,%u,%u "), 
-            kltemp->draw_area.x0, kltemp->draw_area.y0,
-            kltemp->draw_area.dx, kltemp->draw_area.dy);
-         outlen += _stprintf(outstr+outlen, _T("S%u,%u,%u,%u "), 
-            kltemp->selected_area.x0, kltemp->selected_area.y0,
-            kltemp->selected_area.dx, kltemp->selected_area.dy);
-         put_color_term_msg(TERM_NORMAL, _T("%s"), outstr);
-         break ;
-         
-      case LAYOUT_ALT_KEY:
-         outlen += _stprintf(outstr+outlen, _T("altkey: %u,%u "),
-            kltemp->key_norm, kltemp->key_shift) ;
-         outlen += _stprintf(outstr+outlen, _T("S%u,%u,%u,%u "), 
-            kltemp->selected_area.x0, kltemp->selected_area.y0,
-            kltemp->selected_area.dx, kltemp->selected_area.dy);
-         put_color_term_msg(TERM_NORMAL, _T("%s"), outstr);
-         break ;
-         
-      default:
-         break ;
+         case LAYOUT_KEY:
+            outlen += _stprintf(outstr+outlen, _T("key: %u,%u "),
+               kltemp->key_norm, kltemp->key_shift) ;
+            outlen += _stprintf(outstr+outlen, _T("T%u,%u,%u,%u "), 
+               kltemp->touch_area.x0, kltemp->touch_area.y0,
+               kltemp->touch_area.dx, kltemp->touch_area.dy);
+            outlen += _stprintf(outstr+outlen, _T("D%u,%u,%u,%u "), 
+               kltemp->draw_area.x0, kltemp->draw_area.y0,
+               kltemp->draw_area.dx, kltemp->draw_area.dy);
+            outlen += _stprintf(outstr+outlen, _T("S%u,%u,%u,%u "), 
+               kltemp->selected_area.x0, kltemp->selected_area.y0,
+               kltemp->selected_area.dx, kltemp->selected_area.dy);
+            put_color_term_msg(TERM_NORMAL, _T("%s"), outstr);
+            break ;
+            
+         case LAYOUT_ALT_BG:
+            outlen += _stprintf(outstr+outlen, _T("altbg: %u "),
+               kltemp->key_norm) ;
+            outlen += _stprintf(outstr+outlen, _T("D%u,%u,%u,%u "), 
+               kltemp->draw_area.x0, kltemp->draw_area.y0,
+               kltemp->draw_area.dx, kltemp->draw_area.dy);
+            outlen += _stprintf(outstr+outlen, _T("S%u,%u,%u,%u "), 
+               kltemp->selected_area.x0, kltemp->selected_area.y0,
+               kltemp->selected_area.dx, kltemp->selected_area.dy);
+            put_color_term_msg(TERM_NORMAL, _T("%s"), outstr);
+            break ;
+            
+         case LAYOUT_ALT_KEY:
+            outlen += _stprintf(outstr+outlen, _T("altkey: %u,%u "),
+               kltemp->key_norm, kltemp->key_shift) ;
+            outlen += _stprintf(outstr+outlen, _T("S%u,%u,%u,%u "), 
+               kltemp->selected_area.x0, kltemp->selected_area.y0,
+               kltemp->selected_area.dx, kltemp->selected_area.dy);
+            put_color_term_msg(TERM_NORMAL, _T("%s"), outstr);
+            break ;
+            
+         default:
+            break ;
+         }
       }
    }
    termout(_T("counts: key: %u, annun: %u, altbg: %u, altkey: %u, total: %u"),

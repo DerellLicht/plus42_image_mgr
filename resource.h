@@ -39,6 +39,7 @@
 #define  IDC_TERMINAL      605
 #define  IDB_DRAW_BOX      606
 #define  IDB_LOAD_LAYOUT   607
+#define  IDB_SHOW_LAYOUT   608
 
 //  about.cpp constants
 #define  IDC_VERNUM        701

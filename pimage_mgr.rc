@@ -74,11 +74,12 @@ CAPTION "Plus42 Image Manager"
 FONT 10, "Times New Roman"
 BEGIN
    PUSHBUTTON      "Draw Box",         IDB_DRAW_BOX,     10,  5,  40,  10
-   PUSHBUTTON      "Load Layout File", IDB_LOAD_LAYOUT, 105,  5,  60,  10
-   PUSHBUTTON      "Help",             IDB_HELP,        170,  5,  40,  10
-   PUSHBUTTON      "About",            IDD_ABOUT,       215,  5,  40,  10
-   PUSHBUTTON      "Close",            IDB_CLOSE,       260,  5,  40,  10
-   EDITTEXT                            IDC_COUNTER,     310,  5,  50,  10, ES_READONLY
+   PUSHBUTTON      "Load Layout File", IDB_LOAD_LAYOUT,  55,  5,  60,  10
+   PUSHBUTTON      "Show Layout Data", IDB_SHOW_LAYOUT, 120,  5,  65,  10
+   PUSHBUTTON      "Help",             IDB_HELP,        190,  5,  40,  10
+   PUSHBUTTON      "About",            IDD_ABOUT,       235,  5,  40,  10
+   PUSHBUTTON      "Close",            IDB_CLOSE,       280,  5,  40,  10
+   //EDITTEXT                            IDC_COUNTER,     325,  5,  50,  10, ES_READONLY
    
    LTEXT           "Base skin name",   IDS_SKIN_NAME,   10,  20,  50,  10
    EDITTEXT                            IDC_SKIN_NAME,   62,  20, 150,  10, ES_READONLY

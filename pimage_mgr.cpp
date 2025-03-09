@@ -37,6 +37,7 @@ static HWND hwndMain = NULL ;
 static HWND hwndSelectSkin = NULL ;
 static HWND hwndDrawBox = NULL ;
 static HWND hwndLoadLayout = NULL ;
+static HWND hwndShowLayout = NULL ;
 static HWND hwndCounter = NULL ;
 
 //lint -esym(843, dbg_flags)  could be declared as const
@@ -65,6 +66,18 @@ static TCHAR image_file[MAX_PATH_LEN]  = _T("") ;
 // {
 //    MainStatusBar->show_message(idx, msgstr);
 // }
+
+//***********************************************************************
+void enable_load_layout_button(bool state)
+{
+   EnableWindow(hwndLoadLayout, state);
+}
+
+//***********************************************************************
+void enable_show_layout_button(bool state)
+{
+   EnableWindow(hwndShowLayout, state);
+}
 
 //***********************************************************************
 static uint screen_width  = 0 ;
@@ -201,11 +214,13 @@ static void do_init_dialog(HWND hwnd)
    hwndSelectSkin = GetDlgItem(hwnd, IDB_SKIN_SELECT);
    hwndDrawBox    = GetDlgItem(hwnd, IDB_DRAW_BOX);
    hwndLoadLayout = GetDlgItem(hwnd, IDB_LOAD_LAYOUT);
+   hwndShowLayout = GetDlgItem(hwnd, IDB_SHOW_LAYOUT);
    hwndCounter    = GetDlgItem(hwnd, IDC_COUNTER);
    
    // EnableWindow(hwndOpen, false);
    EnableWindow(hwndDrawBox, false);
    EnableWindow(hwndLoadLayout, false);
+   EnableWindow(hwndShowLayout, false);
 
    // setup_main_menu(hwnd) ;
    // set_up_working_spaces(hwnd) ; //  do this *before* tooltips !!
@@ -225,12 +240,16 @@ static void do_init_dialog(HWND hwnd)
 }
 
 //***********************************************************************
+//lint -esym(714, update_counter_field)
+//lint -esym(759, update_counter_field)
+//lint -esym(765, update_counter_field)
 void update_counter_field(uint counter)
 {
    TCHAR msgstr[41] ;
    _stprintf(msgstr, _T(" %u"), counter) ;
    SetWindowText(hwndCounter, msgstr) ;
 }
+
 //***********************************************************************
 //lint -esym(551, draw_msg)
 static draw_box_msg_t draw_msg ;
@@ -329,6 +348,10 @@ error_path:
             
          case IDB_LOAD_LAYOUT:
             PostMessage(hwndRef, WM_LOAD_LAYOUT, (WPARAM) NULL, (LPARAM) NULL);
+            break ;
+         
+         case IDB_SHOW_LAYOUT:
+            PostMessage(hwndRef, WM_SHOW_LAYOUT, (WPARAM) NULL, (LPARAM) NULL);
             break ;
          
          case IDB_DRAW_BOX:
