@@ -1,7 +1,7 @@
 //****************************************************************************
 //  Copyright (c) 2025  Daniel D Miller
 //  pimage_mgr - Plus42 Image Manager
-//  parse_layout_file.cpp - parse the .layout file, into appropriate data list
+//  parse_tlayout_file.cpp - parse the .layout file, into appropriate data list
 //
 //  Written by:  Dan Miller
 //****************************************************************************
@@ -84,7 +84,6 @@ static int parse_annunciator(TCHAR *inpstr)
    TCHAR *hd ;
    
    key_layout_data_p kltemp = alloc_new_field(LAYOUT_ANNUN);
-
    // put_color_term_msg(TERM_ERROR, "found Annunciator");
    //  get annunciator index
    hd = next_field(inpstr);
@@ -95,8 +94,13 @@ static int parse_annunciator(TCHAR *inpstr)
    
    hd = next_field(hd);
    if (hd == NULL) { put_color_term_msg(TERM_ERROR, _T("PARSE ERROR")); return 1 ; }
-   outlen = (uint) hd - (uint) inpstr ;
-   _tcsncpy(outstr, inpstr, outlen);   //  copy intro data to output
+   // outlen = (uint) hd - (uint) inpstr ;   //  this doesn't work for UNICODE
+   // outlen /= sizeof(TCHAR) ;
+   TCHAR holdchr = *hd ;
+   *hd = 0 ;
+   _tcscpy(outstr, inpstr);   //  copy intro data to output
+   *hd = holdchr ;
+termout(_T("annun: P2: annun: %u, [%s]\n"), xnum, outstr);
    outlen = _tcslen(outstr);  //  used for appending later data
    
    //  get x0, y0
@@ -127,6 +131,9 @@ static int parse_annunciator(TCHAR *inpstr)
       kltemp->draw_area.dx, kltemp->draw_area.dy);
    
    hd = next_field(hd) ;
+termout(_T("annun: P5: D%u,%u,%u,%u \n"), 
+      kltemp->draw_area.x0, kltemp->draw_area.y0,
+      kltemp->draw_area.dx, kltemp->draw_area.dy);
    
    //  get x0, y0 for active-state bitmap
    xnum = (uint) _ttoi(hd) ;
@@ -139,6 +146,9 @@ static int parse_annunciator(TCHAR *inpstr)
    kltemp->selected_area.dx = kltemp->draw_area.dx ;
    kltemp->selected_area.dy = kltemp->draw_area.dy ;
    outlen += _stprintf(outstr+outlen, _T("S%u,%u,%u,%u "), 
+      kltemp->selected_area.x0, kltemp->selected_area.y0,
+      kltemp->selected_area.dx, kltemp->selected_area.dy);
+termout(_T("annun: P6: S%u,%u,%u,%u \n"), 
       kltemp->selected_area.x0, kltemp->selected_area.y0,
       kltemp->selected_area.dx, kltemp->selected_area.dy);
    
@@ -190,7 +200,7 @@ static int parse_key(TCHAR *inpstr)
    static bool entry_shown = false ;
    TCHAR outstr[MAX_LINE_LEN+1] ;
    int outlen ;
-   uint xnum, ynum ;
+   uint xnum, ynum = 0;
    TCHAR *hd ;
    TCHAR *tl ;
 
@@ -212,8 +222,14 @@ static int parse_key(TCHAR *inpstr)
    
    hd = next_field(hd);
    if (hd == NULL) { put_color_term_msg(TERM_ERROR, _T("PARSE ERROR")); return 1 ; }
-   outlen = (uint) hd - (uint) inpstr ;
-   _tcsncpy(outstr, inpstr, outlen);   //  copy intro data to output
+   // outlen = (uint) hd - (uint) inpstr ;
+   // _tcsncpy(outstr, inpstr, outlen);   //  copy intro data to output
+   // outlen = _tcslen(outstr);  //  used for appending later data
+   TCHAR holdchr = *hd ;
+   *hd = 0 ;
+   _tcscpy(outstr, inpstr);   //  copy intro data to output
+   *hd = holdchr ;
+termout(_T("key: norm: %u, shift: %u, [%s]\n"), xnum, ynum, outstr);
    outlen = _tcslen(outstr);  //  used for appending later data
    
    //******************************************************************
@@ -313,7 +329,7 @@ static int parse_altbkgd(TCHAR *inpstr)
    static bool entry_shown = false ;
    TCHAR outstr[MAX_LINE_LEN+1] ;
    int outlen ;
-   uint xnum, ynum ;
+   uint xnum, ynum = 0 ;
    TCHAR *hd ;
 
    key_layout_data_p kltemp = alloc_new_field(LAYOUT_ALT_BG);
@@ -326,8 +342,14 @@ static int parse_altbkgd(TCHAR *inpstr)
    
    hd = next_field(hd);
    if (hd == NULL) { put_color_term_msg(TERM_ERROR, _T("PARSE ERROR 2")); return 1 ; }
-   outlen = (uint) hd - (uint) inpstr ;
-   _tcsncpy(outstr, inpstr, outlen);   //  copy intro data to output
+   // outlen = (uint) hd - (uint) inpstr ;
+   // _tcsncpy(outstr, inpstr, outlen);   //  copy intro data to output
+   // outlen = _tcslen(outstr);  //  used for appending later data
+   TCHAR holdchr = *hd ;
+   *hd = 0 ;
+   _tcscpy(outstr, inpstr);   //  copy intro data to output
+   *hd = holdchr ;
+termout(_T("altbg: norm: %u, shift: %u, [%s]\n"), xnum, ynum, outstr);
    outlen = _tcslen(outstr);  //  used for appending later data
    
    //******************************************************************
@@ -411,8 +433,14 @@ static int parse_altkey(TCHAR *inpstr)
    
    hd = next_field(hd);
    if (hd == NULL) { put_color_term_msg(TERM_ERROR, _T("PARSE ERROR 3")); return 1 ; }
-   outlen = (uint) hd - (uint) inpstr ;
-   _tcsncpy(outstr, inpstr, outlen);   //  copy intro data to output
+//    outlen = (uint) hd - (uint) inpstr ;
+//    _tcsncpy(outstr, inpstr, outlen);   //  copy intro data to output
+   TCHAR holdchr = *hd ;
+   *hd = 0 ;
+   _tcscpy(outstr, inpstr);   //  copy intro data to output
+   *hd = holdchr ;
+termout(_T("altkey: norm: %u, shift: %u, [%s]\n"), xnum, ynum, outstr);
+   outlen = _tcslen(outstr);  //  used for appending later data
    
    //  get x0, y0 for active-state bitmap
    xnum = (uint) _ttoi(hd) ;
@@ -440,18 +468,22 @@ static int parse_altkey(TCHAR *inpstr)
 }
 
 //********************************************************************************
-int parse_layout_values(TCHAR *layout_file)
+int parse_layout_values(TCHAR *tlayout_file)
 {
    int result ;
-   FILE *infd = _tfopen(layout_file, _T("rt"));
+   FILE *infd = _tfopen(tlayout_file, _T("rt"));
    if (infd == NULL) {
-      put_color_term_msg(TERM_ERROR, _T("%s: cannot open for reading\n"), layout_file);
+      put_color_term_msg(TERM_ERROR, _T("%s: cannot open for reading\n"), tlayout_file);
       return 1 ;
    }
+   // termout(_T("Entering parse_layout_values()"));
+   uint lcount = 0 ;
    TCHAR inpstr[MAX_LINE_LEN+1] ;
+   bool done = false ;
    while (_fgetts(inpstr, MAX_LINE_LEN, infd) != NULL) {
       strip_newlines(inpstr);
-      
+      update_counter_field(lcount++);  //  DEBUG
+      // syslog(_T("[%u] %s\n"), lcount++, inpstr);
       //*******************************************************************
       //Annunciator: 1 60,90,30,26 1330,94
       if (_tcsncmp(inpstr, _T("Annunciator:"), 12) == 0) {
@@ -490,9 +522,13 @@ int parse_layout_values(TCHAR *layout_file)
       // else {
       //    _ftprintf(outfd, _T("%s\n"), inpstr);
       // }
+      if (done) {
+         break ;
+      }
    }
    
    fclose(infd);
+   termout(_T("Leaving parse_layout_values(), lcount: %u"), lcount);
    return 0 ;
 }
 
@@ -503,6 +539,7 @@ void show_layout_info(void)
    uint counts[5] = {
       0, 0, 0, 0, 0
    };
+   termout(_T("Entering show_layout_info()"));
    for (ktemp = top; ktemp != NULL; ktemp = ktemp->next) {
       counts[ktemp->lftype]++ ;
       counts[4]++ ;  //  total count

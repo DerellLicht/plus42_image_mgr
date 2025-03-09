@@ -78,6 +78,7 @@ BEGIN
    PUSHBUTTON      "Help",             IDB_HELP,        170,  5,  40,  10
    PUSHBUTTON      "About",            IDD_ABOUT,       215,  5,  40,  10
    PUSHBUTTON      "Close",            IDB_CLOSE,       260,  5,  40,  10
+   EDITTEXT                            IDC_COUNTER,     310,  5,  50,  10, ES_READONLY
    
    LTEXT           "Base skin name",   IDS_SKIN_NAME,   10,  20,  50,  10
    EDITTEXT                            IDC_SKIN_NAME,   62,  20, 150,  10, ES_READONLY

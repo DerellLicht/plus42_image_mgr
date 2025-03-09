@@ -259,6 +259,13 @@ static LRESULT CALLBACK RefImageProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARA
       }
       }
       break ;
+      
+   case WM_LOAD_LAYOUT:
+      //  send message to another message queue, to do this...
+      //  we are freezing our message queue 
+      parse_layout_values(layout_file);
+      show_layout_info();
+      break ;
 
    //********************************************************************
    //  application shutdown handlers

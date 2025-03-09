@@ -37,6 +37,7 @@ static HWND hwndMain = NULL ;
 static HWND hwndSelectSkin = NULL ;
 static HWND hwndDrawBox = NULL ;
 static HWND hwndLoadLayout = NULL ;
+static HWND hwndCounter = NULL ;
 
 //lint -esym(843, dbg_flags)  could be declared as const
 uint dbg_flags = 0
@@ -45,7 +46,7 @@ uint dbg_flags = 0
 
 // static HWND hToolTip ;  /* Tooltip handle */
 
-static TCHAR layout_file[MAX_PATH_LEN] = _T("skin.layout") ;
+TCHAR layout_file[MAX_PATH_LEN] = _T("skin.layout") ;
 static TCHAR skin_name[MAX_PATH_LEN]   = _T("") ;
 static TCHAR image_file[MAX_PATH_LEN]  = _T("") ;
 
@@ -198,10 +199,9 @@ static void do_init_dialog(HWND hwnd)
 
    hwndMain = hwnd ;
    hwndSelectSkin = GetDlgItem(hwnd, IDB_SKIN_SELECT);
-   // hwndOpen       = GetDlgItem(hwnd, IDB_SKIN_OPEN);
    hwndDrawBox    = GetDlgItem(hwnd, IDB_DRAW_BOX);
-   // hwndDrawImage  = GetDlgItem(hwnd, IDB_DRAW_IMAGE);
    hwndLoadLayout = GetDlgItem(hwnd, IDB_LOAD_LAYOUT);
+   hwndCounter    = GetDlgItem(hwnd, IDC_COUNTER);
    
    // EnableWindow(hwndOpen, false);
    EnableWindow(hwndDrawBox, false);
@@ -224,6 +224,13 @@ static void do_init_dialog(HWND hwnd)
       term_get_columns(), term_get_rows());
 }
 
+//***********************************************************************
+void update_counter_field(uint counter)
+{
+   TCHAR msgstr[41] ;
+   _stprintf(msgstr, _T(" %u"), counter) ;
+   SetWindowText(hwndCounter, msgstr) ;
+}
 //***********************************************************************
 //lint -esym(551, draw_msg)
 static draw_box_msg_t draw_msg ;
@@ -321,8 +328,7 @@ error_path:
             return 0 ;
             
          case IDB_LOAD_LAYOUT:
-            parse_layout_values(layout_file);
-            show_layout_info();
+            PostMessage(hwndRef, WM_LOAD_LAYOUT, (WPARAM) NULL, (LPARAM) NULL);
             break ;
          
          case IDB_DRAW_BOX:
@@ -339,7 +345,7 @@ error_path:
                draw_msg.dx = 102 ;
                draw_msg.dy = 106 ;
                draw_msg.cref = 0x00FF00 ;
-               SendMessage(hwndRef, WM_DRAW_BOX, (WPARAM) &draw_msg, (WPARAM) NULL);
+               SendMessage(hwndRef, WM_DRAW_BOX, (WPARAM) &draw_msg, (LPARAM) NULL);
                break ;
                
             case 1:
@@ -350,7 +356,7 @@ error_path:
                draw_msg.dx = 82 ;
                draw_msg.dy = 58 + Y_DELTA;
                draw_msg.cref = 0x0000FF ;
-               SendMessage(hwndRef, WM_DRAW_BOX, (WPARAM) &draw_msg, (WPARAM) NULL);
+               SendMessage(hwndRef, WM_DRAW_BOX, (WPARAM) &draw_msg, (LPARAM) NULL);
                break ;
                
             case 2:
@@ -360,7 +366,7 @@ error_path:
                draw_msg.dx = 82 ;
                draw_msg.dy = 58 + Y_DELTA;
                draw_msg.cref = 0xFFFF00 ;
-               SendMessage(hwndRef, WM_DRAW_BOX, (WPARAM) &draw_msg, (WPARAM) NULL);
+               SendMessage(hwndRef, WM_DRAW_BOX, (WPARAM) &draw_msg, (LPARAM) NULL);
                EnableWindow(hwndDrawBox, false);
                break ;
                

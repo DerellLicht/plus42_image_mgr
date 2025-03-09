@@ -9,9 +9,12 @@ extern HINSTANCE g_hinst ;
 //  message handler handle for RefImage window
 extern HWND hwndRef ;
 
+extern TCHAR layout_file[MAX_PATH_LEN] ;
+
 //lint -esym(757, WM_SET_INPUT_CURSOR)
-static const UINT WM_DRAW_BOX   = (WM_USER + 101) ;
-static const UINT WM_DRAW_IMAGE = (WM_USER + 102) ;
+static const UINT WM_DRAW_BOX    = (WM_USER + 101) ;
+static const UINT WM_DRAW_IMAGE  = (WM_USER + 102) ;
+static const UINT WM_LOAD_LAYOUT = (WM_USER + 103) ;
 // static const UINT WM_DO_COMM_TASK     = (WM_USER + 103) ;
 
 //  struct for WM_DRAW_BOX message
@@ -41,6 +44,7 @@ int put_color_term_msg(uint idx, const TCHAR *fmt, ...);
 
 BOOL CmdAbout(HWND hwnd);
 void open_image_window(TCHAR *image_file);
+void update_counter_field(uint counter);
 
 //***********************************************************************
 //  args for center_window:
