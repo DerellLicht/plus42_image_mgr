@@ -108,15 +108,15 @@ CAPTION "About Plus42 Image Manager"
 FONT 10, "Times New Roman"
 BEGIN
     ICON            IDI_PLUS42IM,            IDC_STATIC,    9, 14
-    LTEXT           "Plus42 Image Manager",  IDC_STATIC,   36, 15,  80, 10
-    LTEXT           VerNumA,                 IDC_VERNUM,  120, 15,  50, 10
-    LTEXT           "Copyright (c) 2025 ",   IDC_STATIC,   36, 28,  60, 10
-    LTEXT           "Derell Licht",          IDC_STATIC,  100, 28, 100, 10
+    LTEXT           "Plus42 Image Manager",  IDC_STATIC,   36, 15,  72, 10
+    LTEXT           VerNumA,                 IDC_VERNUM,  109, 15,  50, 10
+    LTEXT           "Copyright (c) 2025 ",   IDC_STATIC,   36, 28,  58, 10
+    LTEXT           "Derell Licht",          IDC_STATIC,   95, 28,  80, 10
     LTEXT           "http://derelllicht.42web.io/pimage_mgr.html",     
-                                             IDC_WEBLINK,  36, 45, 180, 10
+                                             IDC_WEBLINK,  36, 42, 180, 10
     LTEXT           "https://github.com/DerellLicht/plus42_image_mgr", 
-                                             IDC_WEBLINK2, 36, 56, 180, 10
-    DEFPUSHBUTTON   "Close",                 IDOK,         36, 72, 100, 14
+                                             IDC_WEBLINK2, 36, 54, 180, 10
+    DEFPUSHBUTTON   "Close",                 IDOK,         36, 69, 100, 14
 END
 
 /////////////////////////////////////////////////////////////////////////////
