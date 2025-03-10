@@ -498,12 +498,13 @@ void show_layout_info(bool show_summary_only)
 }
 
 //***********************************************************************************
-static const COLORREF BGR_TOUCH   = 0x00C000 ;  //  0.75 green
-static const COLORREF BGR_DRAW    = 0x0000C0 ;  //  0.75 red
-static const COLORREF BGR_SELECT  = 0x00FFFF ;  //  yellow
-static const COLORREF BGR_ADRAW   = 0xFFFF00 ;  //  cyan
-static const COLORREF BGR_ASELECT = 0x007FFF ;  //  orange
-static const COLORREF BGR_ALTKEY  = 0xFFFFFF ;  //  white
+static const COLORREF BGR_TOUCH   = 0x00C000 ;  //  green      touch/sensitive area
+static const COLORREF BGR_TOUCHx  = 0xFF00FF ;  //  magenta    touch/sensitive area (alternate color)
+static const COLORREF BGR_DRAW    = 0x0000C0 ;  //  red        display/drawing area
+static const COLORREF BGR_SELECT  = 0x00FFFF ;  //  yellow     active/highlighted area
+static const COLORREF BGR_ADRAW   = 0xFFFF00 ;  //  cyan       AltBg display/drawing area
+static const COLORREF BGR_ASELECT = 0x007FFF ;  //  orange     AltBg active/highlighted area
+static const COLORREF BGR_ALTKEY  = 0xFFFFFF ;  //  white      AltKey area (unspecified size)
 
 void draw_object_boxes(HWND hwnd)
 {
@@ -526,12 +527,24 @@ void draw_object_boxes(HWND hwnd)
          break ;
       
       case LAYOUT_KEY:
-         Box(hwnd, 
-            kltemp->touch_area.x0, 
-            kltemp->touch_area.y0,
-            kltemp->touch_area.x0 + kltemp->touch_area.dx, 
-            kltemp->touch_area.y0 + kltemp->touch_area.dy,
-            BGR_TOUCH);
+         if ((kltemp->key_norm <= 6)  ||
+             ((kltemp->key_norm <= 22)  &&  (kltemp->key_norm >= 18))
+            ) {
+            Box(hwnd, 
+               kltemp->touch_area.x0, 
+               kltemp->touch_area.y0,
+               kltemp->touch_area.x0 + kltemp->touch_area.dx, 
+               kltemp->touch_area.y0 + kltemp->touch_area.dy,
+               BGR_TOUCHx);
+         }
+         else {
+            Box(hwnd, 
+               kltemp->touch_area.x0, 
+               kltemp->touch_area.y0,
+               kltemp->touch_area.x0 + kltemp->touch_area.dx, 
+               kltemp->touch_area.y0 + kltemp->touch_area.dy,
+               BGR_TOUCH);
+         }
          Box(hwnd, 
             kltemp->draw_area.x0, 
             kltemp->draw_area.y0,

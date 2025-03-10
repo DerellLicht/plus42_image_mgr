@@ -4,6 +4,7 @@ _lint.tmp
 *.zip
 *.bak
 *.gif
-*.layout
 *.png
+*.jpg
+*.layout
 \der_libs_svr10
