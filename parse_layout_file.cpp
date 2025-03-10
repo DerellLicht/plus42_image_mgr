@@ -349,8 +349,8 @@ static int parse_altkey(TCHAR *inpstr)
    
    kltemp->selected_area.x0 = xnum ;
    kltemp->selected_area.y0 = ynum ;
-   kltemp->selected_area.dx = 100 ;
-   kltemp->selected_area.dy = 100 ;
+   kltemp->selected_area.dx = 103 ;
+   kltemp->selected_area.dy = 66 ;
 
    add_field_to_list(kltemp);
    return 0 ;
@@ -498,9 +498,12 @@ void show_layout_info(bool show_summary_only)
 }
 
 //***********************************************************************************
-static const COLORREF BGR_TOUCH  = 0x00C000 ;
-static const COLORREF BGR_DRAW   = 0x0000C0 ;
-static const COLORREF BGR_SELECT = 0x00FFFF ;
+static const COLORREF BGR_TOUCH   = 0x00C000 ;  //  0.75 green
+static const COLORREF BGR_DRAW    = 0x0000C0 ;  //  0.75 red
+static const COLORREF BGR_SELECT  = 0x00FFFF ;  //  yellow
+static const COLORREF BGR_ADRAW   = 0xFFFF00 ;  //  cyan
+static const COLORREF BGR_ASELECT = 0x007FFF ;  //  orange
+static const COLORREF BGR_ALTKEY  = 0xFFFFFF ;  //  white
 
 void draw_object_boxes(HWND hwnd)
 {
@@ -544,9 +547,27 @@ void draw_object_boxes(HWND hwnd)
          break ;
          
       case LAYOUT_ALT_BG:
+         Box(hwnd, 
+            kltemp->draw_area.x0, 
+            kltemp->draw_area.y0,
+            kltemp->draw_area.x0 + kltemp->draw_area.dx, 
+            kltemp->draw_area.y0 + kltemp->draw_area.dy,
+            BGR_ADRAW);
+         Box(hwnd, 
+            kltemp->selected_area.x0, 
+            kltemp->selected_area.y0,
+            kltemp->selected_area.x0 + kltemp->selected_area.dx, 
+            kltemp->selected_area.y0 + kltemp->selected_area.dy,
+            BGR_ASELECT);
          break ;
          
       case LAYOUT_ALT_KEY:
+         Box(hwnd, 
+            kltemp->selected_area.x0, 
+            kltemp->selected_area.y0,
+            kltemp->selected_area.x0 + kltemp->selected_area.dx, 
+            kltemp->selected_area.y0 + kltemp->selected_area.dy,
+            BGR_ALTKEY);
          break ;
          
       default:
