@@ -129,21 +129,22 @@ static VOID OnPaint(HDC hdc)
 }
 
 /************************************************************************/
-//lint -esym(578, y0, y1, Color)
-void Box(HWND hwnd, int x0, int y0, int x1, int y1, COLORREF Color)
+//lint -esym(578, y0, y1)
+void Box(HWND hwnd, int x0, int y0, int dx, int dy, COLORREF rColor)
 {
    HDC hdc = GetDC (hwnd) ;
-   HPEN hPen = CreatePen(PS_SOLID, 1, Color) ;
-   SelectObject(hdc, hPen) ;
-
-   MoveToEx(hdc, x0, y0, NULL) ;
-   LineTo  (hdc, x1, y0) ;
-   LineTo  (hdc, x1, y1) ;
-   LineTo  (hdc, x0, y1) ;
-   LineTo  (hdc, x0, y0) ;
-
-   SelectObject(hdc, GetStockObject(BLACK_PEN)) ;  //  deselect my pen
-   DeleteObject (hPen) ;
+   ul2uc_t uconv ;
+   uconv.ul = (uint) rColor ;
+   // uconv.uc[3] = 255 ;
+   
+   Graphics    graphics(hdc);
+   
+   // Pen greenPen(Color::Green, 2.0); //lint !e747
+   // Pen      pen(Color(255, 0, 0, 255), 2.0);
+   // Pen Pen(Color(uconv.uc[3], uconv.uc[0], uconv.uc[1], uconv.uc[2] ), 2.0); //lint !e747
+   // Pen pen(Color(uconv.uc[3], uconv.uc[0], uconv.uc[1], uconv.uc[2])); //lint !e747
+   Pen pen(Color(uconv.uc[0], uconv.uc[1], uconv.uc[2])); //lint !e747
+   graphics.DrawRectangle(&pen, x0, y0, dx, dy);
    ReleaseDC (hwnd, hdc) ;
 }
 

@@ -515,14 +515,14 @@ void draw_object_boxes(HWND hwnd)
          Box(hwnd, 
             kltemp->draw_area.x0, 
             kltemp->draw_area.y0,
-            kltemp->draw_area.x0 + kltemp->draw_area.dx, 
-            kltemp->draw_area.y0 + kltemp->draw_area.dy,
+            kltemp->draw_area.dx, 
+            kltemp->draw_area.dy,
             BGR_DRAW);
          Box(hwnd, 
             kltemp->selected_area.x0, 
             kltemp->selected_area.y0,
-            kltemp->selected_area.x0 + kltemp->selected_area.dx, 
-            kltemp->selected_area.y0 + kltemp->selected_area.dy,
+            kltemp->selected_area.dx, 
+            kltemp->selected_area.dy,
             BGR_SELECT);
          break ;
       
@@ -533,29 +533,29 @@ void draw_object_boxes(HWND hwnd)
             Box(hwnd, 
                kltemp->touch_area.x0, 
                kltemp->touch_area.y0,
-               kltemp->touch_area.x0 + kltemp->touch_area.dx, 
-               kltemp->touch_area.y0 + kltemp->touch_area.dy,
+               kltemp->touch_area.dx, 
+               kltemp->touch_area.dy,
                BGR_TOUCHx);
          }
          else {
             Box(hwnd, 
                kltemp->touch_area.x0, 
                kltemp->touch_area.y0,
-               kltemp->touch_area.x0 + kltemp->touch_area.dx, 
-               kltemp->touch_area.y0 + kltemp->touch_area.dy,
+               kltemp->touch_area.dx, 
+               kltemp->touch_area.dy,
                BGR_TOUCH);
          }
          Box(hwnd, 
             kltemp->draw_area.x0, 
             kltemp->draw_area.y0,
-            kltemp->draw_area.x0 + kltemp->draw_area.dx, 
-            kltemp->draw_area.y0 + kltemp->draw_area.dy,
+            kltemp->draw_area.dx, 
+            kltemp->draw_area.dy,
             BGR_DRAW);
          Box(hwnd, 
             kltemp->selected_area.x0, 
             kltemp->selected_area.y0,
-            kltemp->selected_area.x0 + kltemp->selected_area.dx, 
-            kltemp->selected_area.y0 + kltemp->selected_area.dy,
+            kltemp->selected_area.dx, 
+            kltemp->selected_area.dy,
             BGR_SELECT);
          break ;
          
@@ -563,14 +563,14 @@ void draw_object_boxes(HWND hwnd)
          Box(hwnd, 
             kltemp->draw_area.x0, 
             kltemp->draw_area.y0,
-            kltemp->draw_area.x0 + kltemp->draw_area.dx, 
-            kltemp->draw_area.y0 + kltemp->draw_area.dy,
+            kltemp->draw_area.dx, 
+            kltemp->draw_area.dy,
             BGR_ADRAW);
          Box(hwnd, 
             kltemp->selected_area.x0, 
             kltemp->selected_area.y0,
-            kltemp->selected_area.x0 + kltemp->selected_area.dx, 
-            kltemp->selected_area.y0 + kltemp->selected_area.dy,
+            kltemp->selected_area.dx, 
+            kltemp->selected_area.dy,
             BGR_ASELECT);
          break ;
          
@@ -578,8 +578,8 @@ void draw_object_boxes(HWND hwnd)
          Box(hwnd, 
             kltemp->selected_area.x0, 
             kltemp->selected_area.y0,
-            kltemp->selected_area.x0 + kltemp->selected_area.dx, 
-            kltemp->selected_area.y0 + kltemp->selected_area.dy,
+            kltemp->selected_area.dx, 
+            kltemp->selected_area.dy,
             BGR_ALTKEY);
          break ;
          
