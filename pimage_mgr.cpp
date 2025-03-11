@@ -343,7 +343,13 @@ static LRESULT CALLBACK WinProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lPa
             else {
 error_path:
                layout_file[0] = 0 ; //  make layout filename invalid
-               put_color_term_msg(TERM_ERROR, _T("select_file: %s"), get_system_message()) ;
+               DWORD glerr = GetLastError();
+               if (glerr == 0) {
+                  termout(_T("select_file: aborted by user")) ;
+               }
+               else {
+                  put_color_term_msg(TERM_ERROR, _T("select_file: %s"), get_system_message()) ;
+               }
             }
             }  // end local context
             return 0 ;

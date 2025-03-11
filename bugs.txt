@@ -1,3 +1,1 @@
-> on Select File (main dialog), if load is aborted or fails,
-  garbage is displayed in terminal.
   
