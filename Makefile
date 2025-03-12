@@ -6,6 +6,7 @@ ifeq ($(USE_64BIT),YES)
 TOOLS=d:\tdm64\bin
 else
 #TOOLS=c:\mingw\bin
+#TOOLS=c:\TDM-GCC-64\bin
 TOOLS=c:\tdm32\bin
 endif
 
@@ -26,6 +27,7 @@ else
 CFLAGS=-Wall -O2 -mwindows -Weffc++ 
 LFLAGS=-s
 endif
+# CFLAGS += -m32
 CFLAGS += -Wno-write-strings
 CFLAGS += -Wno-literal-suffix
 CFLAGS += -Wno-unused-function
