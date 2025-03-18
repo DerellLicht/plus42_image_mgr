@@ -32,10 +32,21 @@ Usage instructions (development version)
    A summary of fields decoded will be displayed in the terminal.  
    
 4a. Click <code>Show Layout Data</code> button to display the fields read from the .layout file.  
-4b. Click <code>Draw Boxes</code> button to highlight the data fields which have been  
+4b. Click <code>Draw Frames</code> button to highlight the data fields which have been  
     extracted from the .layout data.  
     
     That is all that is completed at this point.
+    
+Colors used in <code>Draw Frames</code>  
+```
+BGR_TOUCH   = 0x00C000 ;  //  green      touch/sensitive area
+BGR_TOUCHx  = 0xFF00FF ;  //  magenta    touch/sensitive area (alternate color)
+BGR_DRAW    = 0x0000C0 ;  //  red        display/drawing area
+BGR_SELECT  = 0x00FFFF ;  //  yellow     active/highlighted area
+BGR_ADRAW   = 0xFFFF00 ;  //  cyan       AltBg display/drawing area
+BGR_ASELECT = 0x007FFF ;  //  orange     AltBg active/highlighted area
+BGR_ALTKEY  = 0xFFFFFF ;  //  white      AltKey area (unspecified size)
+```
    
 <hr>
 
