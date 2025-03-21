@@ -12,10 +12,11 @@ extern HWND hwndRef ;
 extern TCHAR layout_file[MAX_PATH_LEN] ;
 
 //lint -esym(757, WM_SET_INPUT_CURSOR)
-static const UINT WM_DRAW_BOX    = (WM_USER + 101) ;
-static const UINT WM_DRAW_IMAGE  = (WM_USER + 102) ;
-static const UINT WM_LOAD_LAYOUT = (WM_USER + 103) ;
-static const UINT WM_SHOW_LAYOUT = (WM_USER + 104) ;
+static const UINT WM_DRAW_BOX     = (WM_USER + 101) ;
+static const UINT WM_DRAW_IMAGE   = (WM_USER + 102) ;
+static const UINT WM_LOAD_LAYOUT  = (WM_USER + 103) ;
+static const UINT WM_SHOW_LAYOUT  = (WM_USER + 104) ;
+static const UINT WM_SHOW_KEYNUMS = (WM_USER + 105) ;
 
 //lint -esym(769, TERM_INFO, TERM_QUERY, TERM_ERROR)
 //  indices into term_atable[]
@@ -46,6 +47,7 @@ void center_window(HWND hwnd, int x_pos, int y_pos);
 void enable_load_layout_button(bool state);
 void enable_show_layout_button(bool state);
 void enable_draw_boxes_button(bool state);
+void enable_show_keys_button(bool state);
 
 //  show_ref_image.cpp
 void Box(HWND hwnd, int x0, int y0, int x1, int y1, COLORREF Color);
@@ -55,5 +57,6 @@ void stop_ref_image_thread(void);
 int parse_layout_values(TCHAR *layout_file);
 void show_layout_info(bool show_summary_only);
 void draw_object_boxes(HWND hwnd);
+void show_key_numbers(HWND hwnd);
 
 

@@ -243,6 +243,7 @@ static LRESULT CALLBACK RefImageProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARA
       parse_layout_values(layout_file);
       enable_show_layout_button(true);
       enable_draw_boxes_button(true);
+      enable_show_keys_button(true);
       break ;
 
    case WM_SHOW_LAYOUT:
@@ -250,11 +251,15 @@ static LRESULT CALLBACK RefImageProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARA
       //  we are freezing our message queue 
       show_layout_info(false);
       break ;
-
+      
    case WM_DRAW_BOX:
       draw_object_boxes(hwnd);
       break ;
       
+   case WM_SHOW_KEYNUMS:
+      show_key_numbers(hwnd);
+      break ;
+
    //********************************************************************
    //  application shutdown handlers
    //********************************************************************

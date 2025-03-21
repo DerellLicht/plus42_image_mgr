@@ -37,8 +37,9 @@ static HWND hwndMain = NULL ;
 static HWND hwndSelectSkin = NULL ;
 static HWND hwndLoadLayout = NULL ;
 static HWND hwndShowLayout = NULL ;
-static HWND hwndDrawBoxes = NULL ;
-static HWND hwndCounter = NULL ;
+static HWND hwndDrawBoxes  = NULL ;
+static HWND hwndShowKeys   = NULL ;
+static HWND hwndCounter    = NULL ;
 
 //lint -esym(843, dbg_flags)  could be declared as const
 uint dbg_flags = 0
@@ -83,6 +84,12 @@ void enable_show_layout_button(bool state)
 void enable_draw_boxes_button(bool state)
 {
    EnableWindow(hwndDrawBoxes, state);
+}
+
+//***********************************************************************
+void enable_show_keys_button(bool state)
+{
+   EnableWindow(hwndShowKeys, state);
 }
 
 //***********************************************************************
@@ -219,6 +226,7 @@ static void do_init_dialog(HWND hwnd)
    hwndMain = hwnd ;
    hwndSelectSkin = GetDlgItem(hwnd, IDB_SKIN_SELECT);
    hwndDrawBoxes  = GetDlgItem(hwnd, IDB_DRAW_BOXES);
+   hwndShowKeys   = GetDlgItem(hwnd, IDB_SHOW_KEYS);
    hwndLoadLayout = GetDlgItem(hwnd, IDB_LOAD_LAYOUT);
    hwndShowLayout = GetDlgItem(hwnd, IDB_SHOW_LAYOUT);
    hwndCounter    = GetDlgItem(hwnd, IDC_COUNTER);
@@ -226,7 +234,8 @@ static void do_init_dialog(HWND hwnd)
    // EnableWindow(hwndOpen, false);
    EnableWindow(hwndLoadLayout, false);
    EnableWindow(hwndShowLayout, false);
-   EnableWindow(hwndDrawBoxes, false);
+   EnableWindow(hwndDrawBoxes,  false);
+   EnableWindow(hwndShowKeys,   false);
 
    // setup_main_menu(hwnd) ;
    // set_up_working_spaces(hwnd) ; //  do this *before* tooltips !!
@@ -365,6 +374,11 @@ error_path:
          case IDB_DRAW_BOXES:
             // Key: 2 117,450,102,106 127,478,82,58 1389,478
             PostMessage(hwndRef, WM_DRAW_BOX, (WPARAM) NULL, (LPARAM) NULL);
+            break ;
+
+         case IDB_SHOW_KEYS:
+            // Key: 2 117,450,102,106 127,478,82,58 1389,478
+            PostMessage(hwndRef, WM_SHOW_KEYNUMS, (WPARAM) NULL, (LPARAM) NULL);
             break ;
 
          case IDB_HELP:

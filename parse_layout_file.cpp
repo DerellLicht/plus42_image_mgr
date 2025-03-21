@@ -9,9 +9,13 @@
 #include <stdio.h>
 #include <stdlib.h>  //  _ttoi
 #include <tchar.h>
+#include <gdiplus.h>
 
 #include "common.h"
+#include "commonw.h"
 #include "pimage_mgr.h"
+
+using namespace Gdiplus;
 
 //********************************************************************************
 //  table of field types and associated keyboard areas
@@ -512,18 +516,10 @@ void draw_object_boxes(HWND hwnd)
    for (kltemp = top; kltemp != NULL; kltemp = kltemp->next) {
       switch(kltemp->lftype) {
       case LAYOUT_ANNUN:
-         Box(hwnd, 
-            kltemp->draw_area.x0, 
-            kltemp->draw_area.y0,
-            kltemp->draw_area.dx, 
-            kltemp->draw_area.dy,
-            BGR_DRAW);
-         Box(hwnd, 
-            kltemp->selected_area.x0, 
-            kltemp->selected_area.y0,
-            kltemp->selected_area.dx, 
-            kltemp->selected_area.dy,
-            BGR_SELECT);
+         Box(hwnd, kltemp->draw_area.x0, kltemp->draw_area.y0,
+            kltemp->draw_area.dx, kltemp->draw_area.dy, BGR_DRAW);
+         Box(hwnd, kltemp->selected_area.x0, kltemp->selected_area.y0,
+            kltemp->selected_area.dx, kltemp->selected_area.dy, BGR_SELECT);
          break ;
       
       case LAYOUT_KEY:
@@ -531,60 +527,75 @@ void draw_object_boxes(HWND hwnd)
              ((kltemp->key_norm <= 22)  &&  (kltemp->key_norm >= 18))
             ) {
             Box(hwnd, 
-               kltemp->touch_area.x0, 
-               kltemp->touch_area.y0,
-               kltemp->touch_area.dx, 
-               kltemp->touch_area.dy,
-               BGR_TOUCHx);
+               kltemp->touch_area.x0, kltemp->touch_area.y0,
+               kltemp->touch_area.dx, kltemp->touch_area.dy, BGR_TOUCHx);
          }
          else {
-            Box(hwnd, 
-               kltemp->touch_area.x0, 
-               kltemp->touch_area.y0,
-               kltemp->touch_area.dx, 
-               kltemp->touch_area.dy,
-               BGR_TOUCH);
+            Box(hwnd, kltemp->touch_area.x0, kltemp->touch_area.y0,
+               kltemp->touch_area.dx, kltemp->touch_area.dy, BGR_TOUCH);
          }
-         Box(hwnd, 
-            kltemp->draw_area.x0, 
-            kltemp->draw_area.y0,
-            kltemp->draw_area.dx, 
-            kltemp->draw_area.dy,
-            BGR_DRAW);
-         Box(hwnd, 
-            kltemp->selected_area.x0, 
-            kltemp->selected_area.y0,
-            kltemp->selected_area.dx, 
-            kltemp->selected_area.dy,
-            BGR_SELECT);
+         Box(hwnd, kltemp->draw_area.x0, kltemp->draw_area.y0,
+            kltemp->draw_area.dx, kltemp->draw_area.dy, BGR_DRAW);
+         Box(hwnd, kltemp->selected_area.x0, kltemp->selected_area.y0,
+            kltemp->selected_area.dx, kltemp->selected_area.dy, BGR_SELECT);
          break ;
          
       case LAYOUT_ALT_BG:
-         Box(hwnd, 
-            kltemp->draw_area.x0, 
-            kltemp->draw_area.y0,
-            kltemp->draw_area.dx, 
-            kltemp->draw_area.dy,
-            BGR_ADRAW);
-         Box(hwnd, 
-            kltemp->selected_area.x0, 
-            kltemp->selected_area.y0,
-            kltemp->selected_area.dx, 
-            kltemp->selected_area.dy,
-            BGR_ASELECT);
+         Box(hwnd, kltemp->draw_area.x0, kltemp->draw_area.y0,
+            kltemp->draw_area.dx, kltemp->draw_area.dy, BGR_ADRAW);
+         Box(hwnd, kltemp->selected_area.x0, kltemp->selected_area.y0,
+            kltemp->selected_area.dx, kltemp->selected_area.dy, BGR_ASELECT);
          break ;
          
       case LAYOUT_ALT_KEY:
-         Box(hwnd, 
-            kltemp->selected_area.x0, 
-            kltemp->selected_area.y0,
-            kltemp->selected_area.dx, 
-            kltemp->selected_area.dy,
-            BGR_ALTKEY);
+         Box(hwnd, kltemp->selected_area.x0, kltemp->selected_area.y0,
+            kltemp->selected_area.dx, kltemp->selected_area.dy, BGR_ALTKEY);
          break ;
          
       default:
          break ;
       }
    }
+}
+
+//***********************************************************************************
+static const COLORREF KEYNUM = 0xFFFFFF ;  //  white      AltKey area (unspecified size)
+static TCHAR font_name_message[LF_FULLFACESIZE] = _T("Times New Roman") ;
+
+void show_key_numbers(HWND hwnd)
+{
+   TCHAR outstr[10] ;
+   uint slen ;
+   HFONT hfont = build_font(font_name_message, 24, EZ_ATTR_NORMAL) ;
+   if (hfont == 0) {
+      syslog(_T("build_font: %s\n"), get_system_message()) ;
+   } else {
+      PostMessage(hwnd, WM_SETFONT, (WPARAM) hfont, (LPARAM) true) ;
+   }
+   HDC hdc = GetDC (hwnd) ;
+   SelectObject (hdc, hfont) ;
+   // Clear_Window(hdc, 0);
+   SetBkMode(hdc, TRANSPARENT) ;
+   SetTextColor(hdc, KEYNUM) ;
+   
+   key_layout_data_p kltemp;
+   for (kltemp = top; kltemp != NULL; kltemp = kltemp->next) {
+      switch(kltemp->lftype) {
+      case LAYOUT_KEY:
+         //  show kltemp->key_norm
+         slen = _stprintf(outstr, _T("%u"), kltemp->key_norm);
+         TextOut (hdc, kltemp->touch_area.x0+2, kltemp->touch_area.y0+2, outstr, slen);
+         // Box(hwnd, kltemp->touch_area.x0, kltemp->touch_area.y0,
+         //    kltemp->touch_area.dx, kltemp->touch_area.dy, BGR_TOUCHx);
+         break ;
+         
+      case LAYOUT_ANNUN:
+      case LAYOUT_ALT_BG:
+      case LAYOUT_ALT_KEY:
+      default:
+         break ;
+      }
+   }
+   DeleteObject (SelectObject (hdc, GetStockObject (SYSTEM_FONT)));
+   ReleaseDC (hwnd, hdc) ;
 }
