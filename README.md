@@ -37,6 +37,11 @@ Usage instructions (development version)
     
     That is all that is completed at this point.
     
+4c. Click <code>Draw Keys</code> button to show key numbers for each regular key    
+    This may aid in creating Offset: entries in the modified layout file
+    
+    That is all that is completed at this point.
+    
 Colors used in <code>Draw Frames</code>  
 ```
 BGR_TOUCH   = 0x00C000 ;  //  green      touch/sensitive area
