@@ -35,8 +35,6 @@ Usage instructions (development version)
 4b. Click <code>Draw Frames</code> button to highlight the data fields which have been  
     extracted from the .layout data.  
     
-    That is all that is completed at this point.
-    
 4c. Click <code>Draw Keys</code> button to show key numbers for each regular key    
     This may aid in creating Offset: entries in the modified layout file
     
