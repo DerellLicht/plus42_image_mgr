@@ -56,19 +56,10 @@ static TCHAR image_file[MAX_PATH_LEN]  = _T("") ;
 // LodePng pngSprites("tiles32.png", SPRITE_HEIGHT, SPRITE_WIDTH) ;
 // LodePng pngTiles  ("images.png",  IMAGE_WIDTH,   IMAGE_HEIGHT) ;
 
-//*******************************************************************
-// void status_message(char *msgstr)
-// {
-//    MainStatusBar->show_message(msgstr);
-// }
-
-//*******************************************************************
-// void status_message(uint idx, char *msgstr)
-// {
-//    MainStatusBar->show_message(idx, msgstr);
-// }
-
 //***********************************************************************
+//lint -esym(714, enable_load_layout_button)
+//lint -esym(759, enable_load_layout_button)
+//lint -esym(765, enable_load_layout_button)
 void enable_load_layout_button(bool state)
 {
    EnableWindow(hwndLoadLayout, state);
@@ -118,7 +109,7 @@ static void ww_get_monitor_dimens(HWND hwnd)
 //lint -esym(714, center_window)
 //lint -esym(759, center_window)
 //lint -esym(765, center_window)
-//lint -esym(578, y0, y1, Color)
+//lint -esym(578, y0)
 void center_window(HWND hwnd, int x_pos, int y_pos)
 {
    if (screen_width == 0) {

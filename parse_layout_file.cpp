@@ -77,6 +77,27 @@ static void add_field_to_list(key_layout_data_p kltemp)
 }
 
 //********************************************************************************
+static void flush_layout_field_list(void)
+{
+   key_layout_data_p ktemp ;
+   key_layout_data_p kkill ;
+   if (top == NULL) {
+      return ;
+   }
+   uint kcount = 0 ;
+   ktemp = top ;
+   while (ktemp != NULL) {
+      kkill = ktemp ;
+      ktemp = ktemp->next ;
+      free(kkill);
+      kcount++ ;
+   }
+   top = NULL ;
+   tail = NULL ;
+   termout(_T("Flush layout file: %u elements deleted"), kcount);
+}
+
+//********************************************************************************
 //Annunciator: 1 60,90,30,26 1330,94
 //********************************************************************************
 static int parse_annunciator(TCHAR *inpstr)
@@ -96,7 +117,7 @@ static int parse_annunciator(TCHAR *inpstr)
    hd = next_field(hd);
    if (hd == NULL) { put_color_term_msg(TERM_ERROR, _T("PARSE ERROR")); return 1 ; }
    xnum = (uint) _ttoi(hd) ;
-   hd = _tcschr(hd, ',');
+   hd = _tcschr(hd, _T(','));
    if (hd == NULL) { put_color_term_msg(TERM_ERROR, _T("PARSE ERROR")); return 1 ; }
    hd = skip_spaces_and_commas(hd);
    ynum = (uint) _ttoi(hd) ;
@@ -104,13 +125,13 @@ static int parse_annunciator(TCHAR *inpstr)
    kltemp->draw_area.x0 = xnum ;
    kltemp->draw_area.y0 = ynum ;
    
-   hd = _tcschr(hd, ',');
+   hd = _tcschr(hd, _T(','));
    if (hd == NULL) { put_color_term_msg(TERM_ERROR, _T("PARSE ERROR")); return 1 ; }
    hd = skip_spaces_and_commas(hd);
    
    //  get dx, dy
    xnum = (uint) _ttoi(hd) ;
-   hd = _tcschr(hd, ',');
+   hd = _tcschr(hd, _T(','));
    if (hd == NULL) { put_color_term_msg(TERM_ERROR, _T("PARSE ERROR")); return 1 ; }
    hd = skip_spaces_and_commas(hd);
    ynum = (uint) _ttoi(hd) ;
@@ -121,7 +142,7 @@ static int parse_annunciator(TCHAR *inpstr)
    //  get x0, y0 for active-state bitmap
    hd = next_field(hd) ;
    xnum = (uint) _ttoi(hd) ;
-   hd = _tcschr(hd, ',');
+   hd = _tcschr(hd, _T(','));
    if (hd == NULL) { put_color_term_msg(TERM_ERROR, _T("PARSE ERROR")); return 1 ; }
    hd = skip_spaces_and_commas(hd);
    ynum = (uint) _ttoi(hd) ;
@@ -194,7 +215,7 @@ static int parse_key(TCHAR *inpstr)
    hd = next_field(hd);
    if (hd == NULL) { put_color_term_msg(TERM_ERROR, _T("PARSE ERROR")); return 1 ; }
    xnum = (uint) _ttoi(hd) ;
-   hd = _tcschr(hd, ',');
+   hd = _tcschr(hd, _T(','));
    if (hd == NULL) { put_color_term_msg(TERM_ERROR, _T("PARSE ERROR")); return 1 ; }
    hd = skip_spaces_and_commas(hd);
    ynum = (uint) _ttoi(hd) ;
@@ -203,11 +224,11 @@ static int parse_key(TCHAR *inpstr)
    kltemp->touch_area.y0 = ynum ;
    
    //  get dx, dy
-   hd = _tcschr(hd, ',');
+   hd = _tcschr(hd, _T(','));
    if (hd == NULL) { put_color_term_msg(TERM_ERROR, _T("PARSE ERROR")); return 1 ; }
    hd = skip_spaces_and_commas(hd);
    xnum = (uint) _ttoi(hd) ;
-   hd = _tcschr(hd, ',');
+   hd = _tcschr(hd, _T(','));
    if (hd == NULL) { put_color_term_msg(TERM_ERROR, _T("PARSE ERROR")); return 1 ; }
    hd = skip_spaces_and_commas(hd);
    ynum = (uint) _ttoi(hd) ;
@@ -219,7 +240,7 @@ static int parse_key(TCHAR *inpstr)
    //  get x0, y0 (display rectangle)
    hd = next_field(hd) ;
    xnum = (uint) _ttoi(hd) ;
-   hd = _tcschr(hd, ',');
+   hd = _tcschr(hd, _T(','));
    if (hd == NULL) { put_color_term_msg(TERM_ERROR, _T("PARSE ERROR")); return 1 ; }
    hd = skip_spaces_and_commas(hd);
    ynum = (uint) _ttoi(hd) ;
@@ -228,11 +249,11 @@ static int parse_key(TCHAR *inpstr)
    kltemp->draw_area.y0 = ynum ;
    
    //  get dx, dy
-   hd = _tcschr(hd, ',');
+   hd = _tcschr(hd, _T(','));
    if (hd == NULL) { put_color_term_msg(TERM_ERROR, _T("PARSE ERROR")); return 1 ; }
    hd = skip_spaces_and_commas(hd);
    xnum = (uint) _ttoi(hd) ;
-   hd = _tcschr(hd, ',');
+   hd = _tcschr(hd, _T(','));
    if (hd == NULL) { put_color_term_msg(TERM_ERROR, _T("PARSE ERROR")); return 1 ; }
    hd = skip_spaces_and_commas(hd);
    ynum = (uint) _ttoi(hd) ;
@@ -248,7 +269,7 @@ static int parse_key(TCHAR *inpstr)
    //******************************************************************
    //  get x0, y0 for active-state bitmap (selected_area)
    xnum = (uint) _ttoi(hd) ;
-   hd = _tcschr(hd, ',');
+   hd = _tcschr(hd, _T(','));
    if (hd == NULL) { put_color_term_msg(TERM_ERROR, _T("PARSE ERROR")); return 1 ; }
    hd = skip_spaces_and_commas(hd);
    ynum = (uint) _ttoi(hd) ;
@@ -283,7 +304,7 @@ static int parse_altbkgd(TCHAR *inpstr)
    hd = next_field(hd);
    if (hd == NULL) { put_color_term_msg(TERM_ERROR, _T("PARSE ERROR 2")); return 1 ; }
    xnum = (uint) _ttoi(hd) ;
-   hd = _tcschr(hd, ',');
+   hd = _tcschr(hd, _T(','));
    if (hd == NULL) { put_color_term_msg(TERM_ERROR, _T("PARSE ERROR 3")); return 1 ; }
    hd = skip_spaces_and_commas(hd);
    ynum = (uint) _ttoi(hd) ;
@@ -292,11 +313,11 @@ static int parse_altbkgd(TCHAR *inpstr)
    kltemp->draw_area.y0 = ynum ;
    
    //  get dx, dy
-   hd = _tcschr(hd, ',');
+   hd = _tcschr(hd, _T(','));
    if (hd == NULL) { put_color_term_msg(TERM_ERROR, _T("PARSE ERROR 4")); return 1 ; }
    hd = skip_spaces_and_commas(hd);
    xnum = (uint) _ttoi(hd) ;
-   hd = _tcschr(hd, ',');
+   hd = _tcschr(hd, _T(','));
    if (hd == NULL) { put_color_term_msg(TERM_ERROR, _T("PARSE ERROR 5")); return 1 ; }
    hd = skip_spaces_and_commas(hd);
    ynum = (uint) _ttoi(hd) ;
@@ -307,7 +328,7 @@ static int parse_altbkgd(TCHAR *inpstr)
    //  get x0, y0 for active-state bitmap
    hd = next_field(hd) ;
    xnum = (uint) _ttoi(hd) ;
-   hd = _tcschr(hd, ',');
+   hd = _tcschr(hd, _T(','));
    if (hd == NULL) { put_color_term_msg(TERM_ERROR, _T("PARSE ERROR 6")); return 1 ; }
    hd = skip_spaces_and_commas(hd);
    ynum = (uint) _ttoi(hd) ;
@@ -346,7 +367,7 @@ static int parse_altkey(TCHAR *inpstr)
    
    //  get x0, y0 for active-state bitmap
    xnum = (uint) _ttoi(hd) ;
-   hd = _tcschr(hd, ',');
+   hd = _tcschr(hd, _T(','));
    if (hd == NULL) { put_color_term_msg(TERM_ERROR, _T("PARSE ERROR 4")); return 1 ; }
    hd = skip_spaces_and_commas(hd);
    ynum = (uint) _ttoi(hd) ;
@@ -361,21 +382,98 @@ static int parse_altkey(TCHAR *inpstr)
 }
 
 //********************************************************************************
+// # Offset: key y0_as_int dy_as_int
+// # Offset: key1;keyn y0_as_int dy_as_int
+// # no spaces permitted between key1 and keyn
+// Offset: 1;7 -4 +4
+// Offset: 38 -5 +5
+//********************************************************************************
+typedef struct key_offset_s {
+   int y0 ;
+   int dy ;
+} key_offset_t ;  //, *key_offset_p ;
+#define  MAX_KEY_NUM    100
+static key_offset_t key_offsets[MAX_KEY_NUM] ;
+
+static int parse_offset(TCHAR *inpstr)
+{
+   uint keyn, keym, idx ;
+   int y0, dy ;
+   TCHAR *hd ;
+
+   hd = next_field(inpstr);
+   if (hd == NULL) { put_color_term_msg(TERM_ERROR, _T("PARSE ERROR 1")); return 1 ; }
+   keyn = (uint) _ttoi(hd) ;
+
+   TCHAR *tl = _tcschr(hd, _T(';'));
+   if (tl == NULL) {
+      keym = 0 ;
+   }
+   else {
+      tl++ ;   //  skip past hyphen
+      keym = (uint) _ttoi(tl) ;
+   }
+   
+   hd = next_field(hd);
+   if (hd == NULL) { put_color_term_msg(TERM_ERROR, _T("PARSE ERROR 3")); return 1 ; }
+   
+   //  get x0, y0 for active-state bitmap
+   y0 = (int) _ttoi(hd) ;
+   hd = next_field(hd);
+   if (hd == NULL) { put_color_term_msg(TERM_ERROR, _T("PARSE ERROR 4")); return 1 ; }
+   dy = (int) _ttoi(hd) ;
+   
+   if (keym == 0) {
+      key_offsets[keyn].y0 = y0 ;
+      key_offsets[keyn].dy = dy ;
+      // termout(_T("offset: key %u y0: %d, dy: %d"), keyn, y0, dy);
+   }
+   else {
+      // termout(_T("offset: keys %u-%u y0: %d, dy: %d"), keyn, keym, y0, dy);
+      for (idx=keyn; idx<=keym; idx++) {
+         key_offsets[idx].y0 = y0 ;
+         key_offsets[idx].dy = dy ;
+      }
+   }
+   return 0;
+}
+
+//********************************************************************************
+//lint -esym(528, show_key_offsets)
+static void show_key_offsets(void)
+{
+   uint idx ;
+   termout(_T("show key_offsets table"));
+   for (idx=0; idx<MAX_KEY_NUM; idx++) {
+      if (key_offsets[idx].y0 != 0) {
+         termout(_T("key %2u: y0: %d, dy: %d"), idx, key_offsets[idx].y0, key_offsets[idx].dy);
+      }
+   }
+}
+
+//********************************************************************************
+static bool layout_read_done = false ;
+
 int parse_layout_values(TCHAR *tlayout_file)
 {
    int result ;
+   //  reset previous displayed data
+   if (layout_read_done) {
+      redraw_calc_image();
+      flush_layout_field_list();
+      ZeroMemory((void *)&key_offsets[0], sizeof(key_offsets));
+   }
+
    FILE *infd = _tfopen(tlayout_file, _T("rt"));
    if (infd == NULL) {
       put_color_term_msg(TERM_ERROR, _T("%s: cannot open for reading\n"), tlayout_file);
       return 1 ;
    }
-   // termout(_T("Entering parse_layout_values()"));
-   // uint lcount = 0 ;
+   
    TCHAR inpstr[MAX_LINE_LEN+1] ;
    bool done = false ;
    while (_fgetts(inpstr, MAX_LINE_LEN, infd) != NULL) {
       strip_newlines(inpstr);
-      // update_counter_field(lcount++);  //  DEBUG
       
       //*******************************************************************
       //Annunciator: 1 60,90,30,26 1330,94
@@ -412,6 +510,12 @@ int parse_layout_values(TCHAR *tlayout_file)
             break ;
          }
       }
+      else if (_tcsncmp(inpstr, _T("Offset:"), 7) == 0) {
+         result = parse_offset(inpstr);
+         if (result != 0) {
+            break ;
+         }
+      }
       // else {
       //    _ftprintf(outfd, _T("%s\n"), inpstr);
       // }
@@ -421,9 +525,10 @@ int parse_layout_values(TCHAR *tlayout_file)
    }
    
    fclose(infd);
-   enable_load_layout_button(false);
+
    show_layout_info(true);
-   // termout(_T("Leaving parse_layout_values(), line count: %u"), lcount);
+   // show_key_offsets();
+   layout_read_done = true ;   
    return 0 ;
 }
 
@@ -503,7 +608,6 @@ void show_layout_info(bool show_summary_only)
 
 //***********************************************************************************
 static const COLORREF BGR_TOUCH   = 0x00C000 ;  //  green      touch/sensitive area
-static const COLORREF BGR_TOUCHx  = 0xFF00FF ;  //  magenta    touch/sensitive area (alternate color)
 static const COLORREF BGR_DRAW    = 0x0000C0 ;  //  red        display/drawing area
 static const COLORREF BGR_SELECT  = 0x00FFFF ;  //  yellow     active/highlighted area
 static const COLORREF BGR_ADRAW   = 0xFFFF00 ;  //  cyan       AltBg display/drawing area
@@ -523,17 +627,11 @@ void draw_object_boxes(HWND hwnd)
          break ;
       
       case LAYOUT_KEY:
-         if ((kltemp->key_norm <= 6)  ||
-             ((kltemp->key_norm <= 22)  &&  (kltemp->key_norm >= 18))
-            ) {
-            Box(hwnd, 
-               kltemp->touch_area.x0, kltemp->touch_area.y0,
-               kltemp->touch_area.dx, kltemp->touch_area.dy, BGR_TOUCHx);
-         }
-         else {
-            Box(hwnd, kltemp->touch_area.x0, kltemp->touch_area.y0,
-               kltemp->touch_area.dx, kltemp->touch_area.dy, BGR_TOUCH);
-         }
+         Box(hwnd, kltemp->touch_area.x0, 
+                   kltemp->touch_area.y0 + key_offsets[kltemp->key_norm].y0,  //lint !e737
+                   kltemp->touch_area.dx, 
+                   kltemp->touch_area.dy + key_offsets[kltemp->key_norm].dy,  //lint !e737 
+                   BGR_TOUCH);
          Box(hwnd, kltemp->draw_area.x0, kltemp->draw_area.y0,
             kltemp->draw_area.dx, kltemp->draw_area.dy, BGR_DRAW);
          Box(hwnd, kltemp->selected_area.x0, kltemp->selected_area.y0,

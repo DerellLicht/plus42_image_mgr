@@ -52,6 +52,7 @@ void enable_show_keys_button(bool state);
 //  show_ref_image.cpp
 void Box(HWND hwnd, int x0, int y0, int x1, int y1, COLORREF Color);
 void stop_ref_image_thread(void);
+void redraw_calc_image(void);
 
 //  parse_layout_file.cpp
 int parse_layout_values(TCHAR *layout_file);

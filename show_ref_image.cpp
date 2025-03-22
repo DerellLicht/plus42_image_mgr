@@ -93,39 +93,18 @@ static void do_init_dialog(HWND hwnd)
 }
 
 //***********************************************************************************
-#undef  DRAW_TEST_IMAGES   
-
 static VOID OnPaint(HDC hdc)
 {
    Graphics    graphics(hdc);
-   
-#ifdef  DRAW_TEST_IMAGES   
-   Image *binclock_image = NULL;
-   SolidBrush  brush(Color(255, 0, 0, 255));
-   FontFamily  fontFamily(L"Times New Roman");
-   Font        font(&fontFamily, 24.0, FontStyleRegular, UnitPixel); //lint !e747 !e641
-   PointF      pointF(10.0f, 20.0f);
-   
-   graphics.DrawString(L"gdiplus practice page", -1, &font, pointF, &brush);
-   
-   Pen      pen(Color(255, 0, 0, 255));
-   graphics.DrawLine(&pen, 220, 220, 250, 100);
-   
-   SolidBrush redBrush(Color::Red);            
-   Pen greenPen(Color::Green, 2.0); //lint !e747
-   graphics.FillRectangle(&redBrush, 120, 120, 100, 100);
-   graphics.DrawEllipse(&greenPen, 300, 50, 80, 80);   
-   graphics.DrawEllipse(&greenPen, 300, 200, 80, 180);
-   
-   // Image image(L"binclock.gif");
-   // graphics.DrawImage(&image, 30, 500);
-   
-   binclock_image = new Image(L"binclock.gif");
-   // termout(_T("image size: %u x %u"), binclock_image->GetWidth(), binclock_image->GetHeight()); //lint !e864
-   graphics.DrawImage(binclock_image, 420, 200);
-#else   
    graphics.DrawImage(ref_image, 0, 0);
-#endif     
+}
+
+//***********************************************************************************
+void redraw_calc_image(void)
+{
+   HDC hdc = GetDC(hwndRef);
+   OnPaint(hdc);
+   ReleaseDC(hwndRef, hdc);
 }
 
 /************************************************************************/
