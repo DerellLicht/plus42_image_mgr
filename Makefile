@@ -73,7 +73,7 @@ clean:
 
 dist:
 	rm -f *.zip
-	zip $(BASE).zip $(BIN) README.md LICENSE
+	zip $(BASE).zip $(BIN) $(BASE).chm README.md LICENSE 
 
 wc:
 	wc -l *.cpp *.rc
