@@ -12,6 +12,7 @@
 #include <tchar.h>
 #include <objidl.h>
 #include <gdiplus.h>
+#include <htmlhelp.h>
 
 using namespace Gdiplus;
 
@@ -51,6 +52,38 @@ uint dbg_flags = 0
 TCHAR layout_file[MAX_PATH_LEN] = _T("skin.layout") ;
 static TCHAR skin_name[MAX_PATH_LEN]   = _T("") ;
 static TCHAR image_file[MAX_PATH_LEN]  = _T("") ;
+
+//*************************************************************
+#ifndef PATH_MAX
+#define  PATH_MAX    1024
+#endif
+
+static TCHAR chmname[PATH_MAX] = _T("");
+
+static void find_chm_location(void)
+{
+   LRESULT result = derive_filename_from_exec(chmname, (TCHAR *) _T(".chm")) ; //lint !e1773 const
+   if (result != 0) {
+      put_color_term_msg(TERM_ERROR, _T("find_chm_loc: %s\n"), get_system_message());
+   }
+   else {
+      put_color_term_msg(TERM_INFO, _T("%s"), chmname);
+   }
+}
+
+//*************************************************************
+static void view_help_screen(HWND hwnd)
+{
+   find_chm_location() ;
+   
+   // syslog("help=[%s]", chmname) ;
+   //  MinGw gives a couple of indecipherable linker warnings about this:
+   // Warning: .drectve `-defaultlib:uuid.lib ' unrecognized
+   // Warning: .drectve `-defaultlib:uuid.lib ' unrecognized   
+   //  But ignoring them doesn't seem to hurt anything...
+   HtmlHelp(hwnd, chmname, HH_DISPLAY_TOPIC, 0L);
+   return ;
+}
 
 //***********************************************************************
 // LodePng pngSprites("tiles32.png", SPRITE_HEIGHT, SPRITE_WIDTH) ;
@@ -373,7 +406,8 @@ error_path:
             break ;
 
          case IDB_HELP:
-            put_color_term_msg(TERM_INFO, _T("Help file is not yet created"));
+            // put_color_term_msg(TERM_INFO, _T("Help file is not yet created"));
+            view_help_screen(hwnd); 
             break;
             
          case IDD_ABOUT : 
@@ -416,6 +450,9 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine
 
    GdiplusStartupInput gdiplusStartupInput;
    ULONG_PTR           gdiplusToken;
+   
+   load_exec_filename() ;  //  get our executable name
+   // set_ini_filename();
    
    // Initialize GDI+.
    GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
