@@ -3,9 +3,7 @@
 _lint.tmp
 *.zip
 *.bak
-*.gif
 *.png
-*.layout
 *.chm
 \der_libs_svr10
 \holding

@@ -73,7 +73,11 @@ clean:
 
 dist:
 	rm -f *.zip
-	zip $(BASE).zip $(BIN) $(BASE).chm README.md LICENSE 
+	zip $(BASE).zip $(BIN) $(BASE).chm README.md LICENSE \
+   LandscapeRight.gif LandscapeRight.layout \
+   Michaels-HP.gif Michaels-HP.layout \
+   Plus42_Landscape_SGT.gif Plus42_Landscape_SGT.layout
+	
 
 wc:
 	wc -l *.cpp *.rc
