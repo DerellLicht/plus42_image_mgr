@@ -5,7 +5,7 @@ _lint.tmp
 *.bak
 *.gif
 *.png
-*.jpg
 *.layout
 *.chm
 \der_libs_svr10
+\holding
