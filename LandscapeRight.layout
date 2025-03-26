@@ -11,11 +11,11 @@ Flags: 7
 # Offset: key y0_as_int dy_as_int
 # Offset: key1;keyn y0_as_int dy_as_int
 # no spaces permitted between key1 and keyn
-#Offset: 1;6    0 -2
-#Offset: 38;48 -3  3
-Offset: 50;60 -5  0
-#Offset: 28;32  0 -2
-#Offset: 33;37 -2  0
+#Offset: 1,6    0 -2
+#Offset: 38,48 -3  3
+Offset: 50,60 -5  0
+#Offset: 28,32  0 -2
+#Offset: 33,37 -2  0
 
 Annunciator: 1 60,90,30,26 1330,94
 Annunciator: 2 92,90,52,26 1362,94

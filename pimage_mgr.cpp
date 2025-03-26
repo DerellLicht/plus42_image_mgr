@@ -99,6 +99,9 @@ void enable_load_layout_button(bool state)
 }
 
 //***********************************************************************
+//lint -esym(714, enable_show_layout_button)
+//lint -esym(759, enable_show_layout_button)
+//lint -esym(765, enable_show_layout_button)
 void enable_show_layout_button(bool state)
 {
    EnableWindow(hwndShowLayout, state);

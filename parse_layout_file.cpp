@@ -405,7 +405,7 @@ static int parse_offset(TCHAR *inpstr)
    if (hd == NULL) { put_color_term_msg(TERM_ERROR, _T("PARSE ERROR 1")); return 1 ; }
    keyn = (uint) _ttoi(hd) ;
 
-   TCHAR *tl = _tcschr(hd, _T(';'));
+   TCHAR *tl = _tcschr(hd, _T(','));
    if (tl == NULL) {
       keym = 0 ;
    }

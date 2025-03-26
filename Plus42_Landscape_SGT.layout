@@ -10,9 +10,10 @@ Display: 58,134 4 6 9EA48D 000000
 DisplaySize: 22,8 -1 -1 8
 Flags: 7
 
-Offset: 1;32 0 -12
-Offset: 33;48 0 -6
-Offset: 49;60 0 -12
+Offset: 1,32 0 -12
+Offset: 33,37 0 -2
+Offset: 38,48 0 -6
+Offset: 49,60 0 -12
 
 Annunciator: 1 60, 104,30,26 1330,102   # Up/Down
 Annunciator: 2 92, 104,52,26 1362,102   # Shift
