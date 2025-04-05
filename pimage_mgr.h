@@ -17,6 +17,7 @@ static const UINT WM_DRAW_IMAGE   = (WM_USER + 102) ;
 static const UINT WM_LOAD_LAYOUT  = (WM_USER + 103) ;
 static const UINT WM_SHOW_LAYOUT  = (WM_USER + 104) ;
 static const UINT WM_SHOW_KEYNUMS = (WM_USER + 105) ;
+// static const UINT WM_SHOW_KEYNUMS = (WM_USER + 105) ;
 
 //lint -esym(769, TERM_INFO, TERM_QUERY, TERM_ERROR)
 //  indices into term_atable[]
@@ -30,11 +31,10 @@ TERM_ERROR
 #define  NUM_TERM_ATTR_ENTRIES   4
 
 void set_term_attr(uint atidx);
-int termout(const TCHAR *fmt, ...);
-int put_color_term_msg(uint idx, const TCHAR *fmt, ...);
+int  termout(const TCHAR *fmt, ...);
+int  put_color_term_msg(uint idx, const TCHAR *fmt, ...);
 
 BOOL CmdAbout(HWND hwnd);
-void open_image_window(TCHAR *image_file);
 void update_counter_field(uint counter);
 
 //***********************************************************************
@@ -48,16 +48,23 @@ void enable_load_layout_button(bool state);
 void enable_show_layout_button(bool state);
 void enable_draw_boxes_button(bool state);
 void enable_show_keys_button(bool state);
+void enable_show_image_list(bool state);
 
 //  show_ref_image.cpp
+uint ref_get_width(void);
+uint ref_get_height(void);
 void Box(HWND hwnd, int x0, int y0, int x1, int y1, COLORREF Color);
+void open_image_window(TCHAR *image_file);
 void stop_ref_image_thread(void);
 void redraw_calc_image(void);
 
 //  parse_layout_file.cpp
-int parse_layout_values(TCHAR *layout_file);
+int  parse_layout_values(TCHAR *layout_file);
 void show_layout_info(bool show_summary_only);
 void draw_object_boxes(HWND hwnd);
 void show_key_numbers(HWND hwnd);
 
+//  show_image_list.cpp
+void open_image_list_window(void);
+void stop_image_list_thread(void);
 

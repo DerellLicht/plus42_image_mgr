@@ -12,7 +12,7 @@ Flags: 7
 # Offset: key1;keyn y0_as_int dy_as_int
 # no spaces permitted between key1 and keyn
 #Offset: 1,6    0 -2
-#Offset: 38,48 -3  3
+Offset: 18,48 -5  0
 Offset: 50,60 -5  0
 #Offset: 28,32  0 -2
 #Offset: 33,37 -2  0

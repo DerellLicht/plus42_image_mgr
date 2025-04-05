@@ -89,7 +89,7 @@ static void flush_layout_field_list(void)
    while (ktemp != NULL) {
       kkill = ktemp ;
       ktemp = ktemp->next ;
-      free(kkill);
+      delete(kkill);
       kcount++ ;
    }
    top = NULL ;

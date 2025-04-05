@@ -34,13 +34,14 @@ static TCHAR const * const Version = _T("Plus42 Image Manager, Version " VerNum 
 //***********************************************************************
 HINSTANCE g_hinst = 0;
 
-static HWND hwndMain = NULL ;
-static HWND hwndSelectSkin = NULL ;
-static HWND hwndLoadLayout = NULL ;
-static HWND hwndShowLayout = NULL ;
-static HWND hwndDrawBoxes  = NULL ;
-static HWND hwndShowKeys   = NULL ;
-static HWND hwndCounter    = NULL ;
+static HWND hwndMain          = NULL ;
+static HWND hwndSelectSkin    = NULL ;
+static HWND hwndLoadLayout    = NULL ;
+static HWND hwndShowLayout    = NULL ;
+static HWND hwndDrawBoxes     = NULL ;
+static HWND hwndShowKeys      = NULL ;
+static HWND hwndCounter       = NULL ;
+static HWND hwndShowImageList = NULL ;
 
 //lint -esym(843, dbg_flags)  could be declared as const
 uint dbg_flags = 0
@@ -117,6 +118,12 @@ void enable_draw_boxes_button(bool state)
 void enable_show_keys_button(bool state)
 {
    EnableWindow(hwndShowKeys, state);
+}
+
+//***********************************************************************
+void enable_show_image_list(bool state)
+{
+   EnableWindow(hwndShowImageList, state);
 }
 
 //***********************************************************************
@@ -241,28 +248,28 @@ int put_color_term_msg(uint idx, const TCHAR *fmt, ...)
 //***********************************************************************
 static void do_init_dialog(HWND hwnd)
 {
-   // hwndTopLevel = hwnd ;   //  do I need this?
    TCHAR msgstr[81] ;
    wsprintf(msgstr, _T("%s"), Version) ;
    SetWindowText(hwnd, msgstr) ;
-   // syslog(_T("%s\n"), msgstr);
 
    SetClassLong(hwnd, GCL_HICON,   (LONG) LoadIcon(g_hinst, (LPCTSTR)IDI_PLUS42IM));
    SetClassLong(hwnd, GCL_HICONSM, (LONG) LoadIcon(g_hinst, (LPCTSTR)IDI_PLUS42IM));
 
    hwndMain = hwnd ;
-   hwndSelectSkin = GetDlgItem(hwnd, IDB_SKIN_SELECT);
-   hwndDrawBoxes  = GetDlgItem(hwnd, IDB_DRAW_BOXES);
-   hwndShowKeys   = GetDlgItem(hwnd, IDB_SHOW_KEYS);
-   hwndLoadLayout = GetDlgItem(hwnd, IDB_LOAD_LAYOUT);
-   hwndShowLayout = GetDlgItem(hwnd, IDB_SHOW_LAYOUT);
-   hwndCounter    = GetDlgItem(hwnd, IDC_COUNTER);
+   hwndSelectSkin    = GetDlgItem(hwnd, IDB_SKIN_SELECT);
+   hwndDrawBoxes     = GetDlgItem(hwnd, IDB_DRAW_BOXES);
+   hwndShowKeys      = GetDlgItem(hwnd, IDB_SHOW_KEYS);
+   hwndLoadLayout    = GetDlgItem(hwnd, IDB_LOAD_LAYOUT);
+   hwndShowLayout    = GetDlgItem(hwnd, IDB_SHOW_LAYOUT);
+   hwndCounter       = GetDlgItem(hwnd, IDC_COUNTER);
+   hwndShowImageList = GetDlgItem(hwnd, IDB_OPEN_ILIST);
    
    // EnableWindow(hwndOpen, false);
    EnableWindow(hwndLoadLayout, false);
    EnableWindow(hwndShowLayout, false);
    EnableWindow(hwndDrawBoxes,  false);
    EnableWindow(hwndShowKeys,   false);
+   EnableWindow(hwndShowImageList,   false);
 
    // setup_main_menu(hwnd) ;
    // set_up_working_spaces(hwnd) ; //  do this *before* tooltips !!
@@ -408,6 +415,10 @@ error_path:
             PostMessage(hwndRef, WM_SHOW_KEYNUMS, (WPARAM) NULL, (LPARAM) NULL);
             break ;
 
+         case IDB_OPEN_ILIST:
+            open_image_list_window();
+            break ;
+
          case IDB_HELP:
             // put_color_term_msg(TERM_INFO, _T("Help file is not yet created"));
             view_help_screen(hwnd); 
@@ -431,6 +442,7 @@ error_path:
    //********************************************************************
    case WM_CLOSE:
       stop_ref_image_thread();
+      stop_image_list_thread();
       DestroyWindow(hwnd);
       break;
 

@@ -23,43 +23,23 @@ using namespace Gdiplus;
 #include "winmsgs.h"
 #include "wthread.h"
 
-//lint -esym(551, hwndRef, refImage)
-//lint -esym(844, hwndRef, refImage)
-
+// temp lint declarations, development in progress
+//lint -esym(843, width, height)
 //  comment this line out to draw black window background 
 // #define USE_SYS_BG_COLOR  1
 
-static CThread const *ref_image_thread = NULL ;
+static CThread const *image_list_thread = NULL ;
 //***********************************************************************
-// static int cxClient = 0 ;
-// static int cyClient = 0 ;
-
-// unsigned xbase, xdiff, ybase, ydiff ;
-
-HWND hwndRef = NULL ;
-
-// static TCHAR tempstr[128] ;
-
-// static CStatusBar *MainStatusBar = NULL;
+static HWND hwndImageList = NULL ;
 
 // static LodePng *refImage = NULL ;
 // static std::vector<unsigned char> image; //the raw pixels
 static unsigned width = 0, height = 0 ;
 static unsigned cli_width = 0, cli_height = 0 ;
-//lint -esym(844, ref_image_thread)
-static TCHAR ref_image_file[MAX_PATH_LEN]  = _T("") ;
-static Image *ref_image = NULL;
-
-//***********************************************************************
-uint ref_get_width(void)
-{
-   return width ;
-}
-
-uint ref_get_height(void)
-{
-   return height ;
-}
+//lint -esym(844, image_list_thread)
+// static TCHAR image_list_file[MAX_PATH_LEN]  = _T("") ;
+// static Image *image_list = NULL;
+static TCHAR const image_list_title[MAX_PATH_LEN]  = _T("Image List workspace") ;
 
 //***********************************************************************
 static void resize_window_corrected(HWND hwnd)
@@ -85,9 +65,9 @@ static void resize_window_corrected(HWND hwnd)
 //***********************************************************************
 static void do_init_dialog(HWND hwnd)
 {
-   SetWindowText(hwnd, ref_image_file) ;
+   SetWindowText(hwnd, image_list_title) ;
 
-   hwndRef = hwnd ;
+   hwndImageList = hwnd ;
    SetClassLong(hwnd, GCL_HICON,   (LONG) LoadIcon(g_hinst, (LPCTSTR)IDI_PLUS42IM));
    SetClassLong(hwnd, GCL_HICONSM, (LONG) LoadIcon(g_hinst, (LPCTSTR)IDI_PLUS42IM));
    
@@ -104,42 +84,27 @@ static void do_init_dialog(HWND hwnd)
 }
 
 //***********************************************************************************
+// #define USE_ONPAINT
+#undef USE_ONPAINT
+
+#ifdef USE_ONPAINT
 static VOID OnPaint(HDC hdc)
 {
    Graphics    graphics(hdc);
-   graphics.DrawImage(ref_image, 0, 0);
+   graphics.DrawImage(image_list, 0, 0);
 }
 
 //***********************************************************************************
-void redraw_calc_image(void)
+void redraw_image_list_element(void)
 {
-   HDC hdc = GetDC(hwndRef);
+   HDC hdc = GetDC(hwndImageList);
    OnPaint(hdc);
-   ReleaseDC(hwndRef, hdc);
+   ReleaseDC(hwndImageList, hdc);
 }
-
-/************************************************************************/
-//lint -esym(578, y0, y1)
-void Box(HWND hwnd, int x0, int y0, int dx, int dy, COLORREF rColor)
-{
-   HDC hdc = GetDC (hwnd) ;
-   ul2uc_t uconv ;
-   uconv.ul = (uint) rColor ;
-   // uconv.uc[3] = 255 ;
-   
-   Graphics    graphics(hdc);
-   
-   // Pen greenPen(Color::Green, 2.0); //lint !e747
-   // Pen      pen(Color(255, 0, 0, 255), 2.0);
-   // Pen Pen(Color(uconv.uc[3], uconv.uc[0], uconv.uc[1], uconv.uc[2] ), 2.0); //lint !e747
-   // Pen pen(Color(uconv.uc[3], uconv.uc[0], uconv.uc[1], uconv.uc[2])); //lint !e747
-   Pen pen(Color(uconv.uc[0], uconv.uc[1], uconv.uc[2])); //lint !e747
-   graphics.DrawRectangle(&pen, x0, y0, dx, dy);
-   ReleaseDC (hwnd, hdc) ;
-}
+#endif
 
 //***********************************************************************
-static LRESULT CALLBACK RefImageProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
+static LRESULT CALLBACK ImageListProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 {
    //***************************************************
    //  debug: log all windows messages
@@ -169,21 +134,24 @@ static LRESULT CALLBACK RefImageProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARA
    switch(iMsg) {
    case WM_INITDIALOG:
       {
-      TCHAR *refImageFile = (TCHAR *) lParam ;
-      _tcscpy(ref_image_file, refImageFile);
-      termout(_T("target file: %s"), ref_image_file);
-      ref_image = new Image(ref_image_file); //lint !e1025
-      width  = ref_image->GetWidth();
-      height = ref_image->GetHeight();
-      termout(_T("ref image size: %u x %u"), width, height);
+      // TCHAR *refImageFile = (TCHAR *) lParam ;
+      // _tcscpy(image_list_file, refImageFile);
+      // termout(_T("target file: %s"), image_list_file);
+      // image_list = new Image(image_list_file); //lint !e1025
+      width  = ref_get_width();
+      height = ref_get_height();
+      termout(_T("image list size: %u x %u"), width, height);
    
       do_init_dialog(hwnd) ;
       resize_window_corrected(hwnd);
-      center_window(hwnd, -1, 650) ;
+      center_window(hwnd, 100, 710) ;
+#ifdef USE_ONPAINT
       UpdateWindow(hwnd);
+#endif      
       }
       return TRUE;
 
+#ifdef USE_ONPAINT
    case WM_PAINT:
       {
       PAINTSTRUCT  ps;
@@ -192,6 +160,7 @@ static LRESULT CALLBACK RefImageProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARA
       EndPaint(hwnd, &ps);
       }
       return 0;
+#endif      
       
    case WM_COMMAND:
       {  //  create local context
@@ -218,12 +187,14 @@ static LRESULT CALLBACK RefImageProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARA
       
    case WM_DRAW_IMAGE:
       {
+#ifdef USE_ONPAINT
       // UpdateWindow(hwnd);  //  this does *NOT* generate WM_PAINT
       HDC hdc = GetDC(hwnd)      ;
       // OnPaint(hdc);
       Graphics    graphics(hdc);
-      graphics.DrawImage(ref_image, 0, 0);
+      graphics.DrawImage(image_list, 0, 0);
       ReleaseDC(hwnd, hdc);
+#endif      
       }
       break ;
       
@@ -234,7 +205,6 @@ static LRESULT CALLBACK RefImageProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARA
       // enable_show_layout_button(true);
       enable_draw_boxes_button(true);
       enable_show_keys_button(true);
-      enable_show_image_list(true);
       break ;
 
    case WM_SHOW_LAYOUT:
@@ -270,11 +240,11 @@ static LRESULT CALLBACK RefImageProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARA
 }
 
 //***********************************************************************
-static DWORD WINAPI fRefImageThread(LPVOID iValue)
+static DWORD WINAPI fImageListThread(LPVOID iValue)
    {
    // hdlTopLevel = OpenProcess(PROCESS_ALL_ACCESS, false, _getpid()) ;
    HWND hwnd = CreateDialogParam(g_hinst, 
-      MAKEINTRESOURCE(IDD_INPUT_IMAGE_DIALOG), NULL, (DLGPROC) RefImageProc, (LPARAM) iValue) ;
+      MAKEINTRESOURCE(IDD_IMAGE_LIST_DIALOG), NULL, (DLGPROC) ImageListProc, (LPARAM) iValue) ;
    if (hwnd == NULL) {
       syslog(_T("CreateDialog: %s\n"), get_system_message()) ;
       return 0;
@@ -301,25 +271,25 @@ static DWORD WINAPI fRefImageThread(LPVOID iValue)
 
 //****************************************************************************
 
-static void close_ref_image_thread(LPVOID iValue)
+static void close_image_list_thread(LPVOID iValue)
 {
-   SendMessage(hwndRef, WM_CLOSE, 0, 0) ;
+   SendMessage(hwndImageList, WM_CLOSE, 0, 0) ;
 }  //lint !e715
 
 //  called during WM_CLOSE in main dialog
-void stop_ref_image_thread(void)
+void stop_image_list_thread(void)
 {
-   if (ref_image_thread != NULL) {
-      syslog(_T("delete ref image thread\n")) ;
-      delete ref_image_thread ;
-      ref_image_thread = NULL ;
+   if (image_list_thread != NULL) {
+      syslog(_T("delete image list thread\n")) ;
+      delete image_list_thread ;
+      image_list_thread = NULL ;
    }
 }
 
-void open_image_window(TCHAR *image_file)
+void open_image_list_window(void)
 {
-   if (ref_image_thread == NULL) {
-      ref_image_thread = new CThread(fRefImageThread, (LPVOID) image_file, close_ref_image_thread) ;
+   if (image_list_thread == NULL) {
+      image_list_thread = new CThread(fImageListThread, (LPVOID) NULL, close_image_list_thread) ;
    }
 }
 
