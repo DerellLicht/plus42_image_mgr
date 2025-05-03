@@ -9,13 +9,14 @@
 #include <stdio.h>
 #include <stdlib.h>  //  _ttoi
 #include <tchar.h>
-#include <gdiplus.h>
 
 #include "common.h"
 #include "commonw.h"
 #include "pimage_mgr.h"
 
-using namespace Gdiplus;
+//lint -esym(1055, _wfopen, fgetws)
+//lint -esym(746, _wfopen, fgetws)
+//lint -e64  
 
 //********************************************************************************
 //  table of field types and associated keyboard areas

@@ -11,15 +11,16 @@
 #include <stdio.h>
 #include <tchar.h>
 #include <objidl.h>
-#include <gdiplus.h>
-
-using namespace Gdiplus;
+// #include <gdiplus.h>
+// 
+// using namespace Gdiplus;
 
 // #include "version.h"
 #include "resource.h"
 #include "common.h"
 #include "commonw.h"
 #include "pimage_mgr.h"
+#include "gdi_plus.h"
 #include "winmsgs.h"
 #include "wthread.h"
 
@@ -48,7 +49,8 @@ static unsigned width = 0, height = 0 ;
 static unsigned cli_width = 0, cli_height = 0 ;
 //lint -esym(844, ref_image_thread)
 static TCHAR ref_image_file[MAX_PATH_LEN]  = _T("") ;
-static Image *ref_image = NULL;
+// static Image *ref_image = NULL;
+static gdi_plus *ref_image = NULL ;
 
 //***********************************************************************
 uint ref_get_width(void)
@@ -106,8 +108,11 @@ static void do_init_dialog(HWND hwnd)
 //***********************************************************************************
 static VOID OnPaint(HDC hdc)
 {
-   Graphics    graphics(hdc);
-   graphics.DrawImage(ref_image, 0, 0);
+   // Graphics graphics(hdc);
+   // ref_image->DrawImage(graphics, 0, 0, 0, 0);
+   // hdc = GetDC(hwndMapArea) ;
+   ref_image->render_bitmap(hdc, 0, 0) ;
+   // ReleaseDC(hwndMapArea, hdc) ;
 }
 
 //***********************************************************************************
@@ -127,7 +132,7 @@ void Box(HWND hwnd, int x0, int y0, int dx, int dy, COLORREF rColor)
    uconv.ul = (uint) rColor ;
    // uconv.uc[3] = 255 ;
    
-   Graphics    graphics(hdc);
+   Graphics graphics(hdc);
    
    // Pen greenPen(Color::Green, 2.0); //lint !e747
    // Pen      pen(Color(255, 0, 0, 255), 2.0);
@@ -172,9 +177,13 @@ static LRESULT CALLBACK RefImageProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARA
       TCHAR *refImageFile = (TCHAR *) lParam ;
       _tcscpy(ref_image_file, refImageFile);
       termout(_T("target file: %s"), ref_image_file);
-      ref_image = new Image(ref_image_file); //lint !e1025
-      width  = ref_image->GetWidth();
-      height = ref_image->GetHeight();
+      
+      // ref_image = new Image(ref_image_file); //lint !e1025
+      // width  = ref_image->GetWidth();
+      // height = ref_image->GetHeight();
+      ref_image = new gdi_plus(ref_image_file) ;
+      width  = ref_image->img_width();
+      height = ref_image->img_height();
       termout(_T("ref image size: %u x %u"), width, height);
    
       do_init_dialog(hwnd) ;
@@ -220,9 +229,9 @@ static LRESULT CALLBACK RefImageProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARA
       {
       // UpdateWindow(hwnd);  //  this does *NOT* generate WM_PAINT
       HDC hdc = GetDC(hwnd)      ;
-      // OnPaint(hdc);
-      Graphics    graphics(hdc);
-      graphics.DrawImage(ref_image, 0, 0);
+      OnPaint(hdc);
+      // Graphics    graphics(hdc);
+      // graphics.DrawImage(ref_image, 0, 0);
       ReleaseDC(hwnd, hdc);
       }
       break ;

@@ -35,13 +35,16 @@ CFLAGS += -Wno-unused-function
 ifeq ($(USE_UNICODE),YES)
 CFLAGS += -DUNICODE -D_UNICODE
 LFLAGS += -dUNICODE -d_UNICODE
+LiFLAGS += -DUNICODE -D_UNICODE
 endif
 
 # link library files
-LiFLAGS = -Ider_libs
+LiFLAGS += -Ider_libs
 CFLAGS += -Ider_libs
 CSRC=pimage_mgr.cpp show_ref_image.cpp parse_layout_file.cpp show_image_list.cpp \
 hyperlinks.cpp about.cpp \
+der_libs/gdi_plus.cpp \
+der_libs/gdiplus_setup.cpp \
 der_libs/common_funcs.cpp \
 der_libs/common_win.cpp \
 der_libs/winmsgs.cpp \
@@ -85,9 +88,6 @@ wc:
 lint:
 	cmd /C "c:\lint9\lint-nt +v -width(160,4) $(LiFLAGS) -ic:\lint9 mingw.lnt -os(_lint.tmp) lintdefs.cpp $(CSRC)"
 
-lint8:
-	cmd /C "c:\lint8\lint-nt +v -width(160,4) $(LiFLAGS) -ic:\lint8 mingw.lnt -os(_lint.tmp) lintdefs.cpp $(CSRC)"
-
 depend:
 	makedepend $(CFLAGS) $(CSRC)
 
@@ -105,14 +105,17 @@ rc.o: pimage_mgr.rc
 
 pimage_mgr.o: version.h resource.h der_libs/common.h der_libs/commonw.h
 pimage_mgr.o: pimage_mgr.h der_libs/cterminal.h der_libs/vlistview.h
-pimage_mgr.o: der_libs/terminal.h der_libs/winmsgs.h
+pimage_mgr.o: der_libs/terminal.h der_libs/winmsgs.h der_libs/gdiplus_setup.h
 show_ref_image.o: resource.h der_libs/common.h der_libs/commonw.h
-show_ref_image.o: pimage_mgr.h der_libs/winmsgs.h der_libs/wthread.h
+show_ref_image.o: pimage_mgr.h der_libs/gdi_plus.h der_libs/winmsgs.h
+show_ref_image.o: der_libs/wthread.h
 parse_layout_file.o: der_libs/common.h der_libs/commonw.h pimage_mgr.h
 show_image_list.o: resource.h der_libs/common.h der_libs/commonw.h
 show_image_list.o: pimage_mgr.h der_libs/winmsgs.h der_libs/wthread.h
 hyperlinks.o: der_libs/iface_32_64.h hyperlinks.h
 about.o: resource.h version.h der_libs/common.h pimage_mgr.h hyperlinks.h
+der_libs/gdi_plus.o: der_libs/common.h der_libs/gdi_plus.h
+der_libs/gdiplus_setup.o: der_libs/gdi_plus.h
 der_libs/common_funcs.o: der_libs/common.h
 der_libs/common_win.o: der_libs/common.h der_libs/commonw.h
 der_libs/vlistview.o: der_libs/common.h der_libs/commonw.h

@@ -5,16 +5,11 @@
 //  Written by:  Dan Miller
 //****************************************************************************
 
-//lint -esym(767, _WIN32_WINNT)
-#define  _WIN32_WINNT   0x0501
 #include <windows.h>
 #include <stdio.h>   //  vsprintf, sprintf, which supports %f
 #include <tchar.h>
 #include <objidl.h>
-#include <gdiplus.h>
 #include <htmlhelp.h>
-
-using namespace Gdiplus;
 
 #include "version.h"
 #include "resource.h"
@@ -24,7 +19,9 @@ using namespace Gdiplus;
 #include "cterminal.h"  // MAX_TERM_CHARS
 #include "terminal.h"
 #include "winmsgs.h"
+#include "gdiplus_setup.h"
 
+//lint -e707  Mixing narrow and wide string literals in concatenation
 static TCHAR const * const Version = _T("Plus42 Image Manager, Version " VerNum " ") ;
 //lint -esym(715, lParam)
 //lint -esym(818, szCmdLine, hPrevInstance)  could be declared as pointing to const
@@ -463,14 +460,9 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine
    {
    g_hinst = hInstance;
 
-   GdiplusStartupInput gdiplusStartupInput;
-   ULONG_PTR           gdiplusToken;
-   
    load_exec_filename() ;  //  get our executable name
    // set_ini_filename();
-   
-   // Initialize GDI+.
-   GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
+   init_gdiplus_data() ;
    
    // hdlTopLevel = OpenProcess(PROCESS_ALL_ACCESS, false, _getpid()) ;
    HWND hwnd = CreateDialog(g_hinst, MAKEINTRESOURCE(IDD_MAIN_DIALOG), NULL, (DLGPROC) WinProc) ;
@@ -494,7 +486,7 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine
           DispatchMessage(&Msg);
       }
    }
-   GdiplusShutdown(gdiplusToken);
+   release_gdiplus_data();
 
    return (int) Msg.wParam ;
 }  //lint !e715
