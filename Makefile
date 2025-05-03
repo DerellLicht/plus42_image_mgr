@@ -41,9 +41,10 @@ endif
 # link library files
 LiFLAGS += -Ider_libs
 CFLAGS += -Ider_libs
-CSRC=pimage_mgr.cpp show_ref_image.cpp parse_layout_file.cpp show_image_list.cpp \
-hyperlinks.cpp about.cpp \
-der_libs/gdi_plus.cpp \
+CBASE=pimage_mgr.cpp show_ref_image.cpp parse_layout_file.cpp show_image_list.cpp \
+hyperlinks.cpp about.cpp 
+
+CSRC=der_libs/gdi_plus.cpp \
 der_libs/gdiplus_setup.cpp \
 der_libs/common_funcs.cpp \
 der_libs/common_win.cpp \
@@ -53,6 +54,7 @@ der_libs/cterminal.cpp \
 der_libs/terminal.cpp \
 der_libs/wthread.cpp \
 der_libs/tooltips.cpp
+CSRC += $(CBASE)
 
 # iface_lib.cpp 
 
@@ -83,7 +85,7 @@ dist:
 	
 
 wc:
-	wc -l *.cpp *.rc
+	wc -l $(CBASE) *.rc
 
 lint:
 	cmd /C "c:\lint9\lint-nt +v -width(160,4) $(LiFLAGS) -ic:\lint9 mingw.lnt -os(_lint.tmp) lintdefs.cpp $(CSRC)"
