@@ -13,10 +13,14 @@
 #include "common.h"
 #include "commonw.h"
 #include "pimage_mgr.h"
+#include "gdi_plus.h"
 
 //lint -esym(1055, _wfopen, fgetws)
 //lint -esym(746, _wfopen, fgetws)
 //lint -e64  
+
+//  show_ref_image.cpp
+extern gdi_plus *ref_image ;
 
 //********************************************************************************
 //  table of field types and associated keyboard areas
@@ -617,37 +621,38 @@ static const COLORREF BGR_ALTKEY  = 0xFFFFFF ;  //  white      AltKey area (unsp
 
 void draw_object_boxes(HWND hwnd)
 {
+   HDC hdc = GetDC (hwnd) ;
    key_layout_data_p kltemp;
    for (kltemp = top; kltemp != NULL; kltemp = kltemp->next) {
       switch(kltemp->lftype) {
       case LAYOUT_ANNUN:
-         Box(hwnd, kltemp->draw_area.x0, kltemp->draw_area.y0,
+         ref_image->DrawBox(hdc, kltemp->draw_area.x0, kltemp->draw_area.y0,
             kltemp->draw_area.dx, kltemp->draw_area.dy, BGR_DRAW);
-         Box(hwnd, kltemp->selected_area.x0, kltemp->selected_area.y0,
+         ref_image->DrawBox(hdc, kltemp->selected_area.x0, kltemp->selected_area.y0,
             kltemp->selected_area.dx, kltemp->selected_area.dy, BGR_SELECT);
          break ;
       
       case LAYOUT_KEY:
-         Box(hwnd, kltemp->touch_area.x0, 
+         ref_image->DrawBox(hdc, kltemp->touch_area.x0, 
                    kltemp->touch_area.y0 + key_offsets[kltemp->key_norm].y0,  //lint !e737
                    kltemp->touch_area.dx, 
                    kltemp->touch_area.dy + key_offsets[kltemp->key_norm].dy,  //lint !e737 
                    BGR_TOUCH);
-         Box(hwnd, kltemp->draw_area.x0, kltemp->draw_area.y0,
+         ref_image->DrawBox(hdc, kltemp->draw_area.x0, kltemp->draw_area.y0,
             kltemp->draw_area.dx, kltemp->draw_area.dy, BGR_DRAW);
-         Box(hwnd, kltemp->selected_area.x0, kltemp->selected_area.y0,
+         ref_image->DrawBox(hdc, kltemp->selected_area.x0, kltemp->selected_area.y0,
             kltemp->selected_area.dx, kltemp->selected_area.dy, BGR_SELECT);
          break ;
          
       case LAYOUT_ALT_BG:
-         Box(hwnd, kltemp->draw_area.x0, kltemp->draw_area.y0,
+         ref_image->DrawBox(hdc, kltemp->draw_area.x0, kltemp->draw_area.y0,
             kltemp->draw_area.dx, kltemp->draw_area.dy, BGR_ADRAW);
-         Box(hwnd, kltemp->selected_area.x0, kltemp->selected_area.y0,
+         ref_image->DrawBox(hdc, kltemp->selected_area.x0, kltemp->selected_area.y0,
             kltemp->selected_area.dx, kltemp->selected_area.dy, BGR_ASELECT);
          break ;
          
       case LAYOUT_ALT_KEY:
-         Box(hwnd, kltemp->selected_area.x0, kltemp->selected_area.y0,
+         ref_image->DrawBox(hdc, kltemp->selected_area.x0, kltemp->selected_area.y0,
             kltemp->selected_area.dx, kltemp->selected_area.dy, BGR_ALTKEY);
          break ;
          
@@ -655,6 +660,7 @@ void draw_object_boxes(HWND hwnd)
          break ;
       }
    }
+   ReleaseDC (hwnd, hdc) ;
 }
 
 //***********************************************************************************
@@ -684,8 +690,6 @@ void show_key_numbers(HWND hwnd)
          //  show kltemp->key_norm
          slen = _stprintf(outstr, _T("%u"), kltemp->key_norm);
          TextOut (hdc, kltemp->touch_area.x0+2, kltemp->touch_area.y0+2, outstr, slen);
-         // Box(hwnd, kltemp->touch_area.x0, kltemp->touch_area.y0,
-         //    kltemp->touch_area.dx, kltemp->touch_area.dy, BGR_TOUCHx);
          break ;
          
       case LAYOUT_ANNUN:

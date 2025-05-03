@@ -11,11 +11,7 @@
 #include <stdio.h>
 #include <tchar.h>
 #include <objidl.h>
-// #include <gdiplus.h>
-// 
-// using namespace Gdiplus;
 
-// #include "version.h"
 #include "resource.h"
 #include "common.h"
 #include "commonw.h"
@@ -31,26 +27,13 @@
 // #define USE_SYS_BG_COLOR  1
 
 static CThread const *ref_image_thread = NULL ;
-//***********************************************************************
-// static int cxClient = 0 ;
-// static int cyClient = 0 ;
-
-// unsigned xbase, xdiff, ybase, ydiff ;
-
 HWND hwndRef = NULL ;
 
-// static TCHAR tempstr[128] ;
-
-// static CStatusBar *MainStatusBar = NULL;
-
-// static LodePng *refImage = NULL ;
-// static std::vector<unsigned char> image; //the raw pixels
 static unsigned width = 0, height = 0 ;
 static unsigned cli_width = 0, cli_height = 0 ;
 //lint -esym(844, ref_image_thread)
 static TCHAR ref_image_file[MAX_PATH_LEN]  = _T("") ;
-// static Image *ref_image = NULL;
-static gdi_plus *ref_image = NULL ;
+gdi_plus *ref_image = NULL ;
 
 //***********************************************************************
 uint ref_get_width(void)
@@ -101,18 +84,14 @@ static void do_init_dialog(HWND hwnd)
    
    //  this does, indeed, draw the png image...
 //    HDC hdc = GetDC(hwnd) ;
-//    refImage->render_bitmap(hdc, 0, 0, 0) ;
+//    refImage->render_bitmap(hdc, 0, 0) ;
 //    ReleaseDC(hwnd, hdc) ;
 }
 
 //***********************************************************************************
 static VOID OnPaint(HDC hdc)
 {
-   // Graphics graphics(hdc);
-   // ref_image->DrawImage(graphics, 0, 0, 0, 0);
-   // hdc = GetDC(hwndMapArea) ;
    ref_image->render_bitmap(hdc, 0, 0) ;
-   // ReleaseDC(hwndMapArea, hdc) ;
 }
 
 //***********************************************************************************
@@ -121,26 +100,6 @@ void redraw_calc_image(void)
    HDC hdc = GetDC(hwndRef);
    OnPaint(hdc);
    ReleaseDC(hwndRef, hdc);
-}
-
-/************************************************************************/
-//lint -esym(578, y0, y1)
-void Box(HWND hwnd, int x0, int y0, int dx, int dy, COLORREF rColor)
-{
-   HDC hdc = GetDC (hwnd) ;
-   ul2uc_t uconv ;
-   uconv.ul = (uint) rColor ;
-   // uconv.uc[3] = 255 ;
-   
-   Graphics graphics(hdc);
-   
-   // Pen greenPen(Color::Green, 2.0); //lint !e747
-   // Pen      pen(Color(255, 0, 0, 255), 2.0);
-   // Pen Pen(Color(uconv.uc[3], uconv.uc[0], uconv.uc[1], uconv.uc[2] ), 2.0); //lint !e747
-   // Pen pen(Color(uconv.uc[3], uconv.uc[0], uconv.uc[1], uconv.uc[2])); //lint !e747
-   Pen pen(Color(uconv.uc[0], uconv.uc[1], uconv.uc[2])); //lint !e747
-   graphics.DrawRectangle(&pen, x0, y0, dx, dy);
-   ReleaseDC (hwnd, hdc) ;
 }
 
 //***********************************************************************

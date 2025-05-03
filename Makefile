@@ -110,6 +110,7 @@ show_ref_image.o: resource.h der_libs/common.h der_libs/commonw.h
 show_ref_image.o: pimage_mgr.h der_libs/gdi_plus.h der_libs/winmsgs.h
 show_ref_image.o: der_libs/wthread.h
 parse_layout_file.o: der_libs/common.h der_libs/commonw.h pimage_mgr.h
+parse_layout_file.o: der_libs/gdi_plus.h
 show_image_list.o: resource.h der_libs/common.h der_libs/commonw.h
 show_image_list.o: pimage_mgr.h der_libs/winmsgs.h der_libs/wthread.h
 hyperlinks.o: der_libs/iface_32_64.h hyperlinks.h
