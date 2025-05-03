@@ -138,9 +138,10 @@ static LRESULT CALLBACK ImageListProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPAR
       // _tcscpy(image_list_file, refImageFile);
       // termout(_T("target file: %s"), image_list_file);
       // image_list = new Image(image_list_file); //lint !e1025
-      width  = ref_get_width();
-      height = ref_get_height();
-      termout(_T("image list size: %u x %u"), width, height);
+      // image_list = new gdi_plus(image_list_file) ;
+      // width  = image_list->img_width();
+      // height = image_list->img_height();
+      // termout(_T("image list size: %u x %u"), width, height);
    
       do_init_dialog(hwnd) ;
       resize_window_corrected(hwnd);

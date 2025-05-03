@@ -36,17 +36,6 @@ static TCHAR ref_image_file[MAX_PATH_LEN]  = _T("") ;
 gdi_plus *ref_image = NULL ;
 
 //***********************************************************************
-uint ref_get_width(void)
-{
-   return width ;
-}
-
-uint ref_get_height(void)
-{
-   return height ;
-}
-
-//***********************************************************************
 static void resize_window_corrected(HWND hwnd)
 {
    //  unfortunately, this resize operation, which calls SetWindowPos(),

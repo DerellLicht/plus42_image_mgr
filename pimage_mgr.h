@@ -51,8 +51,6 @@ void enable_show_keys_button(bool state);
 void enable_show_image_list(bool state);
 
 //  show_ref_image.cpp
-uint ref_get_width(void);
-uint ref_get_height(void);
 void open_image_window(TCHAR *image_file);
 void stop_ref_image_thread(void);
 void redraw_calc_image(void);
