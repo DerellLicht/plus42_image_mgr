@@ -81,24 +81,14 @@ static void do_init_dialog(HWND hwnd)
    EnableMenuItem(GetSystemMenu(hwnd, FALSE), SC_CLOSE, MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
 
    center_window(hwnd, -1, 650) ;
-   
-   //  this does, indeed, draw the png image...
-//    HDC hdc = GetDC(hwnd) ;
-//    refImage->render_bitmap(hdc, 0, 0) ;
-//    ReleaseDC(hwnd, hdc) ;
-}
-
-//***********************************************************************************
-static VOID OnPaint(HDC hdc)
-{
-   ref_image->render_bitmap(hdc, 0, 0) ;
 }
 
 //***********************************************************************************
 void redraw_calc_image(void)
 {
    HDC hdc = GetDC(hwndRef);
-   OnPaint(hdc);
+   // OnPaint(hdc);
+   ref_image->render_bitmap(hdc, 0, 0) ;
    ReleaseDC(hwndRef, hdc);
 }
 
@@ -156,7 +146,8 @@ static LRESULT CALLBACK RefImageProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARA
       {
       PAINTSTRUCT  ps;
       HDC hdc = BeginPaint(hwnd, &ps);
-      OnPaint(hdc);
+      // OnPaint(hdc);
+      ref_image->render_bitmap(hdc, 0, 0) ;
       EndPaint(hwnd, &ps);
       }
       return 0;
@@ -188,9 +179,8 @@ static LRESULT CALLBACK RefImageProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARA
       {
       // UpdateWindow(hwnd);  //  this does *NOT* generate WM_PAINT
       HDC hdc = GetDC(hwnd)      ;
-      OnPaint(hdc);
-      // Graphics    graphics(hdc);
-      // graphics.DrawImage(ref_image, 0, 0);
+      // OnPaint(hdc);
+      ref_image->render_bitmap(hdc, 0, 0) ;
       ReleaseDC(hwnd, hdc);
       }
       break ;
