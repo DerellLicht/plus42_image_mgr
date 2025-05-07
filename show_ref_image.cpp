@@ -10,7 +10,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <tchar.h>
-#include <objidl.h>
 
 #include "resource.h"
 #include "common.h"

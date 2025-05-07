@@ -8,7 +8,6 @@
 #include <windows.h>
 #include <stdio.h>   //  vsprintf, sprintf, which supports %f
 #include <tchar.h>
-#include <objidl.h>
 #include <htmlhelp.h>
 
 #include "version.h"
