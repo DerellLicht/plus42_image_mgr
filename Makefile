@@ -5,9 +5,17 @@ USE_64BIT = NO
 ifeq ($(USE_64BIT),YES)
 TOOLS=d:\tdm64\bin
 else
-#TOOLS=c:\mingw\bin
-#TOOLS=c:\TDM-GCC-64\bin
 TOOLS=c:\tdm32\bin
+endif
+
+#  clang-tidy options
+CHFLAGS = -header-filter=.*
+CHTAIL = -- -Ider_libs
+ifeq ($(USE_64BIT),YES)
+CHTAIL += -DUSE_64BIT
+endif
+ifeq ($(USE_UNICODE),YES)
+CHTAIL += -DUNICODE -D_UNICODE
 endif
 
 #*****************************************************************************
@@ -83,9 +91,11 @@ dist:
    Michaels-HP.gif Michaels-HP.layout \
    Plus42_Landscape_SGT.gif Plus42_Landscape_SGT.layout
 	
-
 wc:
 	wc -l $(CBASE) *.rc
+
+check:
+	cmd /C "d:\clang\bin\clang-tidy.exe $(CHFLAGS) $(CSRC) $(CHTAIL)"
 
 lint:
 	cmd /C "c:\lint9\lint-nt +v -width(160,4) $(LiFLAGS) -ic:\lint9 mingw.lnt -os(_lint.tmp) lintdefs.cpp $(CSRC)"

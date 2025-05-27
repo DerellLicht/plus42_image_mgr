@@ -75,7 +75,6 @@ static void do_init_dialog(HWND hwnd)
 void redraw_calc_image(void)
 {
    HDC hdc = GetDC(hwndRef);
-   // OnPaint(hdc);
    ref_image->render_bitmap(hdc, 0, 0) ;
    ReleaseDC(hwndRef, hdc);
 }
@@ -134,7 +133,6 @@ static LRESULT CALLBACK RefImageProc (HWND hwnd, UINT iMsg, WPARAM wParam, LPARA
       {
       PAINTSTRUCT  ps;
       HDC hdc = BeginPaint(hwnd, &ps);
-      // OnPaint(hdc);
       ref_image->render_bitmap(hdc, 0, 0) ;
       EndPaint(hwnd, &ps);
       }
