@@ -18,6 +18,7 @@
 //lint -esym(1055, _wfopen, fgetws)
 //lint -esym(746, _wfopen, fgetws)
 //lint -e64  
+#define  MAX_STR_LEN   80   
 
 //  show_ref_image.cpp
 extern gdi_plus *ref_image ;
@@ -186,7 +187,7 @@ static TCHAR *check_comma_in_field(TCHAR *input)
          
       default:
          hd++ ;
-         if (++safety_count > MAX_LINE_LEN) {
+         if (++safety_count > MAX_STR_LEN) {
             return NULL ;
          }
          break ;
@@ -500,9 +501,9 @@ int parse_layout_values(TCHAR *tlayout_file)
       return 1 ;
    }
    
-   TCHAR inpstr[MAX_LINE_LEN+1] ;
+   TCHAR inpstr[MAX_STR_LEN+1] ;
    bool done = false ;
-   while (_fgetts(inpstr, MAX_LINE_LEN, infd) != NULL) {
+   while (_fgetts(inpstr, MAX_STR_LEN, infd) != NULL) {
       strip_newlines(inpstr);
       
       //*******************************************************************
@@ -566,7 +567,7 @@ int parse_layout_values(TCHAR *tlayout_file)
 void show_layout_info(bool show_summary_only)
 {
    key_layout_data_p kltemp;
-   TCHAR outstr[MAX_LINE_LEN+1] ;
+   TCHAR outstr[MAX_STR_LEN+1] ;
    int outlen ;
    uint counts[5] = {
       0, 0, 0, 0, 0

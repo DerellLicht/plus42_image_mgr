@@ -1,9 +1,6 @@
 extern uint dbg_flags ;
 #define  DBG_WINMSGS    1
 
-#define  MAX_LINE_LEN   80   
-#define  MAX_PATH_LEN      1024
-
 extern HINSTANCE g_hinst ;
 
 //  message handler handle for RefImage window
