@@ -51,11 +51,7 @@ static TCHAR skin_name[MAX_PATH_LEN]   = _T("") ;
 static TCHAR image_file[MAX_PATH_LEN]  = _T("") ;
 
 //*************************************************************
-#ifndef PATH_MAX
-#define  PATH_MAX    1024
-#endif
-
-static TCHAR chmname[PATH_MAX] = _T("");
+static TCHAR chmname[MAX_PATH_LEN] = _T("");
 
 static void find_chm_location(void)
 {
