@@ -64,7 +64,7 @@ der_libs/wthread.cpp \
 der_libs/tooltips.cpp
 CSRC += $(CBASE)
 
-# iface_lib.cpp 
+LINTFILES=lintdefs.cpp lintdefs.ref.h 
 
 OBJS = $(CSRC:.cpp=.o) rc.o
 
@@ -98,7 +98,7 @@ check:
 	cmd /C "d:\clang\bin\clang-tidy.exe $(CHFLAGS) $(CSRC) $(CHTAIL)"
 
 lint:
-	cmd /C "c:\lint9\lint-nt +v -width(160,4) $(LiFLAGS) -ic:\lint9 mingw.lnt -os(_lint.tmp) lintdefs.cpp $(CSRC)"
+	cmd /C "c:\lint9\lint-nt +v -width(160,4) $(LiFLAGS) -ic:\lint9 mingw.lnt -os(_lint.tmp) $(LINTFILES) $(CSRC)"
 
 depend:
 	makedepend $(CFLAGS) $(CSRC)

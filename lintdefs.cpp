@@ -24,18 +24,3 @@
 //lint -esym(759, create_and_add_tooltips)
 //lint -esym(765, create_and_add_tooltips)
 
-//  exclusions for pclint not supporting C++11
-//lint -e63    Expected an lvalue
-//lint -e438   Last value assigned to variable not used
-//lint -e522   Highest operation, operator 'case', lacks side-effects
-//lint -e1054  template variable declaration expects a type, int assumed
-//lint -e1062  template must be either a class or a function
-//lint -e1712  default constructor not defined for class 'lv_cols_s'
-//lint -e1778  Assignment of string literal to variable is not const safe
-
-
-
-
-
-
-
