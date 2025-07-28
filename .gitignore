@@ -7,3 +7,4 @@ _lint.tmp
 *.chm
 \der_libs_svr10
 \holding
+output.txt
