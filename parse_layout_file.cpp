@@ -471,7 +471,7 @@ error_exit:
 
 //********************************************************************************
 //lint -esym(528, show_key_offsets)
-static void show_key_offsets(void)
+static void show_key_offsets(void)  // NOLINT
 {
    uint idx ;
    termout(_T("show key_offsets table"));

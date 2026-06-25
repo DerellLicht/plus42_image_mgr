@@ -8,16 +8,6 @@ else
 TOOLS=d:\tdm32\bin
 endif
 
-#  clang-tidy options
-CHFLAGS = -header-filter=.*
-CHTAIL = -- -Ider_libs
-ifeq ($(USE_64BIT),YES)
-CHTAIL += -DUSE_64BIT
-endif
-ifeq ($(USE_UNICODE),YES)
-CHTAIL += -DUNICODE -D_UNICODE
-endif
-
 #*****************************************************************************
 # notes on compiler quirks, using MinGW/G++ V4.3.3
 # if I build with -O3, I get following warnings from g++ :
@@ -50,7 +40,7 @@ endif
 LiFLAGS += -Ider_libs
 CFLAGS += -Ider_libs
 CBASE=pimage_mgr.cpp show_ref_image.cpp parse_layout_file.cpp show_image_list.cpp \
-hyperlinks.cpp about.cpp 
+about.cpp 
 
 CSRC=der_libs/gdi_plus.cpp \
 der_libs/gdiplus_setup.cpp \
@@ -60,9 +50,23 @@ der_libs/winmsgs.cpp \
 der_libs/vlistview.cpp \
 der_libs/cterminal.cpp \
 der_libs/terminal.cpp \
+der_libs/hyperlinks.cpp \
 der_libs/wthread.cpp \
 der_libs/tooltips.cpp
 CSRC += $(CBASE)
+
+#  clang-tidy options
+#CHFLAGS = -header-filter=.*
+CHTAIL = --
+CHTAIL += -Ider_libs
+#CHTAIL += -std=c++14
+CHTAIL += -Wall
+ifeq ($(USE_64BIT),YES)
+CHTAIL += -DUSE_64BIT
+endif
+ifeq ($(USE_UNICODE),YES)
+CHTAIL += -DUNICODE -D_UNICODE
+endif
 
 LINTFILES=lintdefs.cpp lintdefs.ref.h 
 
@@ -95,7 +99,7 @@ wc:
 	wc -l $(CBASE) *.rc
 
 check:
-	cmd /C "d:\clang\bin\clang-tidy.exe $(CHFLAGS) $(CSRC) $(CHTAIL)"
+	cmd /C "d:\llvm\bin\clang-tidy.exe $(CHFLAGS) $(CSRC) $(CHTAIL)"
 
 lint:
 	cmd /C "c:\lint9\lint-nt +v -width(160,4) $(LiFLAGS) -ic:\lint9 mingw.lnt -os(_lint.tmp) $(LINTFILES) $(CSRC)"
@@ -126,6 +130,7 @@ der_libs/cterminal.o: der_libs/cterminal.h der_libs/vlistview.h
 der_libs/terminal.o: der_libs/common.h der_libs/commonw.h
 der_libs/terminal.o: der_libs/cterminal.h der_libs/vlistview.h
 der_libs/terminal.o: der_libs/terminal.h der_libs/winmsgs.h
+der_libs/hyperlinks.o: der_libs/iface_32_64.h der_libs/hyperlinks.h
 der_libs/wthread.o: der_libs/wthread.h
 der_libs/tooltips.o: der_libs/iface_32_64.h der_libs/common.h
 der_libs/tooltips.o: der_libs/tooltips.h
@@ -139,5 +144,5 @@ parse_layout_file.o: der_libs/common.h der_libs/commonw.h pimage_mgr.h
 parse_layout_file.o: der_libs/gdi_plus.h
 show_image_list.o: resource.h der_libs/common.h der_libs/commonw.h
 show_image_list.o: pimage_mgr.h der_libs/winmsgs.h der_libs/wthread.h
-hyperlinks.o: der_libs/iface_32_64.h hyperlinks.h
-about.o: resource.h version.h der_libs/common.h pimage_mgr.h hyperlinks.h
+about.o: resource.h version.h der_libs/common.h pimage_mgr.h
+about.o: der_libs/hyperlinks.h
