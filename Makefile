@@ -1,12 +1,21 @@
 USE_DEBUG = NO
-USE_UNICODE = YES
 USE_64BIT = NO
+USE_UNICODE = YES
+USE_CLANG = NO
 
-ifeq ($(USE_64BIT),YES)
-TOOLS=d:\tdm64\bin
-else
-TOOLS=d:\tdm32\bin
-endif
+# sadly, cygwin mingw does not support gdiplus...
+USE_CYGWIN = NO
+# use -static for clang and cygwin/mingw
+#  clang vs tdm
+#  clang gives *much* clearer compiler error messages...
+#  However, programs built with clang++ will require libc++.dll and libunwind.dll
+#  in order to be used elsewhere 
+#  (unless built with -static, which significantly boosts file size)
+
+# the legacy version of qualify.cpp, does not depend upon c++ string class
+USE_LEGACY = NO
+
+include ..\tool_select.mak 
 
 #*****************************************************************************
 # notes on compiler quirks, using MinGW/G++ V4.3.3
