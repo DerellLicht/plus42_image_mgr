@@ -1,3 +1,9 @@
+# DEPRECATED
+
+This repository is no longer maintained.
+
+---
+
 ##  Plus42 Image Manager
 
 The ultimate goal of this utility is to support creation of new Plus42 skins.  
